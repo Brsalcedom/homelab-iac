@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pocket-id
+  namespace: argocd
+spec:
+  project: homelab
+  source:
+    repoURL: https://gitlab.com/bryansalcedo/homelab-argocd.git
+    targetRevision: main
+    path: apps/pocket-id/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: pocket-id
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

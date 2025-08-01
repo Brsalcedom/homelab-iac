@@ -1,0 +1,9 @@
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+data:
+  APP_URL: "https://pocket.home.cervant.net"
+  TRUST_PROXY: "true"
+  MAXMIND_LICENSE_KEY: ""

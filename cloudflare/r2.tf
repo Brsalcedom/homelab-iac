@@ -2,7 +2,7 @@ resource "cloudflare_r2_bucket" "homelab_tfstate" {
   account_id    = var.cloudflare_account_id
   name          = local.homelab_bucket_name
   storage_class = "Standard"
-  location      = "wnam"
+  location      = "WNAM"
 }
 
 resource "cloudflare_r2_custom_domain" "custom_domain" {

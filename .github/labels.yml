@@ -1,0 +1,41 @@
+# .github/labels.yml
+# Etiquetas a sincronizar y mantener
+
+- name: area/cloudflare
+  color: "0e8a16"
+- name: area/proxmox
+  color: "0e8a16"
+- name: area/k8s-hyperion
+  color: "0e8a16"
+- name: area/k8s-cronos
+  color: "0e8a16"
+- name: area/kubernetes
+  color: "0e8a16"
+- name: area/argocd
+  color: "0e8a16"
+- name: area/fluxcd
+  color: "0e8a16"
+- name: area/github
+  color: "0e8a16"
+- name: renovate/container
+  color: "027fa0"
+- name: renovate/helm
+  color: "027fa0"
+- name: renovate/terraform
+  color: "027fa0"
+- name: renovate/github-action
+  color: "027fa0"
+- name: type/patch
+  color: "ffeC19"
+- name: type/minor
+  color: "ff9800"
+- name: type/major
+  color: "f6412d"
+- name: chore
+  color: "b3b3b3"
+- name: ci
+  color: "5319e7"
+- name: docs
+  color: "0075ca"
+- name: refactor
+  color: "8e44ad"

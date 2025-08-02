@@ -1,0 +1,2 @@
+webhookLabels:
+  app.kubernetes.io/managed-by: argocd

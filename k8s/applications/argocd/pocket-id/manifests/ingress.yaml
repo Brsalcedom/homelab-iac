@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: cloudflare-clusterissuer
+spec:
+  tls:
+  - hosts:
+    - pocket.home.cervant.net
+    secretName: pocket.home.cervant.net-tls
+  rules:
+  - host: pocket.home.cervant.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pocket-id
+            port:
+              number: 1411

@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true 
+spec:
+  project: homelab
+  sources:
+    - repoURL: https://kyverno.github.io/kyverno
+      chart: kyverno
+      targetRevision: 3.4.4
+      helm:
+        valueFiles:
+          - $values/apps/kyverno/values.yaml
+      metadata:
+            annotations:
+              argocd.argoproj.io/sync-wave: "0"
+    - repoURL: https://gitlab.com/bryansalcedo/homelab-argocd.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://gitlab.com/bryansalcedo/homelab-argocd.git
+      targetRevision: main
+      path: apps/kyverno/policies
+      ref: policies
+      metadata:
+            annotations:
+              argocd.argoproj.io/sync-wave: "1"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

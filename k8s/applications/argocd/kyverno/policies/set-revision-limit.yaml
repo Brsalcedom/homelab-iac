@@ -1,0 +1,16 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: set-revision-limit
+spec:
+  rules:
+    - name: set-revision-limit
+      match:
+        any:
+        - resources:
+            kinds:
+            - Deployment
+      mutate:
+        patchStrategicMerge:
+          spec:
+            revisionHistoryLimit: 2

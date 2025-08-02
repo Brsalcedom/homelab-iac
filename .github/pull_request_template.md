@@ -1,50 +1,53 @@
-## 🧩 Tipo de PR
+## 🧩 PR Type
 
-Selecciona una opción:
+Select the appropriate type:
 
 - [ ] Feature → Develop
 - [ ] Develop → Main (Release)
 
 ---
 
-## 🚀 Descripción del cambio
+## 🚀 Description
 
-<!-- Explica brevemente qué hace este PR y por qué es necesario -->
-
----
-
-## 📁 Áreas afectadas
-
-Marca lo que aplique:
-
-- [ ] Cloudflare
-- [ ] Proxmox
-- [ ] k8s
-- [ ] Otro: __________
+<!-- Briefly describe what this PR does and why it's needed -->
 
 ---
 
-## ✅ Checklist de validaciones
+## 📁 Affected Areas
 
-- [ ] `terraform validate` pasó correctamente
-- [ ] `terraform plan` revisado
-- [ ] `terraform fmt` aplicado
-- [ ] Sin secretos en el código (`ggshield`)
-- [ ] Todos los workflows pasaron
+Check all relevant areas:
 
----
-
-## 📦 Checklist adicional (solo si es un PR de Release `develop → main`)
-
-- [ ] Validación manual del `terraform plan` en entorno real
-- [ ] Revisión por mantenedor o aprobación por CI
-- [ ] Confirmación de despliegue seguro en producción
+- [ ] cloudflare
+- [ ] proxmox
+- [ ] k8s-infraestructure
+- [ ] k8s-applications
+- [ ] argocd
+- [ ] fluxcd
+- [ ] GitHub workflows/config
+- [ ] Other: __________
 
 ---
 
-## 📸 Evidencia (salida del plan o capturas)
+## ✅ Checklist
+
+- [ ] `terraform validate` passed
+- [ ] `terraform plan` was reviewed and verified
+- [ ] `terraform fmt` was applied
+- [ ] Secret scan passed (automated check)
+- [ ] All CI workflows passed
+
+---
+
+## 📦 Release Checklist (only for Develop → Main)
+
+- [ ] Manual review of final `terraform plan`
+- [ ] Reviewed and approved by maintainer or CI
+- [ ] Ready for safe `terraform apply` in production
+
+---
+
+## 📸 Evidence / Output
 
 ```bash
-# terraform plan
-# (puedes pegar aquí la salida relevante o capturas)
+# Example: terraform plan output or screenshots
 ```

@@ -1,0 +1,25 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: set-nameservers
+spec:
+  rules:
+    - name: set-nameservers
+      match:
+        any:
+        - resources:
+            kinds:
+            - Deployment
+      mutate:
+        patchStrategicMerge:
+          spec:
+            template:
+              spec:
+                dnsPolicy: None
+                dnsConfig:
+                  nameservers:
+                    - 192.168.1.150
+                  searches:
+                    - default.svc.cluster.local
+                    - svc.cluster.local
+                    - home.cervant.net

@@ -1,4 +1,4 @@
-# ☸️ homelab-iac/k8s
+# ☸️ homelab-iac/k8s/infraestructure
 
 Este directorio contiene la infraestructura como código de los dos nodos Kubernetes (`k3s`) que componen el homelab: **Hyperion** y **Cronos**. Cada uno está configurado y gestionado de forma independiente mediante Terraform (compatible con futura migración a OpenTofu), y utiliza un stack distinto para cumplir roles diferentes: uno como entorno estable y otro como entorno experimental.
 

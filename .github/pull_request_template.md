@@ -1,53 +1,30 @@
-## 🧩 PR Type
+# 🚀 Pull Request
 
-Select the appropriate type:
+## 📌 Summary
 
-- [ ] Feature → Develop
-- [ ] Develop → Main (Release)
+<!-- change description -->
 
----
+## 🔖 PR Type
 
-## 🚀 Description
+Marca el tipo de cambio incluido en este PR:
 
-<!-- Briefly describe what this PR does and why it's needed -->
-
----
-
-## 📁 Affected Areas
-
-Check all relevant areas:
-
-- [ ] cloudflare
-- [ ] proxmox
-- [ ] k8s-infraestructure
-- [ ] k8s-applications
-- [ ] argocd
-- [ ] fluxcd
-- [ ] GitHub workflows/config
-- [ ] Other: __________
-
----
+- [ ] ✨ Feature
+- [ ] 🐛 Fix
+- [ ] 📚 Docs
+- [ ] ♻️ Refactor
+- [ ] 🧪 Test
+- [ ] 🔧 Chore
+- [ ] ⬆️ Dependency Update
+- [ ] 🚀 Performance Improvement
+- [ ] 🧹 Code Cleanup
 
 ## ✅ Checklist
 
-- [ ] `terraform validate` passed
-- [ ] `terraform plan` was reviewed and verified
-- [ ] `terraform fmt` was applied
-- [ ] Secret scan passed (automated check)
-- [ ] All CI workflows passed
+- [ ] El PR sigue la convención de nombre `type/scope: description` (e.g. `feat(cloudflare): enable dns module`)
+- [ ] No secrets presentes en el código (`ggshield`)
+- [ ] Describí claramente el cambio en el PR
+- [ ] Incluí pruebas o validaciones si corresponde
 
----
+## 🧠 Extra context
 
-## 📦 Release Checklist (only for Develop → Main)
-
-- [ ] Manual review of final `terraform plan`
-- [ ] Reviewed and approved by maintainer or CI
-- [ ] Ready for safe `terraform apply` in production
-
----
-
-## 📸 Evidence / Output
-
-```bash
-# Example: terraform plan output or screenshots
-```
+<!-- additional info like screenshots, links or references. -->

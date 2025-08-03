@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: [".github/labels.yaml"]
+    paths: [".github/labels.yml"]
   schedule:
     - cron: "0 0 * * *"
   pull_request_target:
@@ -25,7 +25,7 @@ jobs:
       - name: Sync Labels
         uses: EndBug/label-sync@v2
         with:
-          config-file: .github/labels.yaml
+          config-file: .github/labels.yml
           delete-other-labels: true
 
   labeler:

@@ -17,10 +17,10 @@ spec:
       metadata:
             annotations:
               argocd.argoproj.io/sync-wave: "0"
-    - repoURL: https://gitlab.com/bryansalcedo/homelab-argocd.git
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       ref: values
-    - repoURL: https://gitlab.com/bryansalcedo/homelab-argocd.git
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       path: apps/kyverno/policies
       ref: policies

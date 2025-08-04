@@ -13,7 +13,7 @@ spec:
         releaseName: semaphore
         valueFiles:
           - $values/apps/semaphore/values.yaml
-    - repoURL: https://gitlab.com/bryansalcedo/homelab-argocd.git
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       ref: values
   destination:

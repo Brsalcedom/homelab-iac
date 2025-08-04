@@ -13,7 +13,7 @@ spec:
       targetRevision: 3.4.4
       helm:
         valueFiles:
-          - $values/apps/kyverno/values.yaml
+          - $values/k8s/applications/argocd/kyverno/values.yaml
       metadata:
             annotations:
               argocd.argoproj.io/sync-wave: "0"
@@ -22,7 +22,7 @@ spec:
       ref: values
     - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
-      path: apps/kyverno/policies
+      path: k8s/applications/argocd/kyverno/policies
       ref: policies
       metadata:
             annotations:

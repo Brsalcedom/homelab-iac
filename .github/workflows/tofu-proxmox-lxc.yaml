@@ -1,4 +1,4 @@
-name: "Proxmox LXC :: Tofu Plan & Apply"
+name: "Tofu :: Proxmox LXC"
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
         with:
-          access-token: ${{ secrets.BW_TOKEN }}
+          access_token: ${{ secrets.BW_TOKEN }}
           base_url: https://vault.bitwarden.com
           secrets: |
             64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
@@ -75,7 +75,7 @@ jobs:
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
         with:
-          access-token: ${{ secrets.BW_TOKEN }}
+          access_token: ${{ secrets.BW_TOKEN }}
           base_url: https://vault.bitwarden.com
           secrets: |
             64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID

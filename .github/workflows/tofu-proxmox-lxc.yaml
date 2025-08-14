@@ -15,7 +15,7 @@ env:
 
 jobs:
   plan:
-    name: "🧪 Plan Proxmox LXC"
+    name: "🧪 Plan"
     runs-on: self-hosted
     defaults:
       run:
@@ -46,16 +46,10 @@ jobs:
       - name: ⚙️ Init & Plan
         run: |
           tofu init -input=false
-          tofu plan -out=tfplan.binary
-
-      - name: 📦 Save Plan Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan-proxmox-lxc
-          path: proxmox/lxc/tfplan.binary
+          tofu plan
 
   apply:
-    name: "🚀 Apply Proxmox LXC Infra"
+    name: "🚀 Apply"
     needs: plan
     runs-on: self-hosted
     environment:
@@ -65,13 +59,9 @@ jobs:
         working-directory: proxmox/lxc
 
     steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/download-artifact@v5
-        with:
-          name: tfplan-proxmox-lxc
-          path: proxmox/lxc
-
+      - name: 🧾 Checkout
+        uses: actions/checkout@v5
+      
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
         with:
@@ -90,4 +80,7 @@ jobs:
           tofu_version: ${{ env.TOFU_VERSION }}
 
       - name: ✅ Apply Plan
-        run: tofu apply tfplan.binary
+        run: |
+          tofu init -input=false
+          tofu plan
+          tofu apply -auto-approve

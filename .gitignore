@@ -6,3 +6,5 @@
 /ansible
 /bench
 **/bench
+.vscode/settings.json
+**/id_rsa.pub

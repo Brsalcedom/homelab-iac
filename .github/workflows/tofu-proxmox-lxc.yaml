@@ -26,11 +26,11 @@ jobs:
     steps:
       - name: 🧾 Checkout
         uses: actions/checkout@v5
-
-      - name: 🔄 Install CA certificates
+        
+      - name: 🔄 Install Packages
         run: |
           apt-get -y update
-          apt-get -y install ca-certificates
+          apt-get -y install ca-certificates unzip nodejs
 
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
@@ -70,10 +70,10 @@ jobs:
       - name: 🧾 Checkout
         uses: actions/checkout@v5
 
-      - name: 🔄 Install CA certificates
+      - name: 🔄 Install Packages
         run: |
           apt-get -y update
-          apt-get -y install ca-certificates
+          apt-get -y install ca-certificates unzip nodejs
       
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2

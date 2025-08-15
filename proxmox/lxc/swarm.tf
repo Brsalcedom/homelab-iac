@@ -1,12 +1,12 @@
 locals {
   swarm_nodes = {
     "swarm-01" = {
-      description = "Docker Swarm node 01"
+      description = "Docker Swarm node 01\nIP: 192.168.1.103"
       ip          = "192.168.1.103"
       id          = 103
     },
     "swarm-02" = {
-      description = "Docker Swarm node 02"
+      description = "Docker Swarm node 02\nIP: 192.168.1.103"
       ip          = "192.168.1.104"
       id          = 104
     }
@@ -26,7 +26,7 @@ module "swarm" {
   vm_ipv4_address    = "${each.value.ip}/24"
   vm_ipv4_gateway    = "192.168.1.1"
   dns_server         = "192.168.1.150"
-  ssh_authorized_key = var.ssh_authorized_key
+  ssh_authorized_keys = var.ssh_authorized_key
   vm_description     = each.value.description
   vm_tags            = ["terraform", "swarm", "docker"]
 }

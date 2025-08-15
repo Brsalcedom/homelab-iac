@@ -1,4 +1,4 @@
-variable "ssh_authorized_key" {
-  description = "SSH authorized key"
-  type        = string
+variable "ssh_authorized_keys" {
+  description = "SSH authorized keys"
+  type        = list(string)
 }

@@ -27,6 +27,11 @@ jobs:
       - name: 🧾 Checkout
         uses: actions/checkout@v5
 
+      - name: 🔄 Install CA certificates
+        run: |
+          apt-get -y update
+          apt-get -y install ca-certificates
+
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
         with:
@@ -53,6 +58,8 @@ jobs:
     name: "🚀 Apply"
     needs: plan
     runs-on: self-hosted
+    container:
+      image: ubuntu:latest
     environment:
       name: manual-approval
     defaults:
@@ -62,6 +69,11 @@ jobs:
     steps:
       - name: 🧾 Checkout
         uses: actions/checkout@v5
+
+      - name: 🔄 Install CA certificates
+        run: |
+          apt-get -y update
+          apt-get -y install ca-certificates
       
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2

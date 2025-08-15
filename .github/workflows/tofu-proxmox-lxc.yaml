@@ -33,9 +33,9 @@ jobs:
           secrets: |
             64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
             6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
-            39ae0a9d-3c4a-4fe2-ab2c-b3390146b9c0 > TF_VAR_pm_api_token_id
-            27f15dbb-21b7-4c76-963a-b3390146cdae > TF_VAR_pm_api_token_secret
-            40c480b8-7b2f-45e0-b9c9-b3390146166a > TF_VAR_proxmox_endpoint
+            39ae0a9d-3c4a-4fe2-ab2c-b3390146b9c0 > PM_API_TOKEN_ID
+            27f15dbb-21b7-4c76-963a-b3390146cdae > PM_API_TOKEN_SECRET
+            40c480b8-7b2f-45e0-b9c9-b3390146166a > PM_API_URL
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > TF_VAR_ssh_authorized_key
 
       - name: 🛠 Install OpenTofu
@@ -70,9 +70,9 @@ jobs:
           secrets: |
             64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
             6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
-            39ae0a9d-3c4a-4fe2-ab2c-b3390146b9c0 > TF_VAR_pm_api_token_id
-            27f15dbb-21b7-4c76-963a-b3390146cdae > TF_VAR_pm_api_token_secret
-            40c480b8-7b2f-45e0-b9c9-b3390146166a > TF_VAR_proxmox_endpoint
+            39ae0a9d-3c4a-4fe2-ab2c-b3390146b9c0 > PM_API_TOKEN_ID
+            27f15dbb-21b7-4c76-963a-b3390146cdae > PM_API_TOKEN_SECRET
+            40c480b8-7b2f-45e0-b9c9-b3390146166a > PM_API_URL
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > TF_VAR_ssh_authorized_key
 
       - uses: opentofu/setup-opentofu@v1.0.6

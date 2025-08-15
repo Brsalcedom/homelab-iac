@@ -30,7 +30,7 @@ jobs:
       - name: 🔄 Install Packages
         run: |
           apt-get -y update
-          apt-get -y install ca-certificates unzip nodejs
+          apt-get -y install ca-certificates unzip nodejs git
 
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
@@ -73,7 +73,7 @@ jobs:
       - name: 🔄 Install Packages
         run: |
           apt-get -y update
-          apt-get -y install ca-certificates unzip nodejs
+          apt-get -y install ca-certificates unzip nodejs git
       
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2

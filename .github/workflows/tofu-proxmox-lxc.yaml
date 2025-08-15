@@ -17,6 +17,8 @@ jobs:
   plan:
     name: "🧪 Plan"
     runs-on: self-hosted
+    container:
+      image: ubuntu:latest
     defaults:
       run:
         working-directory: proxmox/lxc

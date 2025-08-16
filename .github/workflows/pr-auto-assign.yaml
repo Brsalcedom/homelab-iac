@@ -14,4 +14,4 @@ jobs:
         uses: pozil/auto-assign-issue@v2.2.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          assignees: ${{ github.actor }}
+          assignees: Brsalcedom

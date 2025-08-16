@@ -10,15 +10,12 @@ permissions:
   contents: read
   id-token: write
 
-env:
-  TOFU_VERSION: "1.10.3"
-
 jobs:
   plan:
     name: "🧪 Plan"
     runs-on: self-hosted
     container:
-      image: ubuntu:latest
+      image: brsalcedom/homelab-ci:2.0.0
     defaults:
       run:
         working-directory: proxmox/lxc
@@ -26,11 +23,6 @@ jobs:
     steps:
       - name: 🧾 Checkout
         uses: actions/checkout@v5
-
-      - name: 🔄 Install Packages
-        run: |
-          apt-get -y update
-          apt-get -y install ca-certificates unzip nodejs git
 
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
@@ -44,11 +36,6 @@ jobs:
             b74a2635-978c-4618-8c8d-b33a0122d81e > PROXMOX_VE_API_TOKEN
             40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
-
-      - name: 🛠 Install OpenTofu
-        uses: opentofu/setup-opentofu@v1.0.6
-        with:
-          tofu_version: ${{ env.TOFU_VERSION }}
 
       - name: ⚙️ Init & Plan
         env:
@@ -62,7 +49,7 @@ jobs:
     needs: plan
     runs-on: self-hosted
     container:
-      image: ubuntu:latest
+      image: brsalcedom/homelab-ci:2.0.0
     environment:
       name: manual-approval
     defaults:
@@ -72,11 +59,6 @@ jobs:
     steps:
       - name: 🧾 Checkout
         uses: actions/checkout@v5
-
-      - name: 🔄 Install Packages
-        run: |
-          apt-get -y update
-          apt-get -y install ca-certificates unzip nodejs git
       
       - name: 🔐 Get secrets from Bitwarden
         uses: bitwarden/sm-action@v2
@@ -90,10 +72,6 @@ jobs:
             b74a2635-978c-4618-8c8d-b33a0122d81e > PROXMOX_VE_API_TOKEN
             40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
-
-      - uses: opentofu/setup-opentofu@v1.0.6
-        with:
-          tofu_version: ${{ env.TOFU_VERSION }}
 
       - name: ✅ Apply Plan
         env:

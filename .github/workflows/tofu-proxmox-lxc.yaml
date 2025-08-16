@@ -51,7 +51,7 @@ jobs:
     container:
       image: brsalcedom/homelab-ci:2.0.0
     environment:
-      name: manual-approval
+      name: tofu-infra
     defaults:
       run:
         working-directory: proxmox/lxc

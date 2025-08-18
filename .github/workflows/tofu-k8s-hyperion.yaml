@@ -1,0 +1,74 @@
+name: "Tofu :: k8s hyperion"
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["k8s/infraestructure/hyperion**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: "🧪 Plan"
+    runs-on: self-hosted
+    container:
+      image: brsalcedom/homelab-ci:2.0.0
+    defaults:
+      run:
+        working-directory: k8s/infraestructure/hyperion
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v5
+
+      - name: 🔐 Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v2
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
+            6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
+            ef57c68e-c227-4ff8-8dbe-b32c014db0b0 > CLOUDFLARE_API_TOKEN
+
+      - name: ⚙️ Init & Plan
+        run: |
+          tofu init -input=false
+          tofu plan -input=false
+
+  apply:
+    name: "🚀 Apply"
+    needs: plan
+    runs-on: self-hosted
+    container:
+      image: brsalcedom/homelab-ci:2.0.0
+    environment:
+      name: tofu-infra
+    defaults:
+      run:
+        working-directory: k8s/infraestructure/hyperion
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v5
+      
+      - name: 🔐 Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v2
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
+            6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
+            ef57c68e-c227-4ff8-8dbe-b32c014db0b0 > CLOUDFLARE_API_TOKEN
+
+      - name: ✅ Apply Plan
+        run: |
+          tofu init -input=false
+          tofu plan -input=false
+          tofu apply -auto-approve

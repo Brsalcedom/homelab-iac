@@ -12,6 +12,9 @@ resource "helm_release" "cert_manager" {
   version          = local.cert_manager_chart_version
   create_namespace = false
 
+  wait    = true
+  timeout = 600
+
   set = [
     {
       name  = "crds.enabled"
@@ -26,23 +29,28 @@ resource "helm_release" "cert_manager" {
     }
   ]
   depends_on = [
-    helm_release.cilium, kubernetes_namespace.cert_manager
+    helm_release.cilium, kubernetes_namespace.cert_manager, time_sleep.after_cilium
   ]
 }
 
-resource "kubectl_manifest" "cloudflare_api_token_secret" {
-  yaml_body = <<YAML
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: cloudflare-api-token-secret
-      namespace: "cert-manager"
-    type: Opaque
-    data:
-      api-token: ${base64encode(var.cloudflare_api_token)}
-YAML
-}
 
+resource "null_resource" "cf_api_token_secret" {
+  triggers = {
+    namespace = kubernetes_namespace.cert_manager.metadata[0].name
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+kubectl -n cert-manager create secret generic cloudflare-api-token --from-literal=api-token="$CLOUDFLARE_API_TOKEN" --dry-run=client -o yaml | kubectl apply -f -
+EOT
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "kubectl -n cert-manager delete secret cloudflare-api-token --ignore-not-found"
+  }
+  depends_on = [kubernetes_namespace.cert_manager]
+}
 
 
 resource "kubectl_manifest" "clusterissuer" {
@@ -62,12 +70,12 @@ spec:
         cloudflare:
           email: ${var.cloudflare_email}
           apiTokenSecretRef:
-            name: cloudflare-api-token-secret
+            name: cloudflare-api-token
             key: api-token
 YAML
 
   depends_on = [
     helm_release.cert_manager,
-    kubectl_manifest.cloudflare_api_token_secret
+    null_resource.cf_api_token_secret
   ]
 }

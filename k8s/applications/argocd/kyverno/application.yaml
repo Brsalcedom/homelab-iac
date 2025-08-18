@@ -14,19 +14,9 @@ spec:
       helm:
         valueFiles:
           - $values/k8s/applications/argocd/kyverno/values.yaml
-      metadata:
-            annotations:
-              argocd.argoproj.io/sync-wave: "0"
     - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       ref: values
-    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
-      targetRevision: main
-      path: k8s/applications/argocd/kyverno/policies
-      ref: policies
-      metadata:
-            annotations:
-              argocd.argoproj.io/sync-wave: "1"
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno

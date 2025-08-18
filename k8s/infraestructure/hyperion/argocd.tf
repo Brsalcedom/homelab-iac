@@ -12,26 +12,25 @@ resource "helm_release" "argocd" {
   version          = local.argocd_chart_version
   create_namespace = false
 
-  values = [
-    yamlencode({
-      global = {
-        domain = "argocd.${local.base_domain}"
-      }
+  wait    = true
+  timeout = 600
 
-      configs = {
-        params = {
-          "server.insecure" = true
-        }
-      }
-
-      server = {
-        service = {
-          type = "ClusterIP"
-        }
-      }
-    })
+  set = [
+    {
+      name  = "global.domain"
+      value = "argocd.${local.base_domain}"
+    },
+    {
+      name  = "configs.params.server.insecure"
+      value = "true"
+    },
+    {
+      name  = "server.service.type"
+      value = "ClusterIP"
+    }
   ]
-  depends_on = [kubernetes_namespace.argocd, helm_release.cilium]
+
+  depends_on = [kubernetes_namespace.argocd, time_sleep.after_cilium]
 }
 
 resource "kubectl_manifest" "argocd_route" {
@@ -75,7 +74,7 @@ metadata:
 spec:
   description: Proyecto para desplegar apps en el homelab
   sourceRepos:
-    - 'https://github.com/Brsalcedom/homelab-iac'
+    - '*'
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc
@@ -95,7 +94,6 @@ spec:
 YAML
   depends_on = [helm_release.argocd]
 }
-
 
 resource "kubectl_manifest" "argocd_app_of_apps" {
   yaml_body  = <<YAML

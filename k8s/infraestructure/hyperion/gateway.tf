@@ -20,7 +20,7 @@ resource "kubectl_manifest" "certificate" {
       dnsNames:
         - "*.${local.base_domain}"
 YAML
-  depends_on = [kubernetes_namespace.cilium_gateway, helm_release.cilium, helm_release.cert_manager, kubectl_manifest.clusterissuer]
+  depends_on = [kubernetes_namespace.cilium_gateway, time_sleep.after_cilium, helm_release.cert_manager, kubectl_manifest.clusterissuer]
 }
 
 
@@ -54,7 +54,7 @@ spec:
         namespaces:
           from: All
 YAML
-  depends_on = [helm_release.cilium, kubernetes_namespace.cilium_gateway, kubectl_manifest.certificate]
+  depends_on = [time_sleep.after_cilium, kubernetes_namespace.cilium_gateway, kubectl_manifest.certificate]
 }
 
 resource "kubectl_manifest" "cilium_redirect_httproute" {
@@ -81,5 +81,5 @@ spec:
             scheme: https
             statusCode: 301
 YAML
-  depends_on = [kubectl_manifest.cilium_gateway, kubernetes_namespace.cilium_gateway]
+  depends_on = [time_sleep.after_cilium, kubectl_manifest.cilium_gateway, kubernetes_namespace.cilium_gateway]
 }

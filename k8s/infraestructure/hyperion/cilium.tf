@@ -1,9 +1,3 @@
-resource "null_resource" "gateway_api_crds" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/${local.gateway_api_version}/standard-install.yaml"
-  }
-}
-
 resource "helm_release" "cilium" {
   name       = "cilium"
   namespace  = "kube-system"
@@ -11,6 +5,7 @@ resource "helm_release" "cilium" {
   chart      = "cilium"
   version    = local.cilium_chart_version
 
+  wait             = true
   create_namespace = false
 
   set = [
@@ -31,14 +26,6 @@ resource "helm_release" "cilium" {
       value = "cluster-pool"
     },
     {
-      name  = "cluster.name"
-      value = "hyperion"
-    },
-    {
-      name  = "cluster.id"
-      value = "1"
-    },
-    {
       name  = "loadBalancer.enabled"
       value = "true"
     },
@@ -51,35 +38,24 @@ resource "helm_release" "cilium" {
       value = "true"
     },
     {
-      name  = "hubble.enabled"
-      value = "true"
-    },
-    {
-      name  = "hubble.ui.enabled"
-      value = "true"
-    },
-    {
-      name  = "hubble.relay.enabled"
-      value = "true"
-    },
-    {
-      name  = "prometheus.enabled"
-      value = "true"
-    },
-    {
-      name  = "operator.prometheus.enabled"
-      value = "true"
-    },
-    {
       name  = "envoy.enabled"
       value = "true"
     },
     {
       name  = "gatewayAPI.enabled"
       value = "true"
+    },
+    {
+      name  = "operator.replicas"
+      value = "1"
     }
   ]
   depends_on = [
     null_resource.gateway_api_crds
   ]
+}
+
+resource "time_sleep" "after_cilium" {
+  depends_on      = [helm_release.cilium]
+  create_duration = "120s"
 }

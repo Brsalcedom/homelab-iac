@@ -50,9 +50,6 @@ resource "helm_release" "cilium" {
       value = "1"
     }
   ]
-  depends_on = [
-    null_resource.gateway_api_crds
-  ]
 }
 
 resource "time_sleep" "after_cilium" {

@@ -1,14 +1,19 @@
-provider "kubernetes" {
-  config_path = var.kubeconfig
-}
-
-provider "helm" {
-  kubernetes = {
-    config_path    = var.kubeconfig
-    config_context = var.kubeconfig_context
+terraform {
+  required_version = ">= 1.9.0"
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 3.0.2"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.37.1"
+    }
   }
 }
 
-provider "kubectl" {
-  config_path = var.kubeconfig
+provider "kubernetes" {}
+
+provider "helm" {
+  kubernetes = {}
 }

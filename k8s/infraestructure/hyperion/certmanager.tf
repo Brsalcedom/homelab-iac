@@ -53,26 +53,35 @@ EOT
 }
 
 
-resource "kubectl_manifest" "clusterissuer" {
-  yaml_body = <<YAML
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: ${local.cluster_issuer_name}
-spec:
-  acme:
-    email: ${var.cloudflare_email}
-    server: https://acme-v02.api.letsencrypt.org/directory
-    privateKeySecretRef:
-      name: cloudflare-clusterissuer-account-key
-    solvers:
-    - dns01:
-        cloudflare:
-          email: ${var.cloudflare_email}
-          apiTokenSecretRef:
-            name: cloudflare-api-token
-            key: api-token
-YAML
+resource "kubernetes_manifest" "clusterissuer" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "cloudflare-clusterissuer"
+    }
+    "spec" = {
+      "acme" = {
+        "email"  = var.cloudflare_email
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
+        "privateKeySecretRef" = {
+          "name" = "cloudflare-clusterissuer-account-key"
+        }
+        "solvers" = [
+          {
+            "dns01" = {
+              "cloudflare" = {
+                "apiTokenSecretRef" = {
+                  "name" = "cloudflare-api-token"
+                  "key"  = "api-token"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 
   depends_on = [
     helm_release.cert_manager,

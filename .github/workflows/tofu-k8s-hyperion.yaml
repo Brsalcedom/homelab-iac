@@ -37,13 +37,13 @@ jobs:
 
       - name: 📝 Write kubeconfig
         run: |
-          mkdir -p ~/.kube
-          printf "%s" "${KUBECONFIG}" > ~/.kube/config
-          chmod 600 ~/.kube/config
+          mkdir -p /root/.kube
+          printf "%s" "${KUBECONFIG}" > /root/.kube/config
+          chmod 600 /root/.kube/config
 
       - name: ⚙️ Init & Plan
         env: 
-          KUBECONFIG_PATH: "~/.kube/config"
+          KUBE_CONFIG_PATH: "/root/.kube/config"
         run: |
           tofu init -input=false
           tofu plan -input=false
@@ -78,19 +78,19 @@ jobs:
 
       - name: 📝 Write kubeconfig
         run: |
-          mkdir -p ~/.kube
-          printf "%s" "${KUBECONFIG}" > ~/.kube/config
-          chmod 600 ~/.kube/config
+          mkdir -p /root/.kube
+          printf "%s" "${KUBECONFIG}" > /root/.kube/config
+          chmod 600 /root/.kube/config
   
       - name: ⚙️ Install crds
         env: 
-          KUBECONFIG_PATH: "~/.kube/config"
+          KUBE_CONFIG_PATH: "/root/.kube/config"
         run: |
           kubectl apply --server-side -k "./crds"
 
       - name: ✅ Apply Plan
         env: 
-          KUBECONFIG_PATH: "~/.kube/config"
+          KUBE_CONFIG_PATH: "/root/.kube/config"
         run: |
           tofu init -input=false
           tofu plan -input=false

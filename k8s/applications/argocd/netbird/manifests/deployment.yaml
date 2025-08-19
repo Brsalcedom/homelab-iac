@@ -26,7 +26,7 @@ spec:
           image: netbirdio/netbird:latest
           env:
             - name: NB_SETUP_KEY
-              value: "6AB8AE81-0518-4D5A-9D19-920972DCCE62"
+              value: "XXX-XXX-XXX-XXX"
             - name: NB_HOSTNAME
               value: "k3s"
             - name: NB_LOG_LEVEL

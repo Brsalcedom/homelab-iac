@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+  app.kubernetes.io/part-of: bootstrap-crds
+
+resources:
+- https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
+- https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/14a22ad926195633b2b835cce1e795385b2f4403/manifests/crds/kustomization.yaml

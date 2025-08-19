@@ -43,7 +43,7 @@ jobs:
 
       - name: ⚙️ Install crds
         env: 
-          KUBE_CONFIG_PATH: "/root/.kube/config"
+          KUBECONFIG: "/root/.kube/config"
         run: |
           kubectl apply --server-side -k "./crds"
 
@@ -91,7 +91,7 @@ jobs:
   
       - name: ⚙️ Install crds
         env: 
-          KUBE_CONFIG_PATH: "/root/.kube/config"
+          KUBECONFIG: "/root/.kube/config"
         run: |
           kubectl apply --server-side -k "./crds"
 

@@ -17,6 +17,10 @@ resource "helm_release" "argocd" {
 
   set = [
     {
+      name  = "crds.install"
+      value = "false"
+    },
+    {
       name  = "global.domain"
       value = "argocd.${local.base_domain}"
     },
@@ -83,10 +87,10 @@ resource "kubernetes_manifest" "argocd_project" {
       "name"      = "homelab"
       "namespace" = "argocd"
       "labels" = {
-        "owner"           = "brsalcedom"
-        "project-type"    = "homelab"
-        "cluster-name"    = "hyperion"
-        "k8s-distribution"= "k3s"
+        "owner"            = "brsalcedom"
+        "project-type"     = "homelab"
+        "cluster-name"     = "hyperion"
+        "k8s-distribution" = "k3s"
       }
     }
     "spec" = {
@@ -117,7 +121,7 @@ resource "kubernetes_manifest" "argocd_project" {
         {
           "name"        = "admin"
           "description" = "Permite control total sobre este proyecto"
-          "policies"    = [
+          "policies" = [
             "p, proj:homelab:admin, applications, *, homelab/*, allow"
           ]
         }

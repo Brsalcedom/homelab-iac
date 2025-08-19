@@ -98,6 +98,7 @@ jobs:
       - name: ✅ Apply Plan
         env: 
           KUBE_CONFIG_PATH: "/root/.kube/config"
+          KUBECONFIG: "/root/.kube/config"
         run: |
           tofu init -input=false
           tofu plan -input=false

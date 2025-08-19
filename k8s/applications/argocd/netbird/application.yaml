@@ -3,6 +3,11 @@ kind: Application
 metadata:
   name: netbird
   namespace: argocd
+  labels:
+    tier: platform
+    domain: networking
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: homelab
   source:

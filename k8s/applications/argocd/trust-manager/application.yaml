@@ -16,8 +16,6 @@ spec:
     targetRevision: "v0.19.0"
     helm:
       values: |
-        webhookLabels:
-          app.kubernetes.io/managed-by: argocd
         crds:
           enabled: true
   destination:

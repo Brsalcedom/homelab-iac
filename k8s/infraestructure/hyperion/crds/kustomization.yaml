@@ -4,4 +4,6 @@ kind: Kustomization
 resources:
 - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
 - https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml
-- https://raw.githubusercontent.com/argoproj/argo-cd/14a22ad926195633b2b835cce1e795385b2f4403/manifests/crds/kustomization.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/14a22ad926195633b2b835cce1e795385b2f4403/manifests/crds/application-crd.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/14a22ad926195633b2b835cce1e795385b2f4403/manifests/crds/appproject-crd.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/14a22ad926195633b2b835cce1e795385b2f4403/manifests/crds/applicationset-crd.yaml

@@ -41,6 +41,12 @@ jobs:
           printf "%s" "${KUBECONFIG}" > /root/.kube/config
           chmod 600 /root/.kube/config
 
+      - name: ⚙️ Install crds
+        env: 
+          KUBE_CONFIG_PATH: "/root/.kube/config"
+        run: |
+          kubectl apply --server-side -k "./crds"
+
       - name: ⚙️ Init & Plan
         env: 
           KUBE_CONFIG_PATH: "/root/.kube/config"
@@ -48,6 +54,7 @@ jobs:
           tofu init -input=false
           tofu plan -input=false
 
+  # ToDo: fix duplicated tasks
   apply:
     name: "🚀 Apply"
     needs: plan

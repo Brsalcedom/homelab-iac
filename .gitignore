@@ -8,3 +8,6 @@
 **/bench
 .vscode/settings.json
 **/id_rsa.pub
+**/bitwarden
+.bitwarden
+device_identifier

@@ -62,7 +62,7 @@ resource "kubernetes_manifest" "clusterissuer" {
     }
     "spec" = {
       "acme" = {
-        "email"  = var.cloudflare_email
+        "email"  = local.cloudflare_email
         "server" = "https://acme-v02.api.letsencrypt.org/directory"
         "privateKeySecretRef" = {
           "name" = "cloudflare-clusterissuer-account-key"

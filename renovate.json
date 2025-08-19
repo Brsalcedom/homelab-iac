@@ -16,6 +16,31 @@
     { "matchManagers":   ["helm"],           "addLabels": ["renovate/helm"],          "semanticCommitScope": "helm", "commitMessageTopic": "chart {{depName}}" },
     { "matchManagers":   ["terraform"],      "addLabels": ["renovate/terraform"] },
 
-    { "matchDatasources": ["docker"],        "addLabels": ["renovate/container"],     "semanticCommitScope": "container", "commitMessageTopic": "image {{depName}}" }
+    { "matchDatasources": ["docker"],        "addLabels": ["renovate/container"],     "semanticCommitScope": "container", "commitMessageTopic": "image {{depName}}" },
+    {
+      "matchManagers": ["regex"],
+      "matchDatasources": ["docker"],
+      "groupName": "docker images (workflows)",
+      "addLabels": ["renovate/container"],
+      "separateMinorPatch": true
+    }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^\\.github/workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+        "container:\\s*[\\s\\S]*?[\\r\\n][ \\t]+image:\\s*(?:['\"])??(?<depName>[^\\s:\"'@]+)(?::(?<currentValue>[^\\s\"'@]+))?(?:@sha256:[A-Fa-f0-9]{64})?(?:['\"])??"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "fileMatch": ["^\\.github/workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+        "services:\\s*[\\s\\S]*?[\\r\\n][ \\t]+image:\\s*(?:['\"])??(?<depName>[^\\s:\"'@]+)(?::(?<currentValue>[^\\s\"'@]+))?(?:@sha256:[A-Fa-f0-9]{64})?(?:['\"])??"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
   ]
 }

@@ -3,6 +3,11 @@ kind: Application
 metadata:
   name: pocket-id
   namespace: argocd
+  labels:
+    tier: platform
+    domain: identity
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: homelab
   source:

@@ -24,7 +24,7 @@ spec:
       ref: manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: external-secrets
+    namespace: sm-operator-system
   syncPolicy:
     automated:
       prune: true

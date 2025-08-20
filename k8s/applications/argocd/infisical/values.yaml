@@ -1,0 +1,19 @@
+ingress:
+  enabled: false
+
+postgresql:
+  enabled: true
+  name: postgresql
+  fullnameOverride: postgresql
+  auth:
+    username: infisical
+    database: infisicalDB
+    existingSecret: postgresql-auth
+
+redis:
+  enabled: true
+  name: redis
+  fullnameOverride: redis
+  architecture: standalone
+  auth:
+    existingSecret: redis-auth

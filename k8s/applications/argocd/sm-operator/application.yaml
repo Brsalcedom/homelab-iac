@@ -15,9 +15,11 @@ spec:
     chart: sm-operator
     targetRevision: "0.1.0"
     helm:
-      values: |
+      valuesObject:
         settings:
           bwSecretsManagerRefreshInterval: 300
+          bwApiUrlOverride: https://vault.bitwarden.com/api
+          bwIdentityUrlOverride: https://vault.bitwarden.com/identity
   destination:
     server: https://kubernetes.default.svc
     namespace: bitwarden

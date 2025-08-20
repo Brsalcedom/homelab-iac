@@ -7,9 +7,10 @@ spec:
     - secret:
         name: bw-sm-ca-secret
         key: tls.crt
-        namespace: external-secrets
   target:
     configMap:
       name: bw-sdk-ca
       key: ca.pem
-    namespace: external-secrets
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: external-secrets

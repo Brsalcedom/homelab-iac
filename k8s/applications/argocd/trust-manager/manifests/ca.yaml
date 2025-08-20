@@ -1,0 +1,26 @@
+# 1) ClusterIssuer self-signed para crear el CA
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: bw-selfsigned
+spec:
+  selfSigned: {}
+
+---
+# 2) Certificate que actúa como CA (genera el Secret con el CA)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bw-sm-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: bw-sm-ca
+  secretName: bw-sm-ca-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: bw-selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io

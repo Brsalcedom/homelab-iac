@@ -17,7 +17,7 @@ spec:
       helm:
         releaseName: infisical-standalone
         valueFiles:
-          - $values/k8s/applications/argocd/infisical
+          - $values/k8s/applications/argocd/infisical/values.yaml
     - repoURL: https://github.com/Brsalcedom/homelab-iac
       targetRevision: main
       ref: values

@@ -1,8 +1,0 @@
-# ClusterIssuer for Bitwarden using the self-signed certificate
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: bitwarden-certificate-issuer
-spec:
-  ca:
-    secretName: bitwarden-bootstrap-certs

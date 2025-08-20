@@ -1,15 +1,48 @@
-# 4) Cert para el bitwarden-sdk-server (CN/DNS apuntan al servicio)
+# Certificate for Bitwarden SDK server 
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: bitwarden-sdk-server
+  name: bitwarden-tls-certs
   namespace: external-secrets
 spec:
   secretName: bitwarden-tls-certs
-  commonName: bitwarden-sdk-server.external-secrets.svc.cluster.local
   dnsNames:
-    - bitwarden-sdk-server.external-secrets.svc
     - bitwarden-sdk-server.external-secrets.svc.cluster.local
+    - external-secrets-bitwarden-sdk-server.external-secrets.svc.cluster.local
+    - localhost
+  ipAddresses:
+    - 127.0.0.1
+    - ::1
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+    rotationPolicy: Always
   issuerRef:
-    name: bw-sm-ca-issuer
+    name: bitwarden-certificate-issuer
     kind: ClusterIssuer
+    group: cert-manager.io
+
+---
+
+# Client certificate for Bitwarden Cluster Secret Store 
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-css-certs
+  namespace: external-secrets
+spec:
+  secretName: bitwarden-css-certs
+  dnsNames:
+    - bitwarden-secrets-manager.external-secrets.svc.cluster.local
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - client auth
+  issuerRef:
+    name: bitwarden-certificate-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

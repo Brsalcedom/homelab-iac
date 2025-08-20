@@ -16,11 +16,22 @@ spec:
       targetRevision: 1.6.1
       helm:
         releaseName: infisical-standalone
-        valueFiles:
-          - $values/k8s/applications/argocd/infisical/values.yaml
-    - repoURL: https://github.com/Brsalcedom/homelab-iac
-      targetRevision: main
-      ref: values
+        valuesObject:
+          ingress:
+            enabled: false
+          postgresql:
+            enabled: true
+            name: postgresql
+            useExistingPostgresSecret: 
+              enabled: true
+              existingConnectionStringSecret:
+                name: infisical-secrets
+                key: DB_CONNECTION_URI
+          redis:
+            enabled: true
+            name: redis
+            architecture: standalone
+            usePassword: false
     - repoURL: https://github.com/Brsalcedom/homelab-iac
       path: k8s/applications/argocd/infisical/manifests
       targetRevision: main

@@ -9,7 +9,6 @@ spec:
         key: tls.crt
   target:
     configMap:
-      name: bw-sdk-ca
       key: ca.pem
     namespaceSelector:
       matchLabels:

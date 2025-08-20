@@ -1,8 +1,8 @@
-# clusterissuer-ca.yaml
+# ClusterIssuer for Bitwarden using the self-signed certificate
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: bw-sm-ca-issuer
+  name: bitwarden-certificate-issuer
 spec:
   ca:
-    secretName: bw-sm-ca-secret 
+    secretName: bitwarden-bootstrap-certs

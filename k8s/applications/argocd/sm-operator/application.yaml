@@ -17,6 +17,7 @@ spec:
     helm:
       valuesObject:
         settings:
+          cloudRegion: US
           bwSecretsManagerRefreshInterval: 300
           bwApiUrlOverride: https://vault.bitwarden.com/api
           bwIdentityUrlOverride: https://vault.bitwarden.com/identity

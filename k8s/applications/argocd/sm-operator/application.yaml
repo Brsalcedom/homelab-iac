@@ -20,7 +20,7 @@ spec:
           bwSecretsManagerRefreshInterval: 300
   destination:
     server: https://kubernetes.default.svc
-    namespace: sm-operator-system
+    namespace: bitwarden
   syncPolicy:
     automated:
       prune: true

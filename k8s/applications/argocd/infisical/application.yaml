@@ -21,6 +21,10 @@ spec:
     - repoURL: https://github.com/Brsalcedom/homelab-iac
       targetRevision: main
       ref: values
+    - repoURL: https://github.com/Brsalcedom/homelab-iac
+      path: k8s/applications/argocd/infisical/manifests
+      targetRevision: main
+      ref: manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: infisical

@@ -19,8 +19,10 @@ spec:
         valuesObject:
           ingress:
             enabled: false
+            nginx:
+              enabled: false
           postgresql:
-            enabled: true
+            enabled: false
             name: postgresql
             useExistingPostgresSecret: 
               enabled: true
@@ -28,7 +30,7 @@ spec:
                 name: infisical-secrets
                 key: DB_CONNECTION_URI
           redis:
-            enabled: true
+            enabled: false
             name: redis
             architecture: standalone
             usePassword: false

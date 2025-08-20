@@ -10,18 +10,14 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   project: homelab
-  sources:
-    - repoURL: https://charts.bitwarden.com/
-      chart: sm-operator
-      targetRevision: "0.1.0"
-      helm:
-        values: |
-          settings:
-            bwSecretsManagerRefreshInterval: 300
-    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
-      targetRevision: main
-      path: k8s/applications/argocd/sm-operator/manifests
-      ref: manifests
+  source:
+    repoURL: https://charts.bitwarden.com/
+    chart: sm-operator
+    targetRevision: "0.1.0"
+    helm:
+      values: |
+        settings:
+          bwSecretsManagerRefreshInterval: 300
   destination:
     server: https://kubernetes.default.svc
     namespace: sm-operator-system

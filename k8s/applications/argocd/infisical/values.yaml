@@ -5,10 +5,11 @@ postgresql:
   enabled: true
   name: postgresql
   fullnameOverride: postgresql
-  auth:
-    username: infisical
-    database: infisicalDB
-    existingSecret: postgresql-auth
+  useExistingPostgresSecret: 
+    enabled: true
+    existingConnectionStringSecret:
+      name: infisical-secrets
+      key: DB_CONNECTION_URI
 
 redis:
   enabled: true

@@ -21,6 +21,7 @@ spec:
     - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       path: k8s/applications/argocd/external-secrets/manifests
+      ref: manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: external-secrets

@@ -5,42 +5,27 @@ metadata:
   namespace: argocd
   labels:
     tier: controllers
-    domain: identity
+    domain: security
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   project: homelab
   sources:
     - repoURL: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts
-      chart: infisical-standalone
-      targetRevision: 1.6.1
+      chart: secrets-operator
+      targetRevision: 0.10.2
       helm:
-        releaseName: infisical-standalone
+        releaseName: secrets-operator
         valuesObject:
           ingress:
-            enabled: false
-            nginx:
-              enabled: false
-          postgresql:
-            enabled: false
-            name: postgresql
-            useExistingPostgresSecret: 
-              enabled: true
-              existingConnectionStringSecret:
-                name: infisical-secrets
-                key: DB_CONNECTION_URI
-          redis:
-            enabled: false
-            name: redis
-            architecture: standalone
-            usePassword: false
+            
     - repoURL: https://github.com/Brsalcedom/homelab-iac
       path: k8s/applications/argocd/infisical/manifests
       targetRevision: main
       ref: manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: infisical
+    namespace: infisical-operator-system
   syncPolicy:
     automated:
       prune: true

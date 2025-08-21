@@ -25,12 +25,13 @@ spec:
         - name: netbird
           image: netbirdio/netbird:latest
           env:
-            - name: NB_SETUP_KEY
-              value: "XXX-XXX-XXX-XXX"
             - name: NB_HOSTNAME
               value: "k3s"
             - name: NB_LOG_LEVEL
               value: "info"
+          envFrom:
+            - configMapRef:
+                name: netbird-secrets
           securityContext:
             capabilities:
               add:

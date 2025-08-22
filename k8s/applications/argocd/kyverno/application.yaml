@@ -21,10 +21,6 @@ spec:
     - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       ref: values
-    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
-      path: k8s/applications/argocd/kyverno/policies
-      targetRevision: main
-      ref: policies
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno

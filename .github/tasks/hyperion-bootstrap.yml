@@ -10,7 +10,7 @@ tasks:
   install-crds:
     desc: "Install required CRDs"
     cmds:
-      - kubectl apply --server-side -k "./crds"
+      - kubectl apply --server-side -k "$GITHUB_WORKSPACE/k8s/infraestructure/hyperion/crds"
 
   bootstrap-cert-manager:
     desc: "Create cert-manager secret with Cloudflare token"

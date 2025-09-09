@@ -58,7 +58,7 @@ jobs:
 
       - name: ⚙️ Run bootstrap task
         run: |
-          task --taskfile .github/tasks/hyperion-bootstrap.yml
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ⚙️ Init & Plan
         env: 
@@ -118,7 +118,7 @@ jobs:
 
       - name: ⚙️ Run bootstrap task
         run: |
-          task --taskfile .github/tasks/hyperion-bootstrap.yml
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ✅ Apply Plan
         env: 

@@ -56,9 +56,9 @@ jobs:
           KUBECONFIG=/root/.kube/config
           EOF
 
-      - name: ⚙️ Run boostrap task
+      - name: ⚙️ Run bootstrap task
         run: |
-          task --taskfile .github/tasks/hyperion-boostrap.yml
+          task --taskfile ../tasks/hyperion-bootstrap.yml
 
       - name: ⚙️ Init & Plan
         env: 
@@ -116,9 +116,9 @@ jobs:
           KUBECONFIG=/root/.kube/config
           EOF
 
-      - name: ⚙️ Run boostrap task
+      - name: ⚙️ Run bootstrap task
         run: |
-          task --taskfile .github/tasks/hyperion-boostrap.yml
+          task --taskfile ../tasks/hyperion-bootstrap.yml
 
       - name: ✅ Apply Plan
         env: 

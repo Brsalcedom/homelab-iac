@@ -58,7 +58,7 @@ jobs:
 
       - name: ⚙️ Run boostrap task
         run: |
-          task --taskfile .github/tasks/hyperion-bootstrap.yml
+          task --taskfile .github/tasks/hyperion-boostrap.yml
 
       - name: ⚙️ Init & Plan
         env: 
@@ -115,6 +115,10 @@ jobs:
           INFISICAL_API_TOKEN=${INFISICAL_API_TOKEN}
           KUBECONFIG=/root/.kube/config
           EOF
+
+      - name: ⚙️ Run boostrap task
+        run: |
+          task --taskfile .github/tasks/hyperion-boostrap.yml
 
       - name: ✅ Apply Plan
         env: 

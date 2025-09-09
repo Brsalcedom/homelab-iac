@@ -119,6 +119,8 @@ jobs:
           EOF
 
       - name: ⚙️ Run bootstrap task
+        env:
+          KUBECONFIG: "/root/.kube/config"
         run: |
           task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 

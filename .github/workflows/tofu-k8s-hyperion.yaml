@@ -15,7 +15,7 @@ jobs:
     name: "🧪 Plan"
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.1.0
+      image: brsalcedom/homelab-ci:2.2.0
     defaults:
       run:
         working-directory: k8s/infraestructure/hyperion
@@ -73,7 +73,7 @@ jobs:
     needs: plan
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.1.0
+      image: brsalcedom/homelab-ci:2.2.0
     environment:
       name: tofu-infra
     defaults:
@@ -98,16 +98,23 @@ jobs:
             15ca2e09-2662-4cec-badd-b33e00052a68 > KUBECONFIG
 
       - name: 📝 Write kubeconfig
+        env: 
+          KUBECONFIG: ${{ steps.secrets-bw.outputs.KUBECONFIG }}
         run: |
           mkdir -p /root/.kube
           printf "%s" "${KUBECONFIG}" > /root/.kube/config
           chmod 600 /root/.kube/config
-  
-      - name: ⚙️ Bootstrap K3s
+
+      - name: 📄 Write .env for Task
         env: 
-          KUBECONFIG: "/root/.kube/config"
+          CLOUDFLARE_API_TOKEN: ${{ steps.secrets-bw.outputs.CLOUDFLARE_API_TOKEN }}
+          INFISICAL_API_TOKEN: ${{ steps.secrets-bw.outputs.INFISICAL_API_TOKEN }}
         run: |
-          task
+          cat <<EOF > .env
+          CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+          INFISICAL_API_TOKEN=${INFISICAL_API_TOKEN}
+          KUBECONFIG=/root/.kube/config
+          EOF
 
       - name: ✅ Apply Plan
         env: 

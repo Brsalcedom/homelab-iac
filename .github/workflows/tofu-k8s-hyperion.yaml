@@ -57,10 +57,11 @@ jobs:
           EOF
 
       - name: ⚙️ Run bootstrap task
+        uses: go-task/go-task@v3.1.2
         env:
           KUBECONFIG: "/root/.kube/config"
-        run: |
-          task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
+        with:
+          taskfile: $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ⚙️ Init & Plan
         env: 
@@ -118,12 +119,11 @@ jobs:
           KUBECONFIG=/root/.kube/config
           EOF
 
-      - name: Run a Task
-        uses: go-task/go-task@v3.1.2
+      - name: ⚙️ Run bootstrap task
         env:
           KUBECONFIG: "/root/.kube/config"
-        with:
-          taskfile: $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
+        run: |
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ✅ Apply Plan
         env: 

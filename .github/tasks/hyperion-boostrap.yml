@@ -1,0 +1,29 @@
+version: '3'
+
+dotenv: [".env"]
+
+tasks:
+  default:
+    desc: "Bootstrap minimal (CRDs + cert-manager + infisical)"
+    deps: [install-crds, boostrap-cert-manager, boostrap-infisical]
+
+  install-crds:
+    desc: "Install required CRDs"
+    cmds:
+      - kubectl apply --server-side -k "./crds"
+      
+  boostrap-cert-manager:
+    desc: "Create cert-manager secret with Cloudflare token"
+    cmds:
+      - kubectl -n cert-manager create secret generic cloudflare-api-token \
+        --from-literal=api-token="{{.CLOUDFLARE_API_TOKEN}}" \
+        --dry-run=client -o yaml | kubectl apply -f -
+
+  boostrap-infisical:
+    desc: "Create namespace and Infisical Operator secret"
+    cmds:
+      - kubectl create ns infisical-operator-system --dry-run=client -o yaml | kubectl apply -f -
+      - kubectl -n infisical-operator-system create secret generic infisical-service-token \
+        --from-literal=api-token="{{.INFISICAL_API_TOKEN}}" \
+        --dry-run=client -o yaml | kubectl apply -f -
+

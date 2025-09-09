@@ -11,3 +11,5 @@
 **/bitwarden
 .bitwarden
 device_identifier
+.env
+**/.env

@@ -33,26 +33,6 @@ resource "helm_release" "cert_manager" {
   ]
 }
 
-
-resource "null_resource" "cf_api_token_secret" {
-  triggers = {
-    namespace = kubernetes_namespace.cert_manager.metadata[0].name
-  }
-
-  provisioner "local-exec" {
-    command = <<EOT
-kubectl -n cert-manager create secret generic cloudflare-api-token --from-literal=api-token="$CLOUDFLARE_API_TOKEN" --dry-run=client -o yaml | kubectl apply -f -
-EOT
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = "kubectl -n cert-manager delete secret cloudflare-api-token --ignore-not-found"
-  }
-  depends_on = [kubernetes_namespace.cert_manager]
-}
-
-
 resource "kubernetes_manifest" "clusterissuer" {
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
@@ -84,7 +64,6 @@ resource "kubernetes_manifest" "clusterissuer" {
   }
 
   depends_on = [
-    helm_release.cert_manager,
-    null_resource.cf_api_token_secret
+    helm_release.cert_manager
   ]
 }

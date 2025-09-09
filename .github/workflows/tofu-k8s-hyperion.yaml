@@ -15,7 +15,7 @@ jobs:
     name: "🧪 Plan"
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.1.0
+      image: brsalcedom/homelab-ci:2.2.0
     defaults:
       run:
         working-directory: k8s/infraestructure/hyperion
@@ -60,7 +60,7 @@ jobs:
     needs: plan
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.1.0
+      image: brsalcedom/homelab-ci:2.2.0
     environment:
       name: tofu-infra
     defaults:

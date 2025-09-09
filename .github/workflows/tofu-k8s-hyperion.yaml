@@ -15,7 +15,7 @@ jobs:
     name: "🧪 Plan"
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.1.0
+      image: brsalcedom/homelab-ci:2.2.0
     defaults:
       run:
         working-directory: k8s/infraestructure/hyperion
@@ -33,19 +33,34 @@ jobs:
           secrets: |
             64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
             6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
+            ef57c68e-c227-4ff8-8dbe-b32c014db0b0 > CLOUDFLARE_API_TOKEN
+            d8904601-600e-44d0-b8ec-b3400043b0d0 > INFISICAL_API_TOKEN
             15ca2e09-2662-4cec-badd-b33e00052a68 > KUBECONFIG
 
       - name: 📝 Write kubeconfig
+        env: 
+          KUBECONFIG: ${{ steps.secrets-bw.outputs.KUBECONFIG }}
         run: |
           mkdir -p /root/.kube
           printf "%s" "${KUBECONFIG}" > /root/.kube/config
           chmod 600 /root/.kube/config
 
-      - name: ⚙️ Install crds
+      - name: 📄 Write .env for Task
         env: 
+          CLOUDFLARE_API_TOKEN: ${{ steps.secrets-bw.outputs.CLOUDFLARE_API_TOKEN }}
+          INFISICAL_API_TOKEN: ${{ steps.secrets-bw.outputs.INFISICAL_API_TOKEN }}
+        run: |
+          cat <<EOF > .env
+          CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+          INFISICAL_API_TOKEN=${INFISICAL_API_TOKEN}
+          KUBECONFIG=/root/.kube/config
+          EOF
+
+      - name: ⚙️ Run bootstrap task
+        env:
           KUBECONFIG: "/root/.kube/config"
         run: |
-          kubectl apply --server-side -k "./crds"
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ⚙️ Init & Plan
         env: 
@@ -60,7 +75,7 @@ jobs:
     needs: plan
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.1.0
+      image: brsalcedom/homelab-ci:2.2.0
     environment:
       name: tofu-infra
     defaults:
@@ -81,19 +96,33 @@ jobs:
             64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
             6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
             ef57c68e-c227-4ff8-8dbe-b32c014db0b0 > CLOUDFLARE_API_TOKEN
+            d8904601-600e-44d0-b8ec-b3400043b0d0 > INFISICAL_API_TOKEN
             15ca2e09-2662-4cec-badd-b33e00052a68 > KUBECONFIG
 
       - name: 📝 Write kubeconfig
+        env: 
+          KUBECONFIG: ${{ steps.secrets-bw.outputs.KUBECONFIG }}
         run: |
           mkdir -p /root/.kube
           printf "%s" "${KUBECONFIG}" > /root/.kube/config
           chmod 600 /root/.kube/config
-  
-      - name: ⚙️ Install crds
+
+      - name: 📄 Write .env for Task
         env: 
+          CLOUDFLARE_API_TOKEN: ${{ steps.secrets-bw.outputs.CLOUDFLARE_API_TOKEN }}
+          INFISICAL_API_TOKEN: ${{ steps.secrets-bw.outputs.INFISICAL_API_TOKEN }}
+        run: |
+          cat <<EOF > .env
+          CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+          INFISICAL_API_TOKEN=${INFISICAL_API_TOKEN}
+          KUBECONFIG=/root/.kube/config
+          EOF
+
+      - name: ⚙️ Run bootstrap task
+        env:
           KUBECONFIG: "/root/.kube/config"
         run: |
-          kubectl apply --server-side -k "./crds"
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ✅ Apply Plan
         env: 

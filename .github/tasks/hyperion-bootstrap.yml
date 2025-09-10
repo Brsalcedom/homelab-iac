@@ -22,5 +22,5 @@ tasks:
     desc: "Create namespace and Infisical Operator secret"
     cmds:
       - kubectl create ns infisical-operator-system --dry-run=client -o yaml | kubectl apply -f -
-      - kubectl -n infisical-operator-system create secret generic infisical-service-token --from-literal=api-token="{{.INFISICAL_API_TOKEN}}" --dry-run=client -o yaml | kubectl apply -f -
+      - kubectl -n infisical-operator-system create secret generic infisical-service-token --from-literal=infisicalToken="{{.INFISICAL_API_TOKEN}}" --dry-run=client -o yaml | kubectl apply -f -
 

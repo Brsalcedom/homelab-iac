@@ -19,7 +19,7 @@ module "swarm" {
   node_name           = "prox"
   vm_name             = each.key
   vm_id               = each.value.id
-  os_template         = "debian-12-standard_12.7-1_amd64.tar.zst"
+  os_template         = "debian-13-standard_13.1-2_amd64.tar.zst"
   vm_cpu_cores        = 2
   vm_memory           = 2048
   vm_disk_size        = 15

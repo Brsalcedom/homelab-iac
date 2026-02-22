@@ -1,6 +1,6 @@
-# ☸️ homelab-iac/terraform/proxomox/infraestructure
+# ☸️ homelab-iac/terraform/proxmox/infraestructure
 
-Este directorio contiene la infraestructura como código de los dos nodos Kubernetes (`k3s`) que componen el homelab: **Hyperion** y **Cronos**. Cada uno está configurado y gestionado de forma independiente mediante Terraform (compatible con futura migración a OpenTofu), y utiliza un stack distinto para cumplir roles diferentes: uno como entorno estable y otro como entorno experimental.
+Este directorio contiene la infraestructura como código de los nodos Kubernetes (`k3s`) que componen el homelab. Actualmente está configurado **Hyperion** como nodo estable, gestionado mediante Terraform, y utiliza Cloudflare R2 como backend remoto para el estado.
 
 ---
 
@@ -25,16 +25,16 @@ Nodo orientado a servicios personales de uso cotidiano. Su configuración busca 
 
 ### 🔸 Cronos (entorno experimental)
 
-Nodo para pruebas, nuevas integraciones y aprendizaje práctico de herramientas más avanzadas o alternativas.
+_Nodo planificado para pruebas, nuevas integraciones y aprendizaje práctico de herramientas más avanzadas o alternativas._
 
 | Componente     | Tecnología                                       | Estado |
 |----------------|--------------------------------------------------|--------|
-| CNI            | Flannel (default de `k3s`)                       | ✅     |
-| Service Mesh   | [Linkerd](https://linkerd.io)                    | ✅     |
-| Gateway API    | [NGINX Gateway Fabric](https://www.nginx.com)   | ✅     |
-| GitOps         | [FluxCD](https://fluxcd.io)                      | ✅     |
-| Certificados   | [Cert-Manager](https://cert-manager.io) + Cloudflare DNS-01 | ✅     |
-| LoadBalancer   | [kube-vip](https://kube-vip.io)                  | ✅     |
+| CNI            | Flannel (default de `k3s`)                       | 🔜     |
+| Service Mesh   | [Linkerd](https://linkerd.io)                    | 🔜     |
+| Gateway API    | [NGINX Gateway Fabric](https://www.nginx.com)   | 🔜     |
+| GitOps         | [FluxCD](https://fluxcd.io)                      | 🔜     |
+| Certificados   | [Cert-Manager](https://cert-manager.io) + Cloudflare DNS-01 | 🔜     |
+| LoadBalancer   | [kube-vip](https://kube-vip.io)                  | 🔜     |
 | Almacenamiento | [Longhorn](https://longhorn.io)                 | 🔜     |
 | Observabilidad | Prometheus, Grafana, Loki (vía FluxCD)           | 🔜     |
 
@@ -43,25 +43,25 @@ Nodo para pruebas, nuevas integraciones y aprendizaje práctico de herramientas 
 ## 📁 Estructura
 
 ```bash
-k8s/
-├── hyperion/   # Stack estable: ArgoCD, Cilium, Gateway API, Rook, etc.
-└── cronos/     # Stack experimental: FluxCD, Linkerd, Longhorn, etc.
+terraform/proxmox/infraestructure/
+└── hyperion/          # Stack estable: ArgoCD, Cilium, Gateway API, Cert-Manager
+    ├── argocd.tf      # Configuración de ArgoCD
+    ├── certmanager.tf # Cert-Manager + ClusterIssuer Cloudflare
+    ├── cilium.tf      # CNI Cilium con Gateway API
+    ├── gateway.tf     # Gateway y HTTPRoute
+    ├── backend.tf     # Backend remoto en Cloudflare R2
+    ├── providers.tf   # Providers: Helm, Kubectl, Kubernetes
+    └── locals.tf      # Variables locales
 ```
-
-Cada subcarpeta contiene módulos Terraform independientes para su clúster. Los componentes como `cert-manager`, `GitOps`, `storage`, etc., están definidos modularmente en archivos `.tf`.
 
 ---
 
 ## ⚙️ Cómo aplicar
 
 ```bash
-cd k8s/hyperion
+cd terraform/proxmox/infraestructure/hyperion
 terraform init
-terraform apply -var-file="terraform.tfvars"
-
-cd ../cronos
-terraform init
-terraform apply -var-file="terraform.tfvars"
+terraform apply
 ```
 
 ---
@@ -80,13 +80,38 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable traefik --disable-net
 
 ### 🔸 Cronos
 
-_Comando pendiente de definir, dependerá de si se usará flannel por defecto o una configuración con kube-vip y Linkerd._
+_Pendiente de implementación._
 
 ---
 
+## 🔧 Requisitos
+
+### 1. Terraform
+
+Versión recomendada: **1.9+**
+
+### 2. Kubeconfig
+
+Asegúrate de tener acceso al cluster K3s:
+
+```bash
+export KUBECONFIG=/path/to/hyperion-kubeconfig.yaml
+```
+
+### 3. Variables de entorno para Cloudflare R2
+
+```bash
+export AWS_ACCESS_KEY_ID="<R2_ACCESS_KEY>"
+export AWS_SECRET_ACCESS_KEY="<R2_SECRET_KEY>"
+# Windows
+$env:AWS_ACCESS_KEY_ID="<R2_ACCESS_KEY>"
+$env:AWS_SECRET_ACCESS_KEY="<R2_SECRET_KEY>"
+```
+
+---
 
 ## 🚧 TODO
 
 - [ ] Desplegar `Rook + Ceph` en Hyperion
-- [ ] Desplegar `Longhorn` en Cronos
+- [ ] Implementar nodo Cronos con FluxCD y Linkerd
 - [ ] Agregar observabilidad y dashboards por nodo

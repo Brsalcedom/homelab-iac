@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v1.0.0...v2.0.0) (2026-02-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* **github-action:** Update action actions/checkout to v6 ([#80](https://github.com/Brsalcedom/homelab-iac/issues/80))
+
+### Features
+
+* **deps:** update terraform cloudflare to v5.17.0 ([#79](https://github.com/Brsalcedom/homelab-iac/issues/79)) ([c8f148b](https://github.com/Brsalcedom/homelab-iac/commit/c8f148bd62ca1e899e714ad8a0d96a194965a429))
+* **deps:** update terraform proxmox to v0.96.0 ([#78](https://github.com/Brsalcedom/homelab-iac/issues/78)) ([3faba54](https://github.com/Brsalcedom/homelab-iac/commit/3faba546fd82b9f59453cc836410262927f666fe))
+
+
+### Continuous Integration
+
+* **github-action:** Update action actions/checkout to v6 ([#80](https://github.com/Brsalcedom/homelab-iac/issues/80)) ([2b1d531](https://github.com/Brsalcedom/homelab-iac/commit/2b1d531745b1bd8eaa4d8aeca93394524d8e2956))
+
 ## [1.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v0.1.0...v1.0.0) (2026-02-22)
 
 

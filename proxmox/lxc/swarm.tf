@@ -15,7 +15,7 @@ locals {
 
 module "swarm" {
   for_each            = local.swarm_nodes
-  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/lxc?ref=v0.2.0"
+  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/lxc?ref=v1.2.0"
   node_name           = "prox"
   vm_name             = each.key
   vm_id               = each.value.id

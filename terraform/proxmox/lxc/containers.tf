@@ -1,0 +1,19 @@
+module "containers" {
+  for_each = local.containers_merged
+  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/lxc?ref=v1.2.0"
+  node_name           = "prox"
+  vm_name             = each.key
+  vm_id               = each.value.id
+  os_template         = each.value.template
+  vm_cpu_cores        = each.value.cpu
+  vm_memory           = each.value.memory
+  vm_disk_size        = each.value.disk
+  vm_ipv4_address     = "${each.value.ip}/24"
+  vm_ipv4_gateway     = local.defaults.gateway
+  dns_servers         = local.defaults.dns
+  ssh_authorized_keys = var.ssh_authorized_keys
+  vm_description      = each.value.description
+  vm_tags             = each.value.tags
+  unprivileged        = each.value.unprivileged
+  nas_mountpoint      = each.value.nas_mountpoint
+}

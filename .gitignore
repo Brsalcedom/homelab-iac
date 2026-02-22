@@ -13,3 +13,7 @@
 device_identifier
 .env
 **/.env
+**/stack.env
+/packer
+**.tfa
+terraform/proxmox/vm

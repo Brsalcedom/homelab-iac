@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  wally:
+    image: poliuscorp/wally:latest
+    ports:
+      - target: 80
+        published: 5007
+        mode: host
+    volumes:
+      - wally_data:/wally/data
+    environment:
+      DEMO: "true"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - "node.role==worker"
+    networks:
+      - swarm-frontend
+
+volumes:
+  wally_data:
+
+networks:
+  swarm-frontend:
+    external: true

@@ -3,7 +3,7 @@ name: "Tofu :: k8s hyperion"
 on:
   push:
     branches: ["main"]
-    paths: ["k8s/infraestructure/hyperion**"]
+    paths: ["terraform/proxmox/infraestructure/hyperion**"]
   workflow_dispatch:
 
 permissions:

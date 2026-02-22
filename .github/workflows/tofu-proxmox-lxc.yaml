@@ -3,7 +3,7 @@ name: "Tofu :: Proxmox LXC"
 on:
   push:
     branches: ["main"]
-    paths: ["proxmox/lxc/**"]
+    paths: ["terraform/proxmox/lxc/**"]
   workflow_dispatch:
 
 permissions:

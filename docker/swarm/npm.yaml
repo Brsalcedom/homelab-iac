@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443 # HTTPS
+        mode: host
+      - target: 81
+        published: 81 # Panel de administración
+        mode: host
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    environment:
+      DISABLE_IPV6: 'true'
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+      restart_policy:
+        condition: on-failure
+    networks:
+      - swarm-frontend
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+
+networks:
+  swarm-frontend:
+    external: true

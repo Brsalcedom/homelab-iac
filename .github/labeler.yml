@@ -1,34 +1,18 @@
 area/cloudflare:
   - changed-files:
-      - any-glob-to-any-file:
-          - "cloudflare/*"
-          - "cloudflare/**/*"
+      - any-glob-to-any-file: "cloudflare/**/*"
 
-area/proxmox:
+area/docker:
   - changed-files:
-      - any-glob-to-any-file:
-          - "proxmox/*"
-          - "proxmox/**/*"
+      - any-glob-to-any-file: "docker/**/*"
 
-area/k8s-hyperion:
+area/terraform:
   - changed-files:
-      - any-glob-to-any-file: "k8s/infrastructure/hyperion/**/*"
-
-area/k8s-cronos:
-  - changed-files:
-      - any-glob-to-any-file: "k8s/infrastructure/cronos/**/*"
-
-area/argocd:
-  - changed-files:
-      - any-glob-to-any-file: "k8s/applications/argocd/**/*"
-
-area/fluxcd:
-  - changed-files:
-      - any-glob-to-any-file: "k8s/applications/fluxcd/**/*"
+      - any-glob-to-any-file: "terraform/**/*"
 
 area/kubernetes:
   - changed-files:
-      - any-glob-to-any-file: "k8s/**/*"
+      - any-glob-to-any-file: "kubernetes/**/*"
 
 area/github:
   - changed-files:
@@ -38,3 +22,25 @@ area/docs:
   - changed-files:
       - any-glob-to-any-file:
           - "README.md"
+
+target/hyperion:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "terraform/proxmox/infraestructure/hyperion/**/*"
+          - "kubernetes/applications/argocd/**/*"
+
+target/cronos:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "terraform/proxmox/infraestructure/cronos/**/*"
+          - "kubernetes/applications/fluxcd/**/*"
+
+target/proxmox:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "proxmox/**/*"
+
+target/swarm:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docker/swarm/**/*"

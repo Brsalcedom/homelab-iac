@@ -42,11 +42,24 @@ Este repositorio define toda la infraestructura de mi homelab de forma declarati
 
 ```bash
 homelab-iac/
-├── k8s/         # Kubernetes modular por nodo (Hyperion / Cronos)
-├── packer/      # Imágenes base para VM
-└── proxmox/     # Código para provisionamiento de VMs
+├── .github/                    # Workflows CI/CD, labels y configuración
+├── cloudflare/                 # Terraform para Cloudflare R2 y DNS
+├── docker/                     # Compose y Swarm stacks
+│   ├── compose/               # Docker Compose configs
+│   └── swarm/                 # Docker Swarm stacks
+├── kubernetes/                 # Manifiestos de aplicaciones K8s
+│   └── applications/
+│       └── argocd/            # Apps gestionadas por ArgoCD
+├── packer/                     # Imágenes base para VMs con Packer
+└── terraform/                  # Infraestructura como código
+    └── proxmox/
+        ├── infraestructure/   # Clusters K3s (Hyperion)
+        │   └── hyperion/      # Stack estable: Cilium, ArgoCD, Gateway API
+        ├── lxc/               # Contenedores LXC
+        └── vm/                # Máquinas virtuales
 ```
-Consulta [`k8s/README.md`](./k8s/README.md) para ver los stacks y configuración de cada nodo de kubernetes.
+
+Consulta [`terraform/proxmox/infraestructure/README.md`](./terraform/proxmox/infraestructure/README.md) para ver los stacks y configuración de cada nodo de Kubernetes.
 
 ---
 

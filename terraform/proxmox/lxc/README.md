@@ -16,13 +16,14 @@ standardize and simplify the creation of LXC containers.
 
 ## 📦 Directory Structure
 
-    proxmox/
-    └── lxc/
-        ├── backend.tf
-        ├── provider.tf
-        ├── locals.tf
-        ├── containers.tf
-        └── variables.tf
+```bash
+terraform/proxmox/lxc/
+├── backend.tf      # Cloudflare R2 backend configuration
+├── provider.tf     # Proxmox provider configuration
+├── locals.tf       # Local variables and container definitions
+├── containers.tf   # LXC container module calls
+└── variables.tf    # Input variables (SSH keys, etc.)
+```
 
 ------------------------------------------------------------------------
 
@@ -108,19 +109,20 @@ From Proxmox GUI:
 
 ### 1. Initialize Terraform
 
-``` bash
+```bash
+cd terraform/proxmox/lxc
 terraform init
 ```
 
 ### 2. Review the plan
 
-``` bash
+```bash
 terraform plan
 ```
 
 ### 3. Apply changes
 
-``` bash
+```bash
 terraform apply
 ```
 
@@ -210,10 +212,9 @@ ssh root@<container-ip>
 
 ## 📚 References
 
--   Proxmox Terraform Provider:
-    https://registry.terraform.io/providers/bpg/proxmox/latest\
--   Cloudflare R2: https://developers.cloudflare.com/r2\
--   LXC Templates: https://pve.proxmox.com/wiki/Linux_Container\
--   Custom LXC Terraform Module:
-    https://github.com/Brsalcedom/tf-modules
+-   Proxmox Terraform Provider: https://registry.terraform.io/providers/bpg/proxmox/latest
+-   Cloudflare R2: https://developers.cloudflare.com/r2
+-   LXC Templates: https://pve.proxmox.com/wiki/Linux_Container
+-   Custom LXC Terraform Module: https://github.com/Brsalcedom/tf-modules
+-   Project Repository: https://github.com/Brsalcedom/homelab-iac
 

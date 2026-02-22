@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.0...v2.0.1) (2026-02-22)
+
+
+### Bug Fixes
+
+* working directory in lxc workflow & github runner docs ([#86](https://github.com/Brsalcedom/homelab-iac/issues/86)) ([89708e1](https://github.com/Brsalcedom/homelab-iac/commit/89708e14c0ee6427bbe5e4bfae36492dd51b4964))
+
 ## [2.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v1.0.0...v2.0.0) (2026-02-22)
 
 

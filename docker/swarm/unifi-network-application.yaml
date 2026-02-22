@@ -17,7 +17,7 @@ services:
       MONGO_AUTHSOURCE: ${MONGO_AUTHSOURCE}
       MONGO_TLS: ${MONGO_TLS}
     volumes:
-      - /path/to/unifi-network-application/data:/config
+      - /opt/unifi-network-application/data:/config
     network_mode: host
     restart: unless-stopped
   unifi-db:

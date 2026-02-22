@@ -18,7 +18,7 @@ jobs:
       image: brsalcedom/homelab-ci:2.2.0
     defaults:
       run:
-        working-directory: proxmox/lxc
+        working-directory: terraform/proxmox/lxc
 
     steps:
       - name: 🧾 Checkout
@@ -54,7 +54,7 @@ jobs:
       name: tofu-infra
     defaults:
       run:
-        working-directory: proxmox/lxc
+        working-directory: terraform/proxmox/lxc
 
     steps:
       - name: 🧾 Checkout

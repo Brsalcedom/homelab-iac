@@ -4,7 +4,7 @@ services:
   web:
     image: eitchtee/wygiwyh:latest
     depends_on:
-      - wygiwyh_db
+      - db
     ports:
       - target: 8000
         published: 9005

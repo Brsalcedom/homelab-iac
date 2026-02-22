@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  actual-budget:
+    image: actualbudget/actual-server:latest
+    ports:
+      - target: 5006
+        published: 5006
+        mode: host
+    volumes:
+      - actualbudget_data:/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - "node.role==worker"
+    networks:
+      - swarm-frontend
+
+volumes:
+  actualbudget_data:
+
+networks:
+  swarm-frontend:
+    external: true

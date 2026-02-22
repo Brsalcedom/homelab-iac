@@ -3,20 +3,24 @@
 
 - name: area/cloudflare
   color: "0e8a16"
-- name: area/proxmox
+- name: area/docker
   color: "0e8a16"
-- name: area/k8s-hyperion
-  color: "0e8a16"
-- name: area/k8s-cronos
+- name: area/terraform
   color: "0e8a16"
 - name: area/kubernetes
   color: "0e8a16"
-- name: area/argocd
-  color: "0e8a16"
-- name: area/fluxcd
-  color: "0e8a16"
 - name: area/github
   color: "0e8a16"
+- name: area/docs
+  color: "0e8a16"
+- name: target/hyperion
+  color: "1d4ed8"
+- name: target/cronos
+  color: "1d4ed8"
+- name: target/proxmox
+  color: "1d4ed8"
+- name: target/swarm
+  color: "1d4ed8"
 - name: renovate/container
   color: "027fa0"
 - name: renovate/helm
@@ -26,7 +30,7 @@
 - name: renovate/github-action
   color: "027fa0"
 - name: type/patch
-  color: "ffeC19"
+  color: "ffec19"
 - name: type/minor
   color: "ff9800"
 - name: type/major

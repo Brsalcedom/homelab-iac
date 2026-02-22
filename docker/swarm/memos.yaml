@@ -1,0 +1,25 @@
+services:
+  memos:
+    image: neosmemo/memos:stable
+    ports:
+      - target: 5230
+        published: 5230
+        mode: host
+    volumes:
+      - memos-data:/var/opt/memos
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - "node.role==worker"
+    networks:
+      - swarm-frontend
+
+volumes:
+  memos-data:
+
+networks:
+  swarm-frontend:
+    external: true

@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  web:
+    image: eitchtee/wygiwyh:latest
+    depends_on:
+      - db
+    ports:
+      - target: 8000
+        published: 9005
+        mode: host
+    environment:
+      TZ: ${TZ}
+      DEBUG: ${DEBUG}
+      URL: ${URL}
+      HTTPS_ENABLED: ${HTTPS_ENABLED}
+      SECRET_KEY: ${SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+
+      SQL_DATABASE: ${SQL_DATABASE}
+      SQL_USER: ${SQL_USER}
+      SQL_PASSWORD: ${SQL_PASSWORD}
+      SQL_HOST: ${SQL_HOST}
+      SQL_PORT: ${SQL_PORT}
+
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY}
+      ENABLE_SOFT_DELETE: ${ENABLE_SOFT_DELETE}
+      KEEP_DELETED_TRANSACTIONS_FOR: ${KEEP_DELETED_TRANSACTIONS_FOR}
+      TASK_WORKERS: ${TASK_WORKERS}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - "node.role==worker"
+    networks:
+      - swarm-frontend
+      - swarm-backend
+
+  db:
+    image: postgres:15-bookworm
+    volumes:
+      - wygiwyh_pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${SQL_DATABASE}
+      POSTGRES_USER: ${SQL_USER}
+      POSTGRES_PASSWORD: ${SQL_PASSWORD}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - "node.role==worker"
+    networks:
+      - swarm-backend
+
+volumes:
+  wygiwyh_pgdata:
+
+networks:
+  swarm-frontend:
+    external: true
+  swarm-backend:
+    external: true
+

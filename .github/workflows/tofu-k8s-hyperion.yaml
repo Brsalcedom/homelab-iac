@@ -3,7 +3,7 @@ name: "Tofu :: k8s hyperion"
 on:
   push:
     branches: ["main"]
-    paths: ["k8s/infraestructure/hyperion**"]
+    paths: ["terraform/proxmox/infraestructure/hyperion**"]
   workflow_dispatch:
 
 permissions:
@@ -18,7 +18,7 @@ jobs:
       image: brsalcedom/homelab-ci:2.2.0
     defaults:
       run:
-        working-directory: k8s/infraestructure/hyperion
+        working-directory: terraform/proxmox/infraestructure/hyperion
 
     steps:
       - name: 🧾 Checkout
@@ -80,7 +80,7 @@ jobs:
       name: tofu-infra
     defaults:
       run:
-        working-directory: k8s/infraestructure/hyperion
+        working-directory: terraform/proxmox/infraestructure/hyperion
 
     steps:
       - name: 🧾 Checkout

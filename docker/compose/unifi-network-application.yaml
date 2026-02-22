@@ -1,0 +1,32 @@
+---
+services:
+  unifi-network-application:
+    image: lscr.io/linuxserver/unifi-network-application:10.0.162
+    container_name: unifi-network-application
+    depends_on:
+      - unifi-db
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASS: ${MONGO_PASS}
+      MONGO_HOST: ${MONGO_HOST}
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_DBNAME: ${MONGO_DBNAME}
+      MONGO_AUTHSOURCE: ${MONGO_AUTHSOURCE}
+      MONGO_TLS: ${MONGO_TLS}
+    volumes:
+      - /opt/unifi-network-application/data:/config
+    network_mode: host
+    restart: unless-stopped
+  unifi-db:
+    image: mongo:8.2.2-noble
+    container_name: unifi-database
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    volumes:
+      - /opt/unifi/data:/data/db
+    network_mode: host
+    restart: unless-stopped

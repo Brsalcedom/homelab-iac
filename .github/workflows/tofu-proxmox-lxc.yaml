@@ -45,7 +45,7 @@ jobs:
           tofu plan -input=false -out=tfplan
 
       - name: 📦 Upload Plan
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: tfplan
           path: terraform/proxmox/lxc/tfplan
@@ -81,7 +81,7 @@ jobs:
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
 
       - name: 📥 Download Plan
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: tfplan
           path: terraform/proxmox/lxc

@@ -70,7 +70,7 @@ jobs:
           tofu plan -input=false -out=tfplan
 
       - name: 📦 Upload Plan
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: tfplan
           path: terraform/proxmox/infraestructure/hyperion/tfplan
@@ -131,7 +131,7 @@ jobs:
           task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: 📥 Download Plan
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: tfplan
           path: terraform/proxmox/infraestructure/hyperion

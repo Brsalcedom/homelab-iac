@@ -67,9 +67,15 @@ jobs:
           KUBE_CONFIG_PATH: "/root/.kube/config"
         run: |
           tofu init -input=false
-          tofu plan -input=false
+          tofu plan -input=false -out=tfplan
 
-  # ToDo: fix duplicated tasks
+      - name: 📦 Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/proxmox/infraestructure/hyperion/tfplan
+          retention-days: 1
+
   apply:
     name: "🚀 Apply"
     needs: plan
@@ -124,11 +130,16 @@ jobs:
         run: |
           task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
+      - name: 📥 Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/proxmox/infraestructure/hyperion
+
       - name: ✅ Apply Plan
         env: 
           KUBE_CONFIG_PATH: "/root/.kube/config"
           KUBECONFIG: "/root/.kube/config"
         run: |
           tofu init -input=false
-          tofu plan -input=false
-          tofu apply -auto-approve
+          tofu apply -auto-approve tfplan

@@ -42,7 +42,14 @@ jobs:
           TF_VAR_ssh_authorized_keys: '["${{ steps.secrets-bw.outputs.ssh_public_key }}"]'
         run: |
           tofu init -input=false
-          tofu plan -input=false
+          tofu plan -input=false -out=tfplan
+
+      - name: 📦 Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/proxmox/lxc/tfplan
+          retention-days: 1
 
   apply:
     name: "🚀 Apply"
@@ -73,10 +80,15 @@ jobs:
             40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
 
+      - name: 📥 Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/proxmox/lxc
+
       - name: ✅ Apply Plan
         env:
           TF_VAR_ssh_authorized_keys: '["${{ steps.secrets-bw.outputs.ssh_public_key }}"]'
         run: |
           tofu init -input=false
-          tofu plan -input=false
-          tofu apply -auto-approve
+          tofu apply -auto-approve tfplan

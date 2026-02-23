@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.1...v3.0.0) (2026-02-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **github-action:** Update GitHub Artifact Actions ([#90](https://github.com/Brsalcedom/homelab-iac/issues/90))
+
+### Performance Improvements
+
+* avoid duplicate tofu plan execution in workflow ([#88](https://github.com/Brsalcedom/homelab-iac/issues/88)) ([35fcab0](https://github.com/Brsalcedom/homelab-iac/commit/35fcab08719efda9e82c7aaa697685a0dfe659cf))
+
+
+### Continuous Integration
+
+* **github-action:** Update GitHub Artifact Actions ([#90](https://github.com/Brsalcedom/homelab-iac/issues/90)) ([98866ec](https://github.com/Brsalcedom/homelab-iac/commit/98866ec4444390e750e569a5676305b6c4079660))
+
 ## [2.0.1](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.0...v2.0.1) (2026-02-22)
 
 

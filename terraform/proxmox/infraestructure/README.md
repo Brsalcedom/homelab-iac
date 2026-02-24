@@ -1,62 +1,66 @@
 # ☸️ homelab-iac/terraform/proxmox/infraestructure
 
-Este directorio contiene la infraestructura como código de los nodos Kubernetes (`k3s`) que componen el homelab. Actualmente está configurado **Hyperion** como nodo estable, gestionado mediante Terraform, y utiliza Cloudflare R2 como backend remoto para el estado.
+This directory contains the Infrastructure as Code for the Kubernetes (`k3s`) nodes that make up the homelab. Currently, **Hyperion** is configured as the stable node, managed through Terraform, and uses Cloudflare R2 as a remote backend for state.
 
 ---
 
-## 🌐 Descripción general de los nodos
+## 🌐 Node Overview
 
-### 🔹 Hyperion (entorno estable)
+### 🔹 Hyperion (stable environment)
 
-Nodo orientado a servicios personales de uso cotidiano. Su configuración busca estabilidad, seguridad y observabilidad.
+Node oriented towards personal services for daily use. Its configuration seeks stability, security, and observability.
 
-| Componente     | Tecnología                                    | Estado |
+| Component      | Technology                                    | Status |
 |----------------|-----------------------------------------------|--------|
 | CNI + Mesh     | [Cilium](https://cilium.io)                   | ✅     |
-| Gateway API    | Controlador Gateway API nativo de Cilium      | ✅     |
+| Gateway API    | Cilium native Gateway API controller          | ✅     |
 | GitOps         | [ArgoCD](https://argo-cd.readthedocs.io)      | ✅     |
-| Certificados   | [Cert-Manager](https://cert-manager.io) + Cloudflare DNS-01 | ✅     |
+| Certificates   | [Cert-Manager](https://cert-manager.io) + Cloudflare DNS-01 | ✅     |
 | LoadBalancer   | Cilium (eBPF)                                 | ✅     |
-| Almacenamiento | [Rook + Ceph](https://rook.io)                | 🔜     |
-| Observabilidad | Prometheus, Grafana, Loki (vía ArgoCD)        | 🔜     |
+| Secrets        | [Infisical](https://infisical.com) + Kubernetes Operator | ✅     |
+| Policy Engine  | [Kyverno](https://kyverno.io)                 | ✅     |
+| Storage        | [Rook + Ceph](https://rook.io)                | 🔜     |
+| Observability  | Prometheus, Grafana, Loki (via ArgoCD)        | 🔜     |
 
 
 ---
 
-### 🔸 Cronos (entorno experimental)
+### 🔸 Cronos (experimental environment)
 
-_Nodo planificado para pruebas, nuevas integraciones y aprendizaje práctico de herramientas más avanzadas o alternativas._
+_Planned node for testing, new integrations, and hands-on learning of more advanced or alternative tools._
 
-| Componente     | Tecnología                                       | Estado |
+| Component      | Technology                                       | Status |
 |----------------|--------------------------------------------------|--------|
-| CNI            | Flannel (default de `k3s`)                       | 🔜     |
+| CNI            | Flannel (default `k3s`)                          | 🔜     |
 | Service Mesh   | [Linkerd](https://linkerd.io)                    | 🔜     |
 | Gateway API    | [NGINX Gateway Fabric](https://www.nginx.com)   | 🔜     |
 | GitOps         | [FluxCD](https://fluxcd.io)                      | 🔜     |
-| Certificados   | [Cert-Manager](https://cert-manager.io) + Cloudflare DNS-01 | 🔜     |
+| Certificates   | [Cert-Manager](https://cert-manager.io) + Cloudflare DNS-01 | 🔜     |
 | LoadBalancer   | [kube-vip](https://kube-vip.io)                  | 🔜     |
-| Almacenamiento | [Longhorn](https://longhorn.io)                 | 🔜     |
-| Observabilidad | Prometheus, Grafana, Loki (vía FluxCD)           | 🔜     |
+| Secrets        | [Vault](https://www.vaultproject.io) + [External Secrets Operator](https://external-secrets.io) | 🔜     |
+| Policy Engine  | [OPA Gatekeeper](https://open-policy-agent.github.io/gatekeeper) | 🔜     |
+| Storage        | [Longhorn](https://longhorn.io)                 | 🔜     |
+| Observability  | Prometheus, Grafana, Loki (via FluxCD)           | 🔜     |
 
 ---
 
-## 📁 Estructura
+## 📁 Structure
 
 ```bash
 terraform/proxmox/infraestructure/
-└── hyperion/          # Stack estable: ArgoCD, Cilium, Gateway API, Cert-Manager
-    ├── argocd.tf      # Configuración de ArgoCD
+└── hyperion/          # Stable stack: ArgoCD, Cilium, Gateway API, Cert-Manager
+    ├── argocd.tf      # ArgoCD configuration
     ├── certmanager.tf # Cert-Manager + ClusterIssuer Cloudflare
-    ├── cilium.tf      # CNI Cilium con Gateway API
-    ├── gateway.tf     # Gateway y HTTPRoute
-    ├── backend.tf     # Backend remoto en Cloudflare R2
+    ├── cilium.tf      # Cilium CNI with Gateway API
+    ├── gateway.tf     # Gateway and HTTPRoute
+    ├── backend.tf     # Remote backend on Cloudflare R2
     ├── providers.tf   # Providers: Helm, Kubectl, Kubernetes
-    └── locals.tf      # Variables locales
+    └── locals.tf      # Local variables
 ```
 
 ---
 
-## ⚙️ Cómo aplicar
+## ⚙️ How to Apply
 
 ```bash
 cd terraform/proxmox/infraestructure/hyperion
@@ -66,9 +70,9 @@ terraform apply
 
 ---
 
-## 🐳 Instalación de K3s por nodo
+## 🐳 K3s Installation per Node
 
-Cada nodo tiene su propia configuración de K3s según el stack que usará. Aquí se muestran los comandos usados para instalar K3s de forma personalizada:
+Each node has its own K3s configuration according to the stack it will use. Here are the commands used to install K3s in a customized way:
 
 ### 🔹 Hyperion
 
@@ -76,29 +80,29 @@ Cada nodo tiene su propia configuración de K3s según el stack que usará. Aqu�
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable traefik --disable-network-policy --disable-kube-proxy --flannel-backend=none --node-name=hyperion" sh -
 ```
 
-- Se desactiva Traefik, Flannel y kube-proxy ya que se utilizará **Cilium** como CNI, gateway e infraestructura de red.
+- Traefik, Flannel, and kube-proxy are disabled since **Cilium** will be used as CNI, gateway, and network infrastructure.
 
 ### 🔸 Cronos
 
-_Pendiente de implementación._
+_Pending implementation._
 
 ---
 
-## 🔧 Requisitos
+## 🔧 Requirements
 
 ### 1. Terraform
 
-Versión recomendada: **1.9+**
+Recommended version: **1.9+**
 
 ### 2. Kubeconfig
 
-Asegúrate de tener acceso al cluster K3s:
+Make sure you have access to the K3s cluster:
 
 ```bash
 export KUBECONFIG=/path/to/hyperion-kubeconfig.yaml
 ```
 
-### 3. Variables de entorno para Cloudflare R2
+### 3. Environment Variables for Cloudflare R2
 
 ```bash
 export AWS_ACCESS_KEY_ID="<R2_ACCESS_KEY>"
@@ -112,6 +116,6 @@ $env:AWS_SECRET_ACCESS_KEY="<R2_SECRET_KEY>"
 
 ## 🚧 TODO
 
-- [ ] Desplegar `Rook + Ceph` en Hyperion
-- [ ] Implementar nodo Cronos con FluxCD y Linkerd
-- [ ] Agregar observabilidad y dashboards por nodo
+- [ ] Deploy `Rook + Ceph` on Hyperion
+- [ ] Implement Cronos node with FluxCD and Linkerd
+- [ ] Add observability and dashboards per node

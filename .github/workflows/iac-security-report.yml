@@ -1,0 +1,97 @@
+name: "IaC :: Security Report"
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - 'cloudflare/**'
+      - '.github/workflows/iac-security-report.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  report:
+    name: "Generate IaC Security Report"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Trivy IaC scanner (SARIF)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-iac-results.sarif'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-iac-results.sarif'
+          category: 'iac-security'
+
+      - name: Run Trivy IaC scanner (JSON)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'json'
+          output: 'trivy-iac-results.json'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Run Trivy IaC scanner (Table)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Generate scan summary
+        if: hashFiles('trivy-iac-results.json') != ''
+        run: |
+          echo "## 🔍 IaC Security Scan Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scanned:** Terraform/OpenTofu configurations" >> $GITHUB_STEP_SUMMARY
+          echo "**Scanner:** Trivy (includes tfsec rules)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f trivy-iac-results.json ]; then
+            CRITICAL=$(jq '[.Results[]?.Misconfigurations[]? | select(.Severity=="CRITICAL")] | length' trivy-iac-results.json)
+            HIGH=$(jq '[.Results[]?.Misconfigurations[]? | select(.Severity=="HIGH")] | length' trivy-iac-results.json)
+            MEDIUM=$(jq '[.Results[]?.Misconfigurations[]? | select(.Severity=="MEDIUM")] | length' trivy-iac-results.json)
+            
+            echo "### Vulnerability Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| 🔴 CRITICAL | $CRITICAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| 🟠 HIGH | $HIGH |" >> $GITHUB_STEP_SUMMARY
+            echo "| 🟡 MEDIUM | $MEDIUM |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$CRITICAL" -gt 0 ]; then
+              echo "### ⚠️ CRITICAL Issues Detected" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Note:** Consider creating an IaC Security Gate workflow to block PRs with critical issues." >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              jq -r '.Results[]?.Misconfigurations[]? | select(.Severity=="CRITICAL") | "- **\(.ID)**: \(.Title)\n  - File: `\(.CauseMetadata.Resource // "N/A")`\n  - Line: \(.CauseMetadata.StartLine // "N/A")\n"' trivy-iac-results.json | head -n 30 >> $GITHUB_STEP_SUMMARY
+            else
+              echo "### ✅ No Critical Issues" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "The IaC passed the security scan with no critical issues." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "📊 Full results available in the [Security tab](../security/code-scanning)" >> $GITHUB_STEP_SUMMARY

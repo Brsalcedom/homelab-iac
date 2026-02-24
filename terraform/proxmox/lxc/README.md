@@ -218,3 +218,8 @@ ssh root@<container-ip>
 -   Custom LXC Terraform Module: https://github.com/Brsalcedom/tf-modules
 -   Project Repository: https://github.com/Brsalcedom/homelab-iac
 
+------------------------------------------------------------------------
+
+## 📖 Additional Documentation
+
+For detailed instructions on setting up a GitHub self-hosted runner in an LXC container, see [github-runner-setup.md](./github-runner-setup.md). This guide covers the complete process from container access to service configuration, including Docker installation and systemd service setup.

@@ -8,7 +8,7 @@ area/docker:
 
 area/terraform:
   - changed-files:
-      - any-glob-to-any-file: "terraform/**/*"
+      - any-glob-to-any-file: "**/*.tf"
 
 area/kubernetes:
   - changed-files:

@@ -1,78 +1,78 @@
 # 🏠 homelab-iac
 
-Infraestructura como código para mi laboratorio personal en casa, gestionado con Terraform, K3s, GitOps y más.
+Infrastructure as Code for my personal home lab, managed with Terraform, K3s, GitOps, and more.
 
 [![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4?logo=terraform)](https://www.terraform.io/)
 [![Kubernetes](https://img.shields.io/badge/K3s-Kubernetes-326CE5?logo=kubernetes)](https://k3s.io/)
 [![FluxCD](https://img.shields.io/badge/GitOps-FluxCD-0064ff?logo=flux)](https://fluxcd.io/)
 [![ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-d63aff?logo=argo)](https://argo-cd.readthedocs.io/)
 [![Cloudflare](https://img.shields.io/badge/DNS-Cloudflare-F38020?logo=cloudflare)](https://cloudflare.com/)
-[![License](https://img.shields.io/badge/Licencia-Personal-informational)]()
+[![License](https://img.shields.io/badge/License-Personal-informational)]()
 
 </div>
 
 ---
 
-## 📖 Descripción
+## 📖 Description
 
-Este repositorio define toda la infraestructura de mi homelab de forma declarativa utilizando Terraform, Packer, GitOps y Kubernetes (`k3s`) sobre Proxmox. Mi objetivo es mantener un entorno autosustentable, reproducible y seguro que me permita:
+This repository defines all my homelab infrastructure declaratively using Terraform, Packer, GitOps, and Kubernetes (`k3s`) on Proxmox. My goal is to maintain a self-sustaining, reproducible, and secure environment that allows me to:
 
-- Automatizar todo el ciclo de vida de la infraestructura.
-- Experimentar con nuevas herramientas DevOps y de seguridad.
-- Desplegar servicios personales autogestionados.
-- Aprender buenas prácticas de arquitectura, automatización y observabilidad.
+- Automate the entire infrastructure lifecycle.
+- Experiment with new DevOps and security tools.
+- Deploy self-hosted personal services.
+- Learn best practices in architecture, automation, and observability.
 
 ---
 
-## 🧱 Componentes Principales
+## 🧱 Main Components
 
-| Categoría         | Tecnologías                                                                          |
+| Category          | Technologies                                                                          |
 |-------------------|---------------------------------------------------------------------------------------|
-| **Orquestación**  | [K3s](https://k3s.io), [Cilium](https://cilium.io), [Linkerd](https://linkerd.io)     |
+| **Orchestration** | [K3s](https://k3s.io), [Cilium](https://cilium.io), [Linkerd](https://linkerd.io)     |
 | **GitOps**        | [ArgoCD](https://argo-cd.readthedocs.io), [FluxCD](https://fluxcd.io)                |
-| **Infraestructura**| [Terraform](https://www.terraform.io), [OpenTofu](https://opentofu.org), [Packer](https://www.packer.io) |
-| **Almacenamiento**| [Rook + Ceph](https://rook.io), [Longhorn](https://longhorn.io)                      |
-| **Certificados**  | [cert-manager](https://cert-manager.io), [Cloudflare DNS-01](https://developers.cloudflare.com/) |
-| **Observabilidad**| [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), [Loki](https://grafana.com/oss/loki) |
-| **Red**           | [Cilium LB](https://docs.cilium.io), [kube-vip](https://kube-vip.io)                 |
+| **Infrastructure**| [Terraform](https://www.terraform.io), [OpenTofu](https://opentofu.org), [Packer](https://www.packer.io) |
+| **Storage**       | [Rook + Ceph](https://rook.io), [Longhorn](https://longhorn.io)                      |
+| **Certificates**  | [cert-manager](https://cert-manager.io), [Cloudflare DNS-01](https://developers.cloudflare.com/) |
+| **Observability** | [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), [Loki](https://grafana.com/oss/loki) |
+| **Networking**    | [Cilium LB](https://docs.cilium.io), [kube-vip](https://kube-vip.io)                 |
 
 ---
 
-## 📂 Estructura
+## 📂 Structure
 
 ```bash
 homelab-iac/
-├── .github/                    # Workflows CI/CD, labels y configuración
-├── cloudflare/                 # Terraform para Cloudflare R2 y DNS
-├── docker/                     # Compose y Swarm stacks
+├── .github/                    # CI/CD workflows, labels and configuration
+├── cloudflare/                 # Terraform for Cloudflare R2 and DNS
+├── docker/                     # Compose and Swarm stacks
 │   ├── compose/               # Docker Compose configs
 │   └── swarm/                 # Docker Swarm stacks
-├── kubernetes/                 # Manifiestos de aplicaciones K8s
+├── kubernetes/                 # K8s application manifests
 │   └── applications/
-│       └── argocd/            # Apps gestionadas por ArgoCD
-├── packer/                     # Imágenes base para VMs con Packer
-└── terraform/                  # Infraestructura como código
+│       └── argocd/            # Apps managed by ArgoCD
+├── packer/                     # Base VM images with Packer
+└── terraform/                  # Infrastructure as Code
     └── proxmox/
-        ├── infraestructure/   # Clusters K3s (Hyperion)
-        │   └── hyperion/      # Stack estable: Cilium, ArgoCD, Gateway API
-        ├── lxc/               # Contenedores LXC
-        └── vm/                # Máquinas virtuales
+        ├── infraestructure/   # K3s clusters (Hyperion)
+        │   └── hyperion/      # Stable stack: Cilium, ArgoCD, Gateway API
+        ├── lxc/               # LXC containers
+        └── vm/                # Virtual machines
 ```
 
-Consulta [`terraform/proxmox/infraestructure/README.md`](./terraform/proxmox/infraestructure/README.md) para ver los stacks y configuración de cada nodo de Kubernetes.
+See [`terraform/proxmox/infraestructure/README.md`](./terraform/proxmox/infraestructure/README.md) for stacks and configuration details of each Kubernetes node.
 
 ---
 
-## 🛠️ Requisitos
+## 🛠️ Requirements
 
 - Terraform ≥ 1.9.0
-- Kubeconfig por nodo
-- Dominio público para generar certificados válidos
-- Token de API de Cloudflare
+- Kubeconfig per node
+- Public domain for valid certificate generation
+- Cloudflare API token
 - Helm, Kubectl, Git
 
 ---
 
-## 🙋 Autor
+## 🙋 Author
 
 Bryan Salcedo — [https://cervant.net](https://cervant.net)

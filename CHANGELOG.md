@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.2...v2.1.0) (2026-02-24)
+
+
+### Features
+
+* **deps:** update terraform proxmox to v0.97.0 ([#91](https://github.com/Brsalcedom/homelab-iac/issues/91)) ([b0724b2](https://github.com/Brsalcedom/homelab-iac/commit/b0724b2824593ae9f804488a4b29fbd662ef7eef))
+* workflows & docs ([#92](https://github.com/Brsalcedom/homelab-iac/issues/92)) ([18c7db4](https://github.com/Brsalcedom/homelab-iac/commit/18c7db4fc30901f2496ddc3de52c8a60f60f1605))
+
 ## [3.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.1...v3.0.0) (2026-02-23)
 
 

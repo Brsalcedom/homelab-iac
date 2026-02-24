@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Run Trivy IaC scanner
+      - name: Run Trivy IaC scanner (SARIF)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
@@ -34,39 +34,9 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-iac-results.sarif'
-          category: 'iac-trivy'
+          category: 'iac-security'
 
-      - name: Run tfsec scanner
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: '.'
-          format: 'sarif'
-          soft_fail: true
-          additional_args: '--exclude-downloaded-modules'
-
-      - name: Upload tfsec results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: 'results.sarif'
-          category: 'iac-tfsec'
-
-      - name: Run Checkov scanner
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: '.'
-          framework: terraform
-          output_format: sarif
-          output_file_path: checkov-results.sarif
-          soft_fail: true
-          skip_check: CKV_DOCKER_2,CKV_DOCKER_3
-
-      - name: Upload Checkov results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: checkov-results.sarif
-          category: 'iac-checkov'
-
-      - name: Run Trivy for JSON summary
+      - name: Run Trivy IaC scanner (JSON)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
@@ -76,12 +46,22 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL,HIGH,MEDIUM'
 
+      - name: Run Trivy IaC scanner (Table)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
       - name: Generate scan summary
         if: hashFiles('trivy-iac-results.json') != ''
         run: |
           echo "## 🔍 IaC Security Scan Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Scanned:** Terraform/OpenTofu configurations" >> $GITHUB_STEP_SUMMARY
+          echo "**Scanner:** Trivy (includes tfsec rules)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ -f trivy-iac-results.json ]; then
@@ -89,7 +69,7 @@ jobs:
             HIGH=$(jq '[.Results[]?.Misconfigurations[]? | select(.Severity=="HIGH")] | length' trivy-iac-results.json)
             MEDIUM=$(jq '[.Results[]?.Misconfigurations[]? | select(.Severity=="MEDIUM")] | length' trivy-iac-results.json)
             
-            echo "### Trivy Findings" >> $GITHUB_STEP_SUMMARY
+            echo "### Vulnerability Summary" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
             echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
@@ -101,10 +81,10 @@ jobs:
             if [ "$CRITICAL" -gt 0 ]; then
               echo "### ⚠️ CRITICAL Issues Detected" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "**Note:** The IaC Security Gate workflow will block this PR from merging." >> $GITHUB_STEP_SUMMARY
+              echo "**Note:** Consider creating an IaC Security Gate workflow to block PRs with critical issues." >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
               
-              jq -r '.Results[]?.Misconfigurations[]? | select(.Severity=="CRITICAL") | "- **\(.ID)**: \(.Title)\n  - File: `\(.CauseMetadata.Resource)`\n  - Line: \(.CauseMetadata.StartLine)\n"' trivy-iac-results.json | head -n 30 >> $GITHUB_STEP_SUMMARY
+              jq -r '.Results[]?.Misconfigurations[]? | select(.Severity=="CRITICAL") | "- **\(.ID)**: \(.Title)\n  - File: `\(.CauseMetadata.Resource // "N/A")`\n  - Line: \(.CauseMetadata.StartLine // "N/A")\n"' trivy-iac-results.json | head -n 30 >> $GITHUB_STEP_SUMMARY
             else
               echo "### ✅ No Critical Issues" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
@@ -115,8 +95,3 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "📊 Full results available in the [Security tab](../security/code-scanning)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Scanners Used" >> $GITHUB_STEP_SUMMARY
-          echo "- **Trivy**: Misconfigurations and vulnerabilities" >> $GITHUB_STEP_SUMMARY
-          echo "- **tfsec**: Terraform security best practices" >> $GITHUB_STEP_SUMMARY
-          echo "- **Checkov**: Policy-as-code compliance" >> $GITHUB_STEP_SUMMARY

@@ -41,6 +41,47 @@
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
+    },
+    {
+      "description": "Update Helm chart versions in ArgoCD Application manifests",
+      "fileMatch": ["^kubernetes/applications/argocd/.+/application\\.ya?ml$"],
+      "matchStrings": [
+        "repoURL:\\s*(?<registryUrl>https?://[^\\s]+)\\s+chart:\\s*(?<depName>[^\\s]+)\\s+targetRevision:\\s*['\"]?(?<currentValue>[^\\s'\"]+)['\"]?"
+      ],
+      "datasourceTemplate": "helm"
+    },
+    {
+      "description": "Update Helm chart versions in Terraform locals.tf files",
+      "fileMatch": ["^terraform/proxmox/infraestructure/.+/locals\\.tf$"],
+      "matchStrings": [
+        "cilium_chart_version\\s*=\\s*['\"](?<currentValue>[^'\"]+)['\"]"
+      ],
+      "depNameTemplate": "cilium",
+      "packageNameTemplate": "cilium",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://helm.cilium.io"
+    },
+    {
+      "description": "Update ArgoCD Helm chart version in Terraform locals.tf files",
+      "fileMatch": ["^terraform/proxmox/infraestructure/.+/locals\\.tf$"],
+      "matchStrings": [
+        "argocd_chart_version\\s*=\\s*['\"](?<currentValue>[^'\"]+)['\"]"
+      ],
+      "depNameTemplate": "argo-cd",
+      "packageNameTemplate": "argo-cd",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://argoproj.github.io/argo-helm"
+    },
+    {
+      "description": "Update cert-manager Helm chart version in Terraform locals.tf files",
+      "fileMatch": ["^terraform/proxmox/infraestructure/.+/locals\\.tf$"],
+      "matchStrings": [
+        "cert_manager_chart_version\\s*=\\s*['\"](?<currentValue>[^'\"]+)['\"]"
+      ],
+      "depNameTemplate": "cert-manager",
+      "packageNameTemplate": "cert-manager",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://charts.jetstack.io"
     }
   ]
 }

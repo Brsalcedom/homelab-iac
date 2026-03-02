@@ -16,4 +16,4 @@ device_identifier
 **/stack.env
 /packer
 **.tfa
-terraform/proxmox/vm
+**/vm

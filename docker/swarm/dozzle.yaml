@@ -1,0 +1,22 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_MODE=swarm
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - target: 8080
+        published: 8088
+        mode: host
+    networks:
+      - swarm-frontend
+    restart: unless-stopped
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+
+networks:
+  swarm-frontend:
+    external: true

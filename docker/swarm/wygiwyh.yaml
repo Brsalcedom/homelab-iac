@@ -40,6 +40,11 @@ services:
 
   db:
     image: postgres:15-bookworm
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: ingress
     volumes:
       - wygiwyh_pgdata:/var/lib/postgresql/data
     environment:

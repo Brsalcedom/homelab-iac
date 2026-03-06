@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.2...v3.0.0) (2026-03-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** Update Helm release argo-cd to v9 ([#104](https://github.com/Brsalcedom/homelab-iac/issues/104))
+* **github-action:** Update GitHub Artifact Actions ([#94](https://github.com/Brsalcedom/homelab-iac/issues/94))
+
+### Features
+
+* **deps:** Update Helm release argo-cd to v9 ([#104](https://github.com/Brsalcedom/homelab-iac/issues/104)) ([9d91b77](https://github.com/Brsalcedom/homelab-iac/commit/9d91b776226e4476a90b80118a7d3faff33def28))
+* **deps:** update helm release cert-manager to v1.19.4 ([#100](https://github.com/Brsalcedom/homelab-iac/issues/100)) ([3c8c233](https://github.com/Brsalcedom/homelab-iac/commit/3c8c233b099408062b55bc44dcb4b0719c4110e1))
+* **deps:** update helm release cilium to v1.19.1 ([#101](https://github.com/Brsalcedom/homelab-iac/issues/101)) ([f5a1b75](https://github.com/Brsalcedom/homelab-iac/commit/f5a1b75ccd49f361c6375d0bd438d7df7bb646f6))
+* **deps:** update helm release cloudnative-pg to v0.27.1 ([#102](https://github.com/Brsalcedom/homelab-iac/issues/102)) ([399504f](https://github.com/Brsalcedom/homelab-iac/commit/399504fa73acd901d6348d67c959f1be5ed8ea1e))
+* **deps:** update helm release kyverno to v3.7.1 ([#103](https://github.com/Brsalcedom/homelab-iac/issues/103)) ([d4e4146](https://github.com/Brsalcedom/homelab-iac/commit/d4e4146c4e88e2fa8ce0f170a3c5a6220b89789e))
+* **deps:** update terraform cloudflare to v5.18.0 ([#96](https://github.com/Brsalcedom/homelab-iac/issues/96)) ([6e3cf6c](https://github.com/Brsalcedom/homelab-iac/commit/6e3cf6cbda4fb01c2d320f1c1db23ed5e2a42890))
+* **deps:** update terraform proxmox to v0.97.0 ([#91](https://github.com/Brsalcedom/homelab-iac/issues/91)) ([b0724b2](https://github.com/Brsalcedom/homelab-iac/commit/b0724b2824593ae9f804488a4b29fbd662ef7eef))
+* **deps:** update terraform proxmox to v0.98.0 ([#106](https://github.com/Brsalcedom/homelab-iac/issues/106)) ([5d5d5d3](https://github.com/Brsalcedom/homelab-iac/commit/5d5d5d3ca551a83dfa383f80ac36ea3a8c753ea1))
+* **renovate:** extend renovate's reach ([#97](https://github.com/Brsalcedom/homelab-iac/issues/97)) ([a3d1d77](https://github.com/Brsalcedom/homelab-iac/commit/a3d1d774cbaadc2d4c7b4956f3424a7be07df0e2))
+* workflows & docs ([#92](https://github.com/Brsalcedom/homelab-iac/issues/92)) ([18c7db4](https://github.com/Brsalcedom/homelab-iac/commit/18c7db4fc30901f2496ddc3de52c8a60f60f1605))
+
+
+### Continuous Integration
+
+* **github-action:** Update GitHub Artifact Actions ([#94](https://github.com/Brsalcedom/homelab-iac/issues/94)) ([73f0386](https://github.com/Brsalcedom/homelab-iac/commit/73f03869300a0231e0456707c025c648be4a1489))
+
 ## [3.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.1...v3.0.0) (2026-02-23)
 
 

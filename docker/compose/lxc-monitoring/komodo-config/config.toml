@@ -25,20 +25,14 @@ domain = "github.com"
 https = true
 accounts = []
 
-[[stack]]
-name = "homepage"
-type = "git"
-repository = "Brsalcedom/homelab-iac"
-branch = "main"
-provider = "github.com"
-path = "docker/compose/lxc-monitoring/homepage.yaml"
+[[repo]]
+name = "brsalcedom/homelab-iac"
+[repo.config]
 
 [[stack]]
-name = "dozzle"
-type = "git"
-repository = "Brsalcedom/homelab-iac"
-branch = "main"
-provider = "github.com"
-path = "docker/compose/lxc-monitoring/dozzle.yaml"
-
-
+name = "lxc-monitoring"
+[stack.config]
+server = "lxc-monitoring"
+repo = "brsalcedom/homelab-iac"
+run_directory = "docker/compose/lxc-monitoring"
+file_paths = ["dozzle.yaml", "homepage.yaml"]

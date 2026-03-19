@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/Brsalcedom/homelab-iac/compare/v3.1.0...v3.2.0) (2026-03-19)
+
+
+### Features
+
+* add lxc monitoring ([#114](https://github.com/Brsalcedom/homelab-iac/issues/114)) ([6d519bb](https://github.com/Brsalcedom/homelab-iac/commit/6d519bbb061a33b496e0b2f59e4c7c4f4004ec66))
+
 ## [3.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v3.0.0...v3.1.0) (2026-03-19)
 
 

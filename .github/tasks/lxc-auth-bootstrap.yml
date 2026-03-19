@@ -7,7 +7,7 @@ vars:
   SSH_PORT: '{{env "SSH_PORT" | default "22"}}'
   SSH_KEY_PATH: '{{env "SSH_KEY_PATH"}}'
   LXC_HOST: '{{env "LXC_HOST"}}'
-  AUTHENTIK_COMPOSE_SOURCE: '{{env "AUTHENTIK_COMPOSE_SOURCE" | default "docker/compose/authentik.yaml"}}'
+  AUTHENTIK_COMPOSE_SOURCE: '{{env "AUTHENTIK_COMPOSE_SOURCE" | default "docker/compose/lxc-auth/authentik.yaml"}}'
   AUTHENTIK_ENV_SOURCE: '{{env "AUTHENTIK_ENV_SOURCE" | default ".env"}}'
   AUTHENTIK_RUNTIME_PATH: '{{env "AUTHENTIK_RUNTIME_PATH" | default "/opt/authentik"}}'
 

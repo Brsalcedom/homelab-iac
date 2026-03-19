@@ -47,6 +47,12 @@ locals {
       ip           = "192.168.1.165"
       id           = 165
       tags         = ["playground"]
+    },
+    "auth" = {
+      description  = "Authentication & Authorization | IP: 192.168.1.170"
+      ip           = "192.168.1.170"
+      id           = 170
+      tags         = ["authentik", "sso"]
     }
   }
 

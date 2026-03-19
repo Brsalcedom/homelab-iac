@@ -1,0 +1,61 @@
+name: "Bootstrap :: LXC auth"
+
+on:
+  workflow_dispatch:
+    inputs:
+      lxc_host:
+        description: "Target LXC IP/hostname"
+        required: false
+        default: "192.168.1.170"
+      lxc_user:
+        description: "SSH user"
+        required: false
+        default: "root"
+      ssh_port:
+        description: "SSH port"
+        required: false
+        default: "22"
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap-auth:
+    name: "🚀 Bootstrap Docker on auth LXC"
+    runs-on: self-hosted
+    container:
+      image: brsalcedom/homelab-ci:2.2.0
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔐 Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v2
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            f5a47b3b-df1e-4b6b-9d46-b4120005336a > LXC_SSH_PRIVATE_KEY
+
+      - name: 🔑 Write SSH private key
+        env:
+          LXC_SSH_PRIVATE_KEY: ${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "${LXC_SSH_PRIVATE_KEY}" ]; then
+            echo "Missing required Bitwarden secret output: LXC_SSH_PRIVATE_KEY"
+            exit 1
+          fi
+          mkdir -p /root/.ssh
+          printf "%s" "${LXC_SSH_PRIVATE_KEY}" > /root/.ssh/lxc_auth_key
+          chmod 600 /root/.ssh/lxc_auth_key
+
+      - name: ⚙️ Run remote bootstrap task
+        run: |
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml \
+            install-docker-remote \
+            LXC_HOST=${{ github.event.inputs.lxc_host }} \
+            LXC_USER=${{ github.event.inputs.lxc_user }} \
+            SSH_PORT=${{ github.event.inputs.ssh_port }} \
+            SSH_KEY_PATH=/root/.ssh/lxc_auth_key

@@ -10,7 +10,8 @@ vars:
   MONITORING_RUNTIME_PATH: '{{env "MONITORING_RUNTIME_PATH" | default "/opt/monitoring"}}'
   KOMODO_AGENT_RUNTIME_PATH: '{{env "KOMODO_AGENT_RUNTIME_PATH" | default "/opt/komodo-agent"}}'
   KOMODO_COMPOSE_SOURCE: '{{env "KOMODO_COMPOSE_SOURCE" | default "docker/compose/lxc-monitoring/komodo.yaml"}}'
-  KOMODO_ENV_SOURCE: '{{env "KOMODO_ENV_SOURCE" | default ".env"}}'
+  KOMODO_CONFIG_RENDERED: '{{env "KOMODO_CONFIG_RENDERED" | default ".komodo.config.toml"}}'
+  KOMODO_ENV_RENDERED: '{{env "KOMODO_ENV_RENDERED" | default ".env"}}'
   KOMODO_RUNTIME_PATH: '{{env "KOMODO_RUNTIME_PATH" | default "/opt/monitoring/komodo"}}'
 
 tasks:
@@ -99,24 +100,29 @@ tasks:
         EOF
 
   validate-komodo-inputs:
-    desc: "Validate local Komodo files before remote deploy"
+    desc: "Validate Komodo files before remote deploy"
     silent: true
     requires:
       vars: [LXC_HOST]
     cmds:
       - |
         if [ ! -f "{{.KOMODO_COMPOSE_SOURCE}}" ]; then
-          echo "[ERROR] Komodo compose file not found at {{.KOMODO_COMPOSE_SOURCE}}"
+          echo "[ERROR] Komodo compose file not found: {{.KOMODO_COMPOSE_SOURCE}}"
           exit 1
         fi
       - |
-        if [ ! -f "{{.KOMODO_ENV_SOURCE}}" ]; then
-          echo "[ERROR] Komodo env file not found at {{.KOMODO_ENV_SOURCE}}"
+        if [ ! -f "{{.KOMODO_CONFIG_RENDERED}}" ]; then
+          echo "[ERROR] Rendered config.toml not found: {{.KOMODO_CONFIG_RENDERED}}"
+          exit 1
+        fi
+      - |
+        if [ ! -f "{{.KOMODO_ENV_RENDERED}}" ]; then
+          echo "[ERROR] Rendered .env not found: {{.KOMODO_ENV_RENDERED}}"
           exit 1
         fi
 
   sync-komodo-files:
-    desc: "Sync Komodo compose and env files to remote host"
+    desc: "Sync Komodo compose, config.toml and .env to remote host"
     silent: true
     requires:
       vars: [LXC_HOST]
@@ -131,14 +137,18 @@ tasks:
       - |
         scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.KOMODO_COMPOSE_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.KOMODO_RUNTIME_PATH}}/komodo.yaml
       - |
-        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.KOMODO_ENV_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.KOMODO_RUNTIME_PATH}}/.env
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.KOMODO_CONFIG_RENDERED}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.KOMODO_RUNTIME_PATH}}/config.toml
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.KOMODO_ENV_RENDERED}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.KOMODO_RUNTIME_PATH}}/.env
       - |
         ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
         set -e
         set +x
         test -f {{.KOMODO_RUNTIME_PATH}}/komodo.yaml
+        test -f {{.KOMODO_RUNTIME_PATH}}/config.toml
         test -f {{.KOMODO_RUNTIME_PATH}}/.env
         chmod 600 {{.KOMODO_RUNTIME_PATH}}/.env
+        chmod 600 {{.KOMODO_RUNTIME_PATH}}/config.toml
         echo "[INFO] Komodo files synced"
         EOF
 

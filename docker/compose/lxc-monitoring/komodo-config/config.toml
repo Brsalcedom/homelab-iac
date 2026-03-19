@@ -1,0 +1,38 @@
+host = "$KOMODO_HOST"
+passkey = "$KOMODO_PASSKEY"
+first_server = "https://periphery:8120"
+first_server_name = "lxc-monitoring"
+local_auth = false
+oidc_enabled = true
+oidc_provider = "$KOMODO_OIDC_PROVIDER"
+oidc_client_id = "$KOMODO_OIDC_CLIENT_ID"
+oidc_client_secret = "$KOMODO_OIDC_CLIENT_SECRET"
+enable_new_users = true
+
+[database]
+address = "mongo:27017"
+username = "komodo"
+password = "$KOMODO_DB_PASSWORD"
+
+[periphery]
+passkeys = ["$KOMODO_PASSKEY"]
+disable_terminals = false
+include_disk_mounts = "/etc/hostname"
+ssl_enabled = true
+
+[[git_provider]]
+domain = "github.com"
+https = true
+accounts = []
+
+[[repo]]
+name = "brsalcedom/homelab-iac"
+[repo.config]
+
+[[stack]]
+name = "lxc-monitoring"
+[stack.config]
+server = "lxc-monitoring"
+repo = "brsalcedom/homelab-iac"
+run_directory = "docker/compose/lxc-monitoring"
+file_paths = ["dozzle.yaml", "homepage.yaml"]

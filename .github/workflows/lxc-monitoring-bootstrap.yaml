@@ -13,8 +13,10 @@ jobs:
     env:
       LXC_USER: root
       SSH_PORT: "22"
+      KOMODO_HOST: https://komodo-monitoring.home.cervant.net
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     container:
-      image: brsalcedom/homelab-ci:2.2.0
+      image: brsalcedom/homelab-ci:2.5.0
 
     steps:
       - name: Checkout
@@ -28,10 +30,45 @@ jobs:
           base_url: https://vault.bitwarden.com
           secrets: |
             f5a47b3b-df1e-4b6b-9d46-b4120005336a > LXC_SSH_PRIVATE_KEY
+            ae856d75-ab23-4205-9130-b4120126a0e1 > KOMODO_DB_PASSWORD
+            7b5b357a-9af3-42f5-9cb1-b4120126b707 > KOMODO_PERIPHERY_PASSKEY
+            408da40d-1f9f-4ee7-b413-b412012ee69f > KOMODO_OIDC_PROVIDER
+            1d8eb9e3-cff1-46b7-b0c1-b412012dcc50 > KOMODO_OIDC_CLIENT_ID
+            bf9cfad2-beb3-4e7f-80f8-b412012dfa3a > KOMODO_OIDC_CLIENT_SECRET
 
       - name: Mask sensitive secrets from logs
         run: |
           echo "::add-mask::${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_DB_PASSWORD }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_PERIPHERY_PASSKEY }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_PROVIDER }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_ID }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_SECRET }}"
+
+      - name: Validate OIDC provider reachability
+        env:
+          KOMODO_OIDC_PROVIDER: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_PROVIDER }}
+        run: |
+          if [ -z "${KOMODO_OIDC_PROVIDER}" ]; then
+            echo "[ERROR] Missing Bitwarden secret: KOMODO_OIDC_PROVIDER"
+            exit 1
+          fi
+
+          OIDC_HOST=$(printf '%s' "${KOMODO_OIDC_PROVIDER}" | sed -E 's#^https?://([^/]+)/?.*$#\1#')
+          if [ -z "${OIDC_HOST}" ]; then
+            echo "[ERROR] Could not parse host from KOMODO_OIDC_PROVIDER: ${KOMODO_OIDC_PROVIDER}"
+            exit 1
+          fi
+
+          if ! getent hosts "${OIDC_HOST}" >/dev/null 2>&1; then
+            echo "[ERROR] OIDC provider host is not resolvable from runner: ${OIDC_HOST}"
+            exit 1
+          fi
+
+          if ! curl --fail --silent --show-error "${KOMODO_OIDC_PROVIDER}.well-known/openid-configuration" >/dev/null; then
+            echo "[ERROR] OIDC discovery endpoint is not reachable: ${KOMODO_OIDC_PROVIDER}.well-known/openid-configuration"
+            exit 1
+          fi
 
       - name: Validate Komodo compose source
         run: |
@@ -63,29 +100,47 @@ jobs:
           echo "Resolved monitoring LXC host: $LXC_HOST"
           echo "lxc_host=$LXC_HOST" >> "$GITHUB_OUTPUT"
 
-      - name: Write Komodo env file
+      - name: Render Komodo configuration
+        env:
+          KOMODO_DB_PASSWORD: ${{ steps.secrets-bw.outputs.KOMODO_DB_PASSWORD }}
+          KOMODO_PASSKEY: ${{ steps.secrets-bw.outputs.KOMODO_PERIPHERY_PASSKEY }}
+          KOMODO_HOST: ${{ env.KOMODO_HOST }}
+          KOMODO_OIDC_PROVIDER: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_PROVIDER }}
+          KOMODO_OIDC_CLIENT_ID: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_ID }}
+          KOMODO_OIDC_CLIENT_SECRET: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_SECRET }}
         run: |
-          KOMODO_DB_PASSWORD=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 32)
-          KOMODO_PERIPHERY_PASSKEY=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 48)
+          for var in KOMODO_DB_PASSWORD KOMODO_PASSKEY KOMODO_HOST KOMODO_OIDC_PROVIDER KOMODO_OIDC_CLIENT_ID KOMODO_OIDC_CLIENT_SECRET; do
+            if [ -z "$(eval echo \$$var)" ]; then
+              echo "[ERROR] Missing required env: $var"
+              exit 1
+            fi
+          done
 
-          echo "::add-mask::${KOMODO_DB_PASSWORD}"
-          echo "::add-mask::${KOMODO_PERIPHERY_PASSKEY}"
+          CONFIG_TEMPLATE="$GITHUB_WORKSPACE/docker/compose/lxc-monitoring/komodo-config/config.toml"
+          if [ ! -f "$CONFIG_TEMPLATE" ]; then
+            echo "[ERROR] Config template not found: $CONFIG_TEMPLATE"
+            exit 1
+          fi
 
-          cat <<EOF > $GITHUB_WORKSPACE/.env
+          envsubst < "$CONFIG_TEMPLATE" > "$GITHUB_WORKSPACE/.komodo.config.toml"
+          chmod 600 "$GITHUB_WORKSPACE/.komodo.config.toml"
+          echo "[INFO] Rendered config.toml at $GITHUB_WORKSPACE/.komodo.config.toml"
+
+      - name: Write minimal Komodo .env
+        env:
+          KOMODO_DB_PASSWORD: ${{ steps.secrets-bw.outputs.KOMODO_DB_PASSWORD }}
+        run: |
+          cat > "$GITHUB_WORKSPACE/.env" <<EOF
           KOMODO_DB_USERNAME=komodo
           KOMODO_DB_PASSWORD=${KOMODO_DB_PASSWORD}
-          PERIPHERY_PASSKEYS=${KOMODO_PERIPHERY_PASSKEY}
+          MONGO_CACHE_GB=0.25
           COMPOSE_KOMODO_IMAGE_TAG=latest
           KOMODO_CORE_PORT=9120
           PERIPHERY_PORT=8120
           PERIPHERY_ROOT_DIRECTORY=/etc/komodo
-          PERIPHERY_DISABLE_TERMINALS=false
-          PERIPHERY_INCLUDE_DISK_MOUNTS=/etc/hostname
-          PERIPHERY_SSL_ENABLED=true
           COMPOSE_KOMODO_BACKUPS_PATH=./komodo-backups
-          MONGO_CACHE_GB=0.25
           EOF
-          chmod 600 $GITHUB_WORKSPACE/.env
+          chmod 600 "$GITHUB_WORKSPACE/.env"
 
       - name: Write SSH private key
         env:
@@ -106,12 +161,23 @@ jobs:
           SSH_PORT: ${{ env.SSH_PORT }}
           SSH_KEY_PATH: /root/.ssh/lxc_monitoring_key
           KOMODO_COMPOSE_SOURCE: ${{ github.workspace }}/docker/compose/lxc-monitoring/komodo.yaml
-          KOMODO_ENV_SOURCE: ${{ github.workspace }}/.env
+          KOMODO_CONFIG_RENDERED: ${{ github.workspace }}/.komodo.config.toml
+          KOMODO_ENV_RENDERED: ${{ github.workspace }}/.env
         run: |
           task --silent --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-monitoring-bootstrap.yml
 
       - name: Komodo bootstrap result
         run: |
-          echo "Komodo installed on monitoring LXC."
-          echo "Periphery passkey is stored remotely in /opt/monitoring/komodo/.env"
-          echo "Use SSH to retrieve it and register the host in Komodo Core."
+          {
+            echo "## Monitoring Bootstrap Result"
+            echo
+            echo "- Status: success"
+            echo "- Target host: ${{ steps.resolve-lxc-host.outputs.lxc_host }}"
+            echo "- Komodo Core UI: ${{ env.KOMODO_HOST }}"
+            echo "- Auth mode: OIDC (Authentik)"
+            echo "- Git provider: github.com (public repos)"
+            echo
+            echo "### Stacks deployed"
+            echo "- **homepage** from Brsalcedom/homelab-iac:docker/compose/lxc-monitoring/homepage.yaml"
+            echo "- **dozzle** from Brsalcedom/homelab-iac:docker/compose/lxc-monitoring/dozzle.yaml"
+          } >> "$GITHUB_STEP_SUMMARY"

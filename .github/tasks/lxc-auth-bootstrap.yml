@@ -3,26 +3,52 @@ version: '3'
 dotenv: [".env"]
 
 vars:
-  LXC_USER: '{{default "root" .LXC_USER}}'
-  SSH_PORT: '{{default "22" .SSH_PORT}}'
+  LXC_USER: '{{env "LXC_USER" | default "root"}}'
+  SSH_PORT: '{{env "SSH_PORT" | default "22"}}'
+  SSH_KEY_PATH: '{{env "SSH_KEY_PATH"}}'
+  LXC_HOST: '{{env "LXC_HOST"}}'
+  AUTHENTIK_COMPOSE_SOURCE: '{{env "AUTHENTIK_COMPOSE_SOURCE" | default "docker/compose/authentik.yaml"}}'
+  AUTHENTIK_ENV_SOURCE: '{{env "AUTHENTIK_ENV_SOURCE" | default ".env"}}'
+  AUTHENTIK_RUNTIME_PATH: '{{env "AUTHENTIK_RUNTIME_PATH" | default "/opt/authentik"}}'
 
 tasks:
   default:
-    desc: "Bootstrap LXC Authentik"
-    deps: [install-docker-remote]
+    desc: "Bootstrap LXC Authentik: Docker + .env + docker-compose stack"
+    silent: true
+    cmds:
+      - task: install-docker-remote
+      - task: sync-compose-file
+      - task: deploy-authentik-stack
 
   install-docker-remote:
     desc: "Install Docker in target LXC via SSH"
+    silent: true
     requires:
       vars: [LXC_HOST]
     cmds:
       - |
-        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} 'bash -se' <<'EOF'
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        # Check if Docker is already installed
+        if command -v docker &>/dev/null; then
+          echo "[INFO] Docker already installed. Verifying service status..."
+          systemctl is-active --quiet docker || systemctl start docker
+          systemctl is-enabled --quiet docker || systemctl enable docker
+          echo "[INFO] Bootstrap idempotent exit (Docker already present)"
+          exit 0
+        fi
+        
+        echo "[INFO] Installing Docker prerequisites..."
         apt update
-        apt install -y ca-certificates curl
+        apt install -y ca-certificates curl || exit 1
+        
+        echo "[INFO] Setting up Docker APT key..."
         install -m 0755 -d /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+        curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc || exit 1
         chmod a+r /etc/apt/keyrings/docker.asc
+        
+        echo "[INFO] Adding Docker repository..."
         tee /etc/apt/sources.list.d/docker.sources <<EOS
         Types: deb
         URIs: https://download.docker.com/linux/debian
@@ -30,8 +56,106 @@ tasks:
         Components: stable
         Signed-By: /etc/apt/keyrings/docker.asc
         EOS
-        apt update
-        apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-        systemctl enable --now docker
+        
+        echo "[INFO] Updating package index..."
+        apt update || exit 1
+        
+        echo "[INFO] Installing Docker packages..."
+        apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || exit 1
+        
+        echo "[INFO] Enabling and starting Docker service..."
+        systemctl enable --now docker || exit 1
+        
+        echo "[INFO] Docker bootstrap completed successfully"
+        EOF
+
+  sync-compose-file:
+    desc: "Sync local authentik compose + .env files to remote LXC"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        if [ ! -f "{{.AUTHENTIK_COMPOSE_SOURCE}}" ]; then
+          echo "[ERROR] Local compose file not found at {{.AUTHENTIK_COMPOSE_SOURCE}}"
+          exit 1
+        fi
+      - |
+        if [ ! -f "{{.AUTHENTIK_ENV_SOURCE}}" ]; then
+          echo "[ERROR] Local env file not found at {{.AUTHENTIK_ENV_SOURCE}}"
+          exit 1
+        fi
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/data
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/certs
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/custom-templates
+        echo "[INFO] Remote compose directory ready at {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose"
+        EOF
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.AUTHENTIK_COMPOSE_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/authentik.yaml
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.AUTHENTIK_ENV_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/.env
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        if [ ! -f "{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/authentik.yaml" ]; then
+          echo "[ERROR] Failed to copy authentik.yaml to remote host"
+          exit 1
+        fi
+        if [ ! -f "{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/.env" ]; then
+          echo "[ERROR] Failed to copy .env to remote host"
+          exit 1
+        fi
+        chmod 600 {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/.env
+        echo "[INFO] Synced compose and .env to {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose"
+        EOF
+
+  deploy-authentik-stack:
+    desc: "Deploy Authentik docker-compose stack"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        echo "[INFO] Starting Authentik docker-compose stack..."
+
+        if docker compose version >/dev/null 2>&1; then
+          COMPOSE_CMD="docker compose"
+        elif command -v docker-compose >/dev/null 2>&1; then
+          COMPOSE_CMD="docker-compose"
+        else
+          echo "[ERROR] Neither 'docker compose' nor 'docker-compose' is available"
+          exit 1
+        fi
+        
+        cd {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose
+        
+        if [ ! -f ".env" ]; then
+          echo "[ERROR] .env not found. Ensure workflow writes .env and sync-compose-file runs first."
+          exit 1
+        fi
+        
+        echo "[INFO] Pulling latest images..."
+        ${COMPOSE_CMD} -f authentik.yaml pull
+        
+        echo "[INFO] Starting services..."
+        ${COMPOSE_CMD} -f authentik.yaml up -d
+        
+        echo "[INFO] Waiting for services to be ready..."
+        sleep 10
+        
+        echo "[INFO] Checking service status..."
+        ${COMPOSE_CMD} -f authentik.yaml ps
+        
+        echo "[INFO] Authentik stack deployed successfully"
+        echo "[INFO] Access at: http://{{.LXC_HOST}}:9000"
         EOF
 

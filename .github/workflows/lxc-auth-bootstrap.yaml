@@ -87,4 +87,4 @@ jobs:
           AUTHENTIK_COMPOSE_SOURCE: ${{ github.workspace }}/docker/compose/authentik.yaml
           AUTHENTIK_ENV_SOURCE: ${{ github.workspace }}/.env
         run: |
-          task --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml
+          task --silent --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml

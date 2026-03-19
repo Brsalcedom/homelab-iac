@@ -14,6 +14,7 @@ vars:
 tasks:
   default:
     desc: "Bootstrap LXC Authentik: Docker + .env + docker-compose stack"
+    silent: true
     cmds:
       - task: install-docker-remote
       - task: sync-compose-file
@@ -21,6 +22,7 @@ tasks:
 
   install-docker-remote:
     desc: "Install Docker in target LXC via SSH"
+    silent: true
     requires:
       vars: [LXC_HOST]
     cmds:
@@ -69,6 +71,7 @@ tasks:
 
   sync-compose-file:
     desc: "Sync local authentik compose + .env files to remote LXC"
+    silent: true
     requires:
       vars: [LXC_HOST]
     cmds:
@@ -114,6 +117,7 @@ tasks:
 
   deploy-authentik-stack:
     desc: "Deploy Authentik docker-compose stack"
+    silent: true
     requires:
       vars: [LXC_HOST]
     cmds:

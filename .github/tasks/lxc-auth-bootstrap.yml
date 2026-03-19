@@ -81,9 +81,13 @@ tasks:
         set -e
         set +x
         echo "[INFO] Creating .env for Authentik..."
-        
-        # Create authentik directories
-        mkdir -p {{.AUTHENTIK_REPO_PATH}}/docker/compose
+
+        if [ ! -f "{{.AUTHENTIK_REPO_PATH}}/docker/compose/authentik.yaml" ]; then
+          echo "[ERROR] Compose file not found at {{.AUTHENTIK_REPO_PATH}}/docker/compose/authentik.yaml"
+          echo "[ERROR] Run clone-compose task before generate-env."
+          exit 1
+        fi
+
         cd {{.AUTHENTIK_REPO_PATH}}/docker/compose
         
         # Generate .env file in the same directory as compose
@@ -112,15 +116,21 @@ tasks:
         set -e
         set +x
         echo "[INFO] Cloning authentik compose from {{.AUTHENTIK_REPO}}..."
-        
-        if [ -d "{{.AUTHENTIK_REPO_PATH}}" ]; then
-          echo "[INFO] Directory exists. Updating repository..."
-          cd {{.AUTHENTIK_REPO_PATH}}
-          git pull origin main
+
+        if [ -d "{{.AUTHENTIK_REPO_PATH}}/.git" ]; then
+          echo "[INFO] Git repository exists. Pulling latest changes..."
+          git -C {{.AUTHENTIK_REPO_PATH}} pull --ff-only origin main
+        elif [ -d "{{.AUTHENTIK_REPO_PATH}}" ]; then
+          backup_path="{{.AUTHENTIK_REPO_PATH}}.bak.$(date +%s)"
+          echo "[WARN] {{.AUTHENTIK_REPO_PATH}} exists but is not a git repository."
+          echo "[WARN] Moving existing directory to ${backup_path}"
+          mv {{.AUTHENTIK_REPO_PATH}} "${backup_path}"
+          git clone {{.AUTHENTIK_REPO}} {{.AUTHENTIK_REPO_PATH}}
         else
           git clone {{.AUTHENTIK_REPO}} {{.AUTHENTIK_REPO_PATH}}
-          cd {{.AUTHENTIK_REPO_PATH}}
         fi
+
+        cd {{.AUTHENTIK_REPO_PATH}}
         
         echo "[INFO] Repository ready at {{.AUTHENTIK_REPO_PATH}}"
         EOF
@@ -129,8 +139,10 @@ tasks:
     desc: "Deploy Authentik docker-compose stack"
     requires:
       vars: [LXC_HOST, PG_PASS, AUTHENTIK_SECRET_KEY]
-    deps: [install-docker-remote, clone-compose, generate-env]
     cmds:
+      - task: install-docker-remote
+      - task: clone-compose
+      - task: generate-env
       - |
         ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
         set -e

@@ -13,6 +13,7 @@ jobs:
     env:
       LXC_USER: root
       SSH_PORT: "22"
+      KOMODO_HOST: https://komodo-monitoring.home.cervant.net
     container:
       image: brsalcedom/homelab-ci:2.2.0
 
@@ -30,12 +31,18 @@ jobs:
             f5a47b3b-df1e-4b6b-9d46-b4120005336a > LXC_SSH_PRIVATE_KEY
             ae856d75-ab23-4205-9130-b4120126a0e1 > KOMODO_DB_PASSWORD
             7b5b357a-9af3-42f5-9cb1-b4120126b707 > KOMODO_PERIPHERY_PASSKEY
+            408da40d-1f9f-4ee7-b413-b412012ee69f > KOMODO_OIDC_PROVIDER
+            1d8eb9e3-cff1-46b7-b0c1-b412012dcc50 > KOMODO_OIDC_CLIENT_ID
+            bf9cfad2-beb3-4e7f-80f8-b412012dfa3a > KOMODO_OIDC_CLIENT_SECRET
 
       - name: Mask sensitive secrets from logs
         run: |
           echo "::add-mask::${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}"
           echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_DB_PASSWORD }}"
           echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_PERIPHERY_PASSKEY }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_PROVIDER }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_ID }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_SECRET }}"
 
       - name: Validate Komodo compose source
         run: |
@@ -71,6 +78,10 @@ jobs:
         env:
           KOMODO_DB_PASSWORD: ${{ steps.secrets-bw.outputs.KOMODO_DB_PASSWORD }}
           KOMODO_PERIPHERY_PASSKEY: ${{ steps.secrets-bw.outputs.KOMODO_PERIPHERY_PASSKEY }}
+          KOMODO_HOST: ${{ env.KOMODO_HOST }}
+          KOMODO_OIDC_PROVIDER: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_PROVIDER }}
+          KOMODO_OIDC_CLIENT_ID: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_ID }}
+          KOMODO_OIDC_CLIENT_SECRET: ${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_SECRET }}
         run: |
           if [ -z "${KOMODO_DB_PASSWORD}" ]; then
             echo "[ERROR] Missing Bitwarden secret: KOMODO_DB_PASSWORD"
@@ -80,10 +91,33 @@ jobs:
             echo "[ERROR] Missing Bitwarden secret: KOMODO_PERIPHERY_PASSKEY"
             exit 1
           fi
+          if [ -z "${KOMODO_HOST}" ]; then
+            echo "[ERROR] Missing Bitwarden secret: KOMODO_HOST"
+            exit 1
+          fi
+          if [ -z "${KOMODO_OIDC_PROVIDER}" ]; then
+            echo "[ERROR] Missing Bitwarden secret: KOMODO_OIDC_PROVIDER"
+            exit 1
+          fi
+          if [ -z "${KOMODO_OIDC_CLIENT_ID}" ]; then
+            echo "[ERROR] Missing Bitwarden secret: KOMODO_OIDC_CLIENT_ID"
+            exit 1
+          fi
+          if [ -z "${KOMODO_OIDC_CLIENT_SECRET}" ]; then
+            echo "[ERROR] Missing Bitwarden secret: KOMODO_OIDC_CLIENT_SECRET"
+            exit 1
+          fi
 
           cat <<EOF > $GITHUB_WORKSPACE/.env
           KOMODO_DB_USERNAME=komodo
           KOMODO_DB_PASSWORD=${KOMODO_DB_PASSWORD}
+          KOMODO_HOST=${KOMODO_HOST}
+          KOMODO_LOCAL_AUTH=false
+          KOMODO_OIDC_ENABLED=true
+          KOMODO_OIDC_PROVIDER=${KOMODO_OIDC_PROVIDER}
+          KOMODO_OIDC_CLIENT_ID=${KOMODO_OIDC_CLIENT_ID}
+          KOMODO_OIDC_CLIENT_SECRET=${KOMODO_OIDC_CLIENT_SECRET}
+          KOMODO_ENABLE_NEW_USERS=true
           PERIPHERY_PASSKEYS=${KOMODO_PERIPHERY_PASSKEY}
           COMPOSE_KOMODO_IMAGE_TAG=latest
           KOMODO_CORE_PORT=9120
@@ -122,6 +156,12 @@ jobs:
 
       - name: Komodo bootstrap result
         run: |
-          echo "Komodo installed on monitoring LXC."
-          echo "Register the server in Komodo Core using the passkey from Bitwarden."
-          echo "Core UI: http://${{ steps.resolve-lxc-host.outputs.lxc_host }}:9120"
+          {
+            echo "## Monitoring Bootstrap Result"
+            echo
+            echo "- Status: success"
+            echo "- Target host: ${{ steps.resolve-lxc-host.outputs.lxc_host }}"
+            echo "- Komodo Core UI: ${{ env.KOMODO_HOST }}"
+            echo "- Auth mode: OIDC (Authentik)"
+            echo "- Next step: log in with Authentik and register the server in Komodo Core using the Periphery passkey from Bitwarden"
+          } >> "$GITHUB_STEP_SUMMARY"

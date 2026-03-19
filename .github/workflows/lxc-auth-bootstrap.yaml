@@ -61,8 +61,8 @@ jobs:
 
       - name: ✅ Validate compose source in runner checkout
         run: |
-          if [ ! -f "$GITHUB_WORKSPACE/docker/compose/authentik.yaml" ]; then
-            echo "[ERROR] Compose file not found in checkout: $GITHUB_WORKSPACE/docker/compose/authentik.yaml"
+          if [ ! -f "$GITHUB_WORKSPACE/docker/compose/lxc-auth/authentik.yaml" ]; then
+            echo "[ERROR] Compose file not found in checkout: $GITHUB_WORKSPACE/docker/compose/lxc-auth/authentik.yaml"
             exit 1
           fi
           echo "[INFO] Compose source found in runner checkout"
@@ -84,7 +84,7 @@ jobs:
           LXC_USER: ${{ github.event.inputs.lxc_user }}
           SSH_PORT: ${{ github.event.inputs.ssh_port }}
           SSH_KEY_PATH: /root/.ssh/lxc_auth_key
-          AUTHENTIK_COMPOSE_SOURCE: ${{ github.workspace }}/docker/compose/authentik.yaml
+          AUTHENTIK_COMPOSE_SOURCE: ${{ github.workspace }}/docker/compose/lxc-auth/authentik.yaml
           AUTHENTIK_ENV_SOURCE: ${{ github.workspace }}/.env
         run: |
           task --silent --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml

@@ -30,6 +30,15 @@ locals {
       id          = 111
       tags        = ["github-runner"]
     },
+    "lxc-monitoring-01" = {
+      description = "Monitoring & Observability | IP: 192.168.1.114"
+      ip          = "192.168.1.114"
+      id          = 114
+      cpu         = 4
+      memory      = 4096
+      disk        = 30
+      tags        = ["monitoring", "observability", "dashboard", "logging"]
+    },
     "pihole-01" = {
       description = "Pihole | IP: 192.168.1.150"
       ip          = "192.168.1.150"

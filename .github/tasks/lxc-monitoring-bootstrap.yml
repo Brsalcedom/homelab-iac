@@ -1,0 +1,182 @@
+version: '3'
+
+dotenv: [".env"]
+
+vars:
+  LXC_USER: '{{env "LXC_USER" | default "root"}}'
+  SSH_PORT: '{{env "SSH_PORT" | default "22"}}'
+  SSH_KEY_PATH: '{{env "SSH_KEY_PATH"}}'
+  LXC_HOST: '{{env "LXC_HOST"}}'
+  MONITORING_RUNTIME_PATH: '{{env "MONITORING_RUNTIME_PATH" | default "/opt/monitoring"}}'
+  KOMODO_AGENT_RUNTIME_PATH: '{{env "KOMODO_AGENT_RUNTIME_PATH" | default "/opt/komodo-agent"}}'
+  KOMODO_COMPOSE_SOURCE: '{{env "KOMODO_COMPOSE_SOURCE" | default "docker/compose/lxc-monitoring/komodo.yaml"}}'
+  KOMODO_ENV_SOURCE: '{{env "KOMODO_ENV_SOURCE" | default ".env"}}'
+  KOMODO_RUNTIME_PATH: '{{env "KOMODO_RUNTIME_PATH" | default "/opt/monitoring/komodo"}}'
+
+tasks:
+  default:
+    desc: "Bootstrap LXC Monitoring host: Docker + runtime + Komodo"
+    silent: true
+    cmds:
+      - task: install-docker-remote
+      - task: prepare-runtime-remote
+      - task: validate-komodo-inputs
+      - task: sync-komodo-files
+      - task: deploy-komodo-stack
+
+  install-docker-remote:
+    desc: "Install Docker in target LXC via SSH"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+
+        if command -v docker &>/dev/null; then
+          echo "[INFO] Docker already installed. Verifying service status..."
+          systemctl is-active --quiet docker || systemctl start docker
+          systemctl is-enabled --quiet docker || systemctl enable docker
+          docker compose version >/dev/null 2>&1 || {
+            echo "[WARN] Docker found but compose plugin missing. Installing plugin..."
+            apt update
+            apt install -y docker-compose-plugin
+          }
+          echo "[INFO] Bootstrap idempotent exit (Docker already present)"
+          exit 0
+        fi
+
+        echo "[INFO] Installing system prerequisites..."
+        apt update
+        apt install -y ca-certificates curl git jq
+
+        echo "[INFO] Setting up Docker repository key..."
+        install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+        chmod a+r /etc/apt/keyrings/docker.asc
+
+        echo "[INFO] Adding Docker apt repository..."
+        tee /etc/apt/sources.list.d/docker.sources <<EOS
+        Types: deb
+        URIs: https://download.docker.com/linux/debian
+        Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+        Components: stable
+        Signed-By: /etc/apt/keyrings/docker.asc
+        EOS
+
+        echo "[INFO] Installing Docker engine and compose plugin..."
+        apt update
+        apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+        echo "[INFO] Enabling Docker service..."
+        systemctl enable --now docker
+
+        echo "[INFO] Docker bootstrap completed successfully"
+        EOF
+
+  prepare-runtime-remote:
+    desc: "Prepare runtime directories and host settings for monitoring stack"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+
+        mkdir -p {{.MONITORING_RUNTIME_PATH}}/compose
+        mkdir -p {{.MONITORING_RUNTIME_PATH}}/data
+        mkdir -p {{.KOMODO_AGENT_RUNTIME_PATH}}
+
+        chmod 755 {{.MONITORING_RUNTIME_PATH}}
+        chmod 755 {{.KOMODO_AGENT_RUNTIME_PATH}}
+
+        echo "[INFO] Monitoring runtime prepared at {{.MONITORING_RUNTIME_PATH}}"
+        echo "[INFO] Komodo agent runtime prepared at {{.KOMODO_AGENT_RUNTIME_PATH}}"
+        EOF
+
+  validate-komodo-inputs:
+    desc: "Validate local Komodo files before remote deploy"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        if [ ! -f "{{.KOMODO_COMPOSE_SOURCE}}" ]; then
+          echo "[ERROR] Komodo compose file not found at {{.KOMODO_COMPOSE_SOURCE}}"
+          exit 1
+        fi
+      - |
+        if [ ! -f "{{.KOMODO_ENV_SOURCE}}" ]; then
+          echo "[ERROR] Komodo env file not found at {{.KOMODO_ENV_SOURCE}}"
+          exit 1
+        fi
+
+  sync-komodo-files:
+    desc: "Sync Komodo compose and env files to remote host"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        mkdir -p {{.KOMODO_RUNTIME_PATH}}
+        echo "[INFO] Runtime directory ready at {{.KOMODO_RUNTIME_PATH}}"
+        EOF
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.KOMODO_COMPOSE_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.KOMODO_RUNTIME_PATH}}/komodo.yaml
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.KOMODO_ENV_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.KOMODO_RUNTIME_PATH}}/.env
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        test -f {{.KOMODO_RUNTIME_PATH}}/komodo.yaml
+        test -f {{.KOMODO_RUNTIME_PATH}}/.env
+        chmod 600 {{.KOMODO_RUNTIME_PATH}}/.env
+        echo "[INFO] Komodo files synced"
+        EOF
+
+  deploy-komodo-stack:
+    desc: "Deploy Komodo stack in target LXC"
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+
+        if ! command -v docker >/dev/null 2>&1; then
+          echo "[ERROR] Docker not found. Run monitoring bootstrap first."
+          exit 1
+        fi
+
+        cd {{.KOMODO_RUNTIME_PATH}}
+
+        if docker compose version >/dev/null 2>&1; then
+          COMPOSE_CMD="docker compose"
+        elif command -v docker-compose >/dev/null 2>&1; then
+          COMPOSE_CMD="docker-compose"
+        else
+          echo "[ERROR] Neither docker compose nor docker-compose is available"
+          exit 1
+        fi
+
+        echo "[INFO] Pulling Komodo images..."
+        ${COMPOSE_CMD} -f komodo.yaml pull
+
+        echo "[INFO] Starting Komodo stack..."
+        ${COMPOSE_CMD} -f komodo.yaml up -d
+
+        echo "[INFO] Current stack status:"
+        ${COMPOSE_CMD} -f komodo.yaml ps
+
+        echo "[INFO] Komodo Core URL: http://{{.LXC_HOST}}:9120"
+        EOF

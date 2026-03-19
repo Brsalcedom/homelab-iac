@@ -38,6 +38,14 @@ jobs:
           base_url: https://vault.bitwarden.com
           secrets: |
             f5a47b3b-df1e-4b6b-9d46-b4120005336a > LXC_SSH_PRIVATE_KEY
+            d0c1c6b0-4a80-46dc-bc65-b412000ba495 > AUTHENTIK_PG_PASS
+            95822750-ce03-4930-bb05-b412000bb93f > AUTHENTIK_SECRET_KEY
+
+      - name: 🔒 Mask sensitive secrets from logs
+        run: |
+          echo "::add-mask::${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.AUTHENTIK_PG_PASS }}"
+          echo "::add-mask::${{ steps.secrets-bw.outputs.AUTHENTIK_SECRET_KEY }}"
 
       - name: 🔑 Write SSH private key
         env:
@@ -51,11 +59,13 @@ jobs:
           printf "%s" "${LXC_SSH_PRIVATE_KEY}" > /root/.ssh/lxc_auth_key
           chmod 600 /root/.ssh/lxc_auth_key
 
-      - name: ⚙️ Run remote bootstrap task
+      - name: ⚙️ Run bootstrap task (Docker + Authentik)
+        env:
+          LXC_HOST: ${{ github.event.inputs.lxc_host }}
+          LXC_USER: ${{ github.event.inputs.lxc_user }}
+          SSH_PORT: ${{ github.event.inputs.ssh_port }}
+          SSH_KEY_PATH: /root/.ssh/lxc_auth_key
+          AUTHENTIK_PG_PASS: ${{ steps.secrets-bw.outputs.AUTHENTIK_PG_PASS }}
+          AUTHENTIK_SECRET_KEY: ${{ steps.secrets-bw.outputs.AUTHENTIK_SECRET_KEY }}
         run: |
-          task --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml \
-            install-docker-remote \
-            LXC_HOST=${{ github.event.inputs.lxc_host }} \
-            LXC_USER=${{ github.event.inputs.lxc_user }} \
-            SSH_PORT=${{ github.event.inputs.ssh_port }} \
-            SSH_KEY_PATH=/root/.ssh/lxc_auth_key
+          task --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml

@@ -7,21 +7,14 @@ vars:
   SSH_PORT: '{{env "SSH_PORT" | default "22"}}'
   SSH_KEY_PATH: '{{env "SSH_KEY_PATH"}}'
   LXC_HOST: '{{env "LXC_HOST"}}'
-  AUTHENTIK_REPO: '{{default "https://github.com/Brsalcedom/homelab-iac.git" .AUTHENTIK_REPO}}'
-  AUTHENTIK_REPO_PATH: '{{default "/opt/authentik" .AUTHENTIK_REPO_PATH}}'
-  PG_DB: '{{default "authentik" .PG_DB}}'
-  PG_USER: '{{default "authentik" .PG_USER}}'
-  PG_PASS: '{{env "AUTHENTIK_PG_PASS"}}'
-  AUTHENTIK_SECRET_KEY: '{{env "AUTHENTIK_SECRET_KEY"}}'
-  AUTHENTIK_IMAGE: '{{default "ghcr.io/goauthentik/server" .AUTHENTIK_IMAGE}}'
-  AUTHENTIK_TAG: '{{default "2026.2.1" .AUTHENTIK_TAG}}'
-  COMPOSE_PORT_HTTP: '{{default "9000" .COMPOSE_PORT_HTTP}}'
-  COMPOSE_PORT_HTTPS: '{{default "9443" .COMPOSE_PORT_HTTPS}}'
+  AUTHENTIK_COMPOSE_SOURCE: '{{env "AUTHENTIK_COMPOSE_SOURCE" | default "docker/compose/authentik.yaml"}}'
+  AUTHENTIK_ENV_SOURCE: '{{env "AUTHENTIK_ENV_SOURCE" | default ".env"}}'
+  AUTHENTIK_RUNTIME_PATH: '{{env "AUTHENTIK_RUNTIME_PATH" | default "/opt/authentik"}}'
 
 tasks:
   default:
     desc: "Bootstrap LXC Authentik: Docker + .env + docker-compose stack"
-    deps: [install-docker-remote, deploy-authentik-stack]
+    deps: [install-docker-remote, sync-compose-file, deploy-authentik-stack]
 
   install-docker-remote:
     desc: "Install Docker in target LXC via SSH"
@@ -71,43 +64,53 @@ tasks:
         echo "[INFO] Docker bootstrap completed successfully"
         EOF
 
-  generate-env:
-    desc: "Generate .env file for Authentik on remote LXC"
+  sync-compose-file:
+    desc: "Sync local authentik compose + .env files to remote LXC"
     requires:
-      vars: [LXC_HOST, PG_PASS, AUTHENTIK_SECRET_KEY]
+      vars: [LXC_HOST]
     cmds:
+      - |
+        if [ ! -f "{{.AUTHENTIK_COMPOSE_SOURCE}}" ]; then
+          echo "[ERROR] Local compose file not found at {{.AUTHENTIK_COMPOSE_SOURCE}}"
+          exit 1
+        fi
+      - |
+        if [ ! -f "{{.AUTHENTIK_ENV_SOURCE}}" ]; then
+          echo "[ERROR] Local env file not found at {{.AUTHENTIK_ENV_SOURCE}}"
+          exit 1
+        fi
       - |
         ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
         set -e
         set +x
-        echo "[INFO] Creating .env for Authentik..."
-
-        if [ ! -f "{{.AUTHENTIK_REPO_PATH}}/docker/compose/authentik.yaml" ]; then
-          echo "[ERROR] Compose file not found at {{.AUTHENTIK_REPO_PATH}}/docker/compose/authentik.yaml"
-          echo "[ERROR] Run clone-compose task before generate-env."
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/data
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/certs
+        mkdir -p {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/custom-templates
+        echo "[INFO] Remote compose directory ready at {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose"
+        EOF
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.AUTHENTIK_COMPOSE_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/authentik.yaml
+      - |
+        scp {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -P {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.AUTHENTIK_ENV_SOURCE}} {{.LXC_USER}}@{{.LXC_HOST}}:{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/.env
+      - |
+        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
+        set -e
+        set +x
+        if [ ! -f "{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/authentik.yaml" ]; then
+          echo "[ERROR] Failed to copy authentik.yaml to remote host"
           exit 1
         fi
-
-        cd {{.AUTHENTIK_REPO_PATH}}/docker/compose
-        
-        # Generate .env file in the same directory as compose
-        cat > .env <<ENVEOF
-        PG_DB={{.PG_DB}}
-        PG_USER={{.PG_USER}}
-        PG_PASS={{.PG_PASS}}
-        AUTHENTIK_SECRET_KEY={{.AUTHENTIK_SECRET_KEY}}
-        AUTHENTIK_IMAGE={{.AUTHENTIK_IMAGE}}
-        AUTHENTIK_TAG={{.AUTHENTIK_TAG}}
-        COMPOSE_PORT_HTTP={{.COMPOSE_PORT_HTTP}}
-        COMPOSE_PORT_HTTPS={{.COMPOSE_PORT_HTTPS}}
-        ENVEOF
-        
-        chmod 600 .env
-        echo "[INFO] .env file generated at {{.AUTHENTIK_REPO_PATH}}/docker/compose/.env"
+        if [ ! -f "{{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/.env" ]; then
+          echo "[ERROR] Failed to copy .env to remote host"
+          exit 1
+        fi
+        chmod 600 {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose/.env
+        echo "[INFO] Synced compose and .env to {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose"
         EOF
 
-  clone-compose:
-    desc: "Clone repository with docker-compose for Authentik"
+  deploy-authentik-stack:
+    desc: "Deploy Authentik docker-compose stack"
     requires:
       vars: [LXC_HOST]
     cmds:
@@ -115,44 +118,12 @@ tasks:
         ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
         set -e
         set +x
-        echo "[INFO] Cloning authentik compose from {{.AUTHENTIK_REPO}}..."
-
-        if [ -d "{{.AUTHENTIK_REPO_PATH}}/.git" ]; then
-          echo "[INFO] Git repository exists. Pulling latest changes..."
-          git -C {{.AUTHENTIK_REPO_PATH}} pull --ff-only origin main
-        elif [ -d "{{.AUTHENTIK_REPO_PATH}}" ]; then
-          backup_path="{{.AUTHENTIK_REPO_PATH}}.bak.$(date +%s)"
-          echo "[WARN] {{.AUTHENTIK_REPO_PATH}} exists but is not a git repository."
-          echo "[WARN] Moving existing directory to ${backup_path}"
-          mv {{.AUTHENTIK_REPO_PATH}} "${backup_path}"
-          git clone {{.AUTHENTIK_REPO}} {{.AUTHENTIK_REPO_PATH}}
-        else
-          git clone {{.AUTHENTIK_REPO}} {{.AUTHENTIK_REPO_PATH}}
-        fi
-
-        cd {{.AUTHENTIK_REPO_PATH}}
-        
-        echo "[INFO] Repository ready at {{.AUTHENTIK_REPO_PATH}}"
-        EOF
-
-  deploy-authentik-stack:
-    desc: "Deploy Authentik docker-compose stack"
-    requires:
-      vars: [LXC_HOST, PG_PASS, AUTHENTIK_SECRET_KEY]
-    cmds:
-      - task: install-docker-remote
-      - task: clone-compose
-      - task: generate-env
-      - |
-        ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}} bash <<'EOF'
-        set -e
-        set +x
         echo "[INFO] Starting Authentik docker-compose stack..."
         
-        cd {{.AUTHENTIK_REPO_PATH}}/docker/compose
+        cd {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose
         
         if [ ! -f ".env" ]; then
-          echo "[ERROR] .env not found. Run generate-env task first."
+          echo "[ERROR] .env not found. Ensure workflow writes .env and sync-compose-file runs first."
           exit 1
         fi
         
@@ -169,6 +140,6 @@ tasks:
         docker-compose -f authentik.yaml ps
         
         echo "[INFO] Authentik stack deployed successfully"
-        echo "[INFO] Access at: http://{{.LXC_HOST}}:{{.COMPOSE_PORT_HTTP}}"
+        echo "[INFO] Access at: http://{{.LXC_HOST}}:9000"
         EOF
 

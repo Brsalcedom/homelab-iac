@@ -59,13 +59,32 @@ jobs:
           printf "%s" "${LXC_SSH_PRIVATE_KEY}" > /root/.ssh/lxc_auth_key
           chmod 600 /root/.ssh/lxc_auth_key
 
+      - name: ✅ Validate compose source in runner checkout
+        run: |
+          if [ ! -f "$GITHUB_WORKSPACE/docker/compose/authentik.yaml" ]; then
+            echo "[ERROR] Compose file not found in checkout: $GITHUB_WORKSPACE/docker/compose/authentik.yaml"
+            exit 1
+          fi
+          echo "[INFO] Compose source found in runner checkout"
+
+      - name: 📄 Write .env for Authentik task
+        env:
+          AUTHENTIK_PG_PASS: ${{ steps.secrets-bw.outputs.AUTHENTIK_PG_PASS }}
+          AUTHENTIK_SECRET_KEY: ${{ steps.secrets-bw.outputs.AUTHENTIK_SECRET_KEY }}
+        run: |
+          cat <<EOF > $GITHUB_WORKSPACE/.env
+          PG_PASS=${AUTHENTIK_PG_PASS}
+          AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+          EOF
+          chmod 600 $GITHUB_WORKSPACE/.env
+
       - name: ⚙️ Run bootstrap task (Docker + Authentik)
         env:
           LXC_HOST: ${{ github.event.inputs.lxc_host }}
           LXC_USER: ${{ github.event.inputs.lxc_user }}
           SSH_PORT: ${{ github.event.inputs.ssh_port }}
           SSH_KEY_PATH: /root/.ssh/lxc_auth_key
-          AUTHENTIK_PG_PASS: ${{ steps.secrets-bw.outputs.AUTHENTIK_PG_PASS }}
-          AUTHENTIK_SECRET_KEY: ${{ steps.secrets-bw.outputs.AUTHENTIK_SECRET_KEY }}
+          AUTHENTIK_COMPOSE_SOURCE: ${{ github.workspace }}/docker/compose/authentik.yaml
+          AUTHENTIK_ENV_SOURCE: ${{ github.workspace }}/.env
         run: |
           task --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml

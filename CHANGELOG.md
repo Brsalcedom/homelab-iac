@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v3.0.0...v3.1.0) (2026-03-19)
+
+
+### Features
+
+* Add Authentik docker-compose and bootstrap tasks ([#112](https://github.com/Brsalcedom/homelab-iac/issues/112)) ([96c51d1](https://github.com/Brsalcedom/homelab-iac/commit/96c51d1cecb56dcb20c45cd854760fab377c7be1))
+* Add LXC auth bootstrap workflow and task ([69754c8](https://github.com/Brsalcedom/homelab-iac/commit/69754c846303288a00ad16e99eeb1ea15a7fafc6))
+* **deps:** update helm release cert-manager to v1.20.0 ([#109](https://github.com/Brsalcedom/homelab-iac/issues/109)) ([610c265](https://github.com/Brsalcedom/homelab-iac/commit/610c265f00605677eaf1203ff2ac1ef124978ca7))
+
 ## [3.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v2.0.2...v3.0.0) (2026-03-06)
 
 

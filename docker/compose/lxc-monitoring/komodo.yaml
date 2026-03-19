@@ -37,6 +37,7 @@ services:
       KOMODO_OIDC_CLIENT_SECRET: ${KOMODO_OIDC_CLIENT_SECRET}
       KOMODO_ENABLE_NEW_USERS: ${KOMODO_ENABLE_NEW_USERS:-false}
     volumes:
+      - ./config.toml:/config/config.toml:ro
       - ${COMPOSE_KOMODO_BACKUPS_PATH:-./komodo-backups}:/backups
 
   periphery:

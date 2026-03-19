@@ -1,0 +1,4 @@
+- Observability:
+    - Dozzle:
+        href: http://dozzle.local
+        description: Docker logs real-time

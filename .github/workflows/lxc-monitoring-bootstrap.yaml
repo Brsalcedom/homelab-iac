@@ -1,0 +1,117 @@
+name: "Bootstrap :: LXC monitoring"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap-monitoring:
+    name: "Bootstrap monitoring LXC (Docker + Komodo)"
+    runs-on: self-hosted
+    env:
+      LXC_USER: root
+      SSH_PORT: "22"
+    container:
+      image: brsalcedom/homelab-ci:2.2.0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v2
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            f5a47b3b-df1e-4b6b-9d46-b4120005336a > LXC_SSH_PRIVATE_KEY
+
+      - name: Mask sensitive secrets from logs
+        run: |
+          echo "::add-mask::${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}"
+
+      - name: Validate Komodo compose source
+        run: |
+          if [ ! -f "$GITHUB_WORKSPACE/docker/compose/lxc-monitoring/komodo.yaml" ]; then
+            echo "[ERROR] Compose file not found: $GITHUB_WORKSPACE/docker/compose/lxc-monitoring/komodo.yaml"
+            exit 1
+          fi
+
+      - name: Resolve monitoring LXC host from Terraform locals
+        id: resolve-lxc-host
+        run: |
+          LXC_HOST=$(awk '
+            /"lxc-monitoring-01"[[:space:]]*=/ {in_block=1; next}
+            in_block && /ip[[:space:]]*=/ {
+              if (match($0, /"([0-9.]+)"/)) {
+                value=substr($0, RSTART+1, RLENGTH-2)
+                print value
+                exit
+              }
+            }
+            in_block && /^[[:space:]]*},?[[:space:]]*$/ {in_block=0}
+          ' "$GITHUB_WORKSPACE/terraform/proxmox/lxc/locals.tf")
+
+          if [ -z "$LXC_HOST" ]; then
+            echo "[ERROR] Could not resolve ip for lxc-monitoring-01 from terraform/proxmox/lxc/locals.tf"
+            exit 1
+          fi
+
+          echo "Resolved monitoring LXC host: $LXC_HOST"
+          echo "lxc_host=$LXC_HOST" >> "$GITHUB_OUTPUT"
+
+      - name: Write Komodo env file
+        run: |
+          KOMODO_DB_PASSWORD=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 32)
+          KOMODO_PERIPHERY_PASSKEY=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 48)
+
+          echo "::add-mask::${KOMODO_DB_PASSWORD}"
+          echo "::add-mask::${KOMODO_PERIPHERY_PASSKEY}"
+
+          cat <<EOF > $GITHUB_WORKSPACE/.env
+          KOMODO_DB_USERNAME=komodo
+          KOMODO_DB_PASSWORD=${KOMODO_DB_PASSWORD}
+          PERIPHERY_PASSKEYS=${KOMODO_PERIPHERY_PASSKEY}
+          COMPOSE_KOMODO_IMAGE_TAG=latest
+          KOMODO_CORE_PORT=9120
+          PERIPHERY_PORT=8120
+          PERIPHERY_ROOT_DIRECTORY=/etc/komodo
+          PERIPHERY_DISABLE_TERMINALS=false
+          PERIPHERY_INCLUDE_DISK_MOUNTS=/etc/hostname
+          PERIPHERY_SSL_ENABLED=true
+          COMPOSE_KOMODO_BACKUPS_PATH=./komodo-backups
+          MONGO_CACHE_GB=0.25
+          EOF
+          chmod 600 $GITHUB_WORKSPACE/.env
+
+      - name: Write SSH private key
+        env:
+          LXC_SSH_PRIVATE_KEY: ${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "${LXC_SSH_PRIVATE_KEY}" ]; then
+            echo "Missing required Bitwarden secret output: LXC_SSH_PRIVATE_KEY"
+            exit 1
+          fi
+          mkdir -p /root/.ssh
+          printf "%s" "${LXC_SSH_PRIVATE_KEY}" > /root/.ssh/lxc_monitoring_key
+          chmod 600 /root/.ssh/lxc_monitoring_key
+
+      - name: Run monitoring bootstrap task
+        env:
+          LXC_HOST: ${{ steps.resolve-lxc-host.outputs.lxc_host }}
+          LXC_USER: ${{ env.LXC_USER }}
+          SSH_PORT: ${{ env.SSH_PORT }}
+          SSH_KEY_PATH: /root/.ssh/lxc_monitoring_key
+          KOMODO_COMPOSE_SOURCE: ${{ github.workspace }}/docker/compose/lxc-monitoring/komodo.yaml
+          KOMODO_ENV_SOURCE: ${{ github.workspace }}/.env
+        run: |
+          task --silent --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-monitoring-bootstrap.yml
+
+      - name: Komodo bootstrap result
+        run: |
+          echo "Komodo installed on monitoring LXC."
+          echo "Periphery passkey is stored remotely in /opt/monitoring/komodo/.env"
+          echo "Use SSH to retrieve it and register the host in Komodo Core."

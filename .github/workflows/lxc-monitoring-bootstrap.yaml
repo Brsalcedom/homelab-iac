@@ -2,15 +2,6 @@ name: "Bootstrap :: LXC monitoring"
 
 on:
   workflow_dispatch:
-    inputs:
-      komodo_github_account:
-        description: GitHub account username for Komodo git provider
-        required: false
-        type: string
-      komodo_github_token_secret_id:
-        description: Bitwarden secret ID containing the GitHub token used by Komodo
-        required: false
-        type: string
 
 permissions:
   contents: read
@@ -45,16 +36,6 @@ jobs:
             1d8eb9e3-cff1-46b7-b0c1-b412012dcc50 > KOMODO_OIDC_CLIENT_ID
             bf9cfad2-beb3-4e7f-80f8-b412012dfa3a > KOMODO_OIDC_CLIENT_SECRET
 
-      - name: Get optional Komodo GitHub token from Bitwarden
-        if: ${{ inputs.komodo_github_token_secret_id != '' }}
-        uses: bitwarden/sm-action@v2
-        id: github-token-bw
-        with:
-          access_token: ${{ secrets.BW_TOKEN }}
-          base_url: https://vault.bitwarden.com
-          secrets: |
-            ${{ inputs.komodo_github_token_secret_id }} > KOMODO_GITHUB_TOKEN
-
       - name: Mask sensitive secrets from logs
         run: |
           echo "::add-mask::${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}"
@@ -63,9 +44,6 @@ jobs:
           echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_PROVIDER }}"
           echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_ID }}"
           echo "::add-mask::${{ steps.secrets-bw.outputs.KOMODO_OIDC_CLIENT_SECRET }}"
-          if [ -n "${{ steps.github-token-bw.outputs.KOMODO_GITHUB_TOKEN }}" ]; then
-            echo "::add-mask::${{ steps.github-token-bw.outputs.KOMODO_GITHUB_TOKEN }}"
-          fi
 
       - name: Validate OIDC provider reachability
         env:

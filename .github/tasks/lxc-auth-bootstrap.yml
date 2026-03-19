@@ -122,6 +122,15 @@ tasks:
         set -e
         set +x
         echo "[INFO] Starting Authentik docker-compose stack..."
+
+        if docker compose version >/dev/null 2>&1; then
+          COMPOSE_CMD="docker compose"
+        elif command -v docker-compose >/dev/null 2>&1; then
+          COMPOSE_CMD="docker-compose"
+        else
+          echo "[ERROR] Neither 'docker compose' nor 'docker-compose' is available"
+          exit 1
+        fi
         
         cd {{.AUTHENTIK_RUNTIME_PATH}}/docker/compose
         
@@ -131,16 +140,16 @@ tasks:
         fi
         
         echo "[INFO] Pulling latest images..."
-        docker-compose -f authentik.yaml pull
+        ${COMPOSE_CMD} -f authentik.yaml pull
         
         echo "[INFO] Starting services..."
-        docker-compose -f authentik.yaml up -d
+        ${COMPOSE_CMD} -f authentik.yaml up -d
         
         echo "[INFO] Waiting for services to be ready..."
         sleep 10
         
         echo "[INFO] Checking service status..."
-        docker-compose -f authentik.yaml ps
+        ${COMPOSE_CMD} -f authentik.yaml ps
         
         echo "[INFO] Authentik stack deployed successfully"
         echo "[INFO] Access at: http://{{.LXC_HOST}}:9000"

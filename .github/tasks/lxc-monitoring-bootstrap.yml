@@ -2,6 +2,17 @@ version: '3'
 
 dotenv: [".env"]
 
+vars:
+  LXC_USER: '{{env "LXC_USER" | default "root"}}'
+  SSH_PORT: '{{env "SSH_PORT" | default "22"}}'
+  SSH_KEY_PATH: '{{env "SSH_KEY_PATH"}}'
+  LXC_HOST: '{{env "LXC_HOST"}}'
+  MONITORING_RUNTIME_PATH: '{{env "MONITORING_RUNTIME_PATH" | default "/opt/monitoring"}}'
+  KOMODO_AGENT_RUNTIME_PATH: '{{env "KOMODO_AGENT_RUNTIME_PATH" | default "/opt/komodo-agent"}}'
+  KOMODO_COMPOSE_SOURCE: '{{env "KOMODO_COMPOSE_SOURCE" | default "docker/compose/lxc-monitoring/komodo.yaml"}}'
+  KOMODO_ENV_SOURCE: '{{env "KOMODO_ENV_SOURCE" | default ".env"}}'
+  KOMODO_RUNTIME_PATH: '{{env "KOMODO_RUNTIME_PATH" | default "/opt/monitoring/komodo"}}'
+
 tasks:
   default:
     desc: "Bootstrap LXC Monitoring host: Docker + runtime + Komodo"

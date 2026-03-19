@@ -14,6 +14,7 @@ jobs:
       LXC_USER: root
       SSH_PORT: "22"
       KOMODO_HOST: https://komodo-monitoring.home.cervant.net
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     container:
       image: brsalcedom/homelab-ci:2.2.0
 

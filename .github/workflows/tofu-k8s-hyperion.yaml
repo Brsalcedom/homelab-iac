@@ -15,7 +15,7 @@ jobs:
     name: "🧪 Plan"
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.2.0
+      image: brsalcedom/homelab-ci:2.5.0
     defaults:
       run:
         working-directory: terraform/proxmox/infraestructure/hyperion
@@ -81,7 +81,7 @@ jobs:
     needs: plan
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.2.0
+      image: brsalcedom/homelab-ci:2.5.0
     environment:
       name: tofu-infra
     defaults:

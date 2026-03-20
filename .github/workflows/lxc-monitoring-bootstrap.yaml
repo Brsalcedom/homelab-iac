@@ -14,7 +14,7 @@ jobs:
       LXC_USER: root
       SSH_PORT: "22"
     container:
-      image: brsalcedom/homelab-ci:2.2.0
+      image: brsalcedom/homelab-ci:2.5.0
 
     steps:
       - name: Checkout

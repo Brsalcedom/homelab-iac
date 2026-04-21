@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: 🔐 Get secrets from Bitwarden
-        uses: bitwarden/sm-action@v2
+        uses: bitwarden/sm-action@v3.0.0
         id: secrets-bw
         with:
           access_token: ${{ secrets.BW_TOKEN }}
@@ -93,7 +93,7 @@ jobs:
         uses: actions/checkout@v6
       
       - name: 🔐 Get secrets from Bitwarden
-        uses: bitwarden/sm-action@v2
+        uses: bitwarden/sm-action@v3.0.0
         id: secrets-bw
         with:
           access_token: ${{ secrets.BW_TOKEN }}

@@ -9,8 +9,6 @@ Infrastructure as Code for my personal home lab, managed with Terraform, K3s, Gi
 [![Cloudflare](https://img.shields.io/badge/DNS-Cloudflare-F38020?logo=cloudflare)](https://cloudflare.com/)
 [![License](https://img.shields.io/badge/License-Personal-informational)]()
 
-</div>
-
 ---
 
 ## 📖 Description
@@ -60,6 +58,55 @@ homelab-iac/
 ```
 
 See [`terraform/proxmox/infraestructure/README.md`](./terraform/proxmox/infraestructure/README.md) for stacks and configuration details of each Kubernetes node.
+
+---
+
+## 🖥️ Proxmox bootstrap for Terraform
+
+If you are starting from a fresh Proxmox VE node and want to apply this repository's Terraform configuration from the CLI, run the following commands on the Proxmox host as root:
+
+```bash
+# Create the Terraform user
+pveum user add terraform@pve --password 'ChangeMeStrong!'
+
+# Create a role with the minimum permissions expected by the repo
+pveum role add Terraform --privs "VM.Audit VM.Allocate VM.Config.Disk VM.Config.CPU VM.Config.Memory VM.Config.Network VM.Config.HWType VM.Config.Options VM.Config.CDROM VM.Config.Cloudinit Sys.Modify Datastore.AllocateSpace Datastore.Audit SDN.Use"
+
+# Grant that role at the root path
+pveum acl modify / --roles Terraform --users terraform@pve
+
+# Create an API token for Terraform
+pveum user token add terraform@pve iac --privsep 0
+```
+
+Keep the printed token secret safe. Then export it locally:
+
+```bash
+export PROXMOX_VE_ENDPOINT="https://<proxmox-ip>:8006/api2/json"
+export PROXMOX_VE_API_TOKEN="terraform@pve!iac=<TOKEN_SECRET>"
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:PROXMOX_VE_ENDPOINT="https://<proxmox-ip>:8006/api2/json"
+$env:PROXMOX_VE_API_TOKEN="terraform@pve!iac=<TOKEN_SECRET>"
+```
+
+You can verify the setup with:
+
+```bash
+pveum user list
+pveum role list
+pveum acl list
+pveum user token list terraform@pve
+```
+
+Then continue with the Terraform modules in:
+
+- [terraform/proxmox/vm/README.md](terraform/proxmox/vm/README.md)
+- [terraform/proxmox/lxc/README.md](terraform/proxmox/lxc/README.md)
+- [terraform/proxmox/infraestructure/README.md](terraform/proxmox/infraestructure/README.md)
 
 ---
 

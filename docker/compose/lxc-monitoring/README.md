@@ -1,54 +1,44 @@
 # LXC Monitoring Stack
 
-Incremental rollout for monitoring LXC:
-
-1. Bootstrap host (Docker and runtime directories).
-2. Install Komodo Core + Periphery.
-3. Deploy Homepage and Dozzle stacks from Komodo (GitOps).
-4. Validate service health.
+Stacks de observabilidad desplegados directamente con Docker Compose en el LXC de monitoring.
 
 ## Files
 
 - `homepage.yaml`: Homepage compose stack.
 - `dozzle.yaml`: Dozzle compose stack.
-- `komodo.yaml`: Komodo Core + Mongo + Periphery bootstrap stack.
-- `komodo.env.example`: Variables template for Komodo stack.
 
-## Step 2: Install Komodo
+## Bootstrap
 
-Use workflow:
+El host se prepara automáticamente con el workflow:
 
 - `.github/workflows/lxc-monitoring-bootstrap.yaml`
 
-Required repository secrets:
+El workflow instala Docker y crea los directorios runtime (`/opt/monitoring`).
+Requiere solo el secret de repositorio `BW_TOKEN`.
 
-- `BW_TOKEN`
+## Deploy de stacks
 
-## Step 3: Deploy Homepage and Dozzle from Komodo
+Una vez bootstrapeado el host, despliegar los stacks manualmente:
 
-In Komodo Core UI:
+```bash
+# Homepage
+docker compose -f /opt/monitoring/compose/homepage.yaml up -d
 
-1. Add server using Periphery endpoint:
-   - URL: `https://192.168.1.114:8120`
-   - Passkey: value of `PERIPHERY_PASSKEYS`
-2. Create stack `homepage` with Git file path:
-   - `docker/compose/lxc-monitoring/homepage.yaml`
-3. Create stack `dozzle` with Git file path:
-   - `docker/compose/lxc-monitoring/dozzle.yaml`
-4. Enable auto deploy on git push for both stacks.
+# Dozzle
+docker compose -f /opt/monitoring/compose/dozzle.yaml up -d
+```
 
-## Step 4: Validation
+## Validación
 
-After deploy, verify:
+Tras el deploy verificar:
 
-- Homepage: `http://192.168.1.114:3000`
-- Dozzle: `http://192.168.1.114:8088`
-- Komodo Core: `http://192.168.1.114:9120`
-- Periphery API reachable from Core: `https://192.168.1.114:8120`
+- Homepage: `http://192.168.100.114:3000`
+- Dozzle: `http://192.168.100.114:8088`
 
-Optional command checks on host:
+Checks opcionales en el host:
 
 ```bash
 docker ps
-cd /opt/monitoring/komodo && docker compose -f komodo.yaml ps
+docker compose -f /opt/monitoring/compose/homepage.yaml ps
+docker compose -f /opt/monitoring/compose/dozzle.yaml ps
 ```

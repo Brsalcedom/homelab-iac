@@ -15,10 +15,8 @@
 - Resultado esperado: servicios de Authentik levantados y accesibles en el LXC `auth`.
 
 3. `lxc-monitoring-bootstrap.yml`
-- Objetivo: dejar operativo el LXC de observabilidad.
+- Objetivo: dejar el LXC de observabilidad con Docker instalado y listo para despliegues.
 - Que hace:
 	- instala Docker y dependencias base.
-	- prepara directorios de runtime en el host.
-	- sincroniza `komodo.yaml` y `.env`.
-	- despliega stack de Komodo (Core, Periphery y base de datos).
-- Resultado esperado: panel de Komodo disponible y host listo para gestionar deploys GitOps de monitoring.
+	- prepara directorios de runtime en el host (`/opt/monitoring`).
+- Resultado esperado: host con Docker operativo y estructura de directorios lista para desplegar los stacks de monitoring manualmente.

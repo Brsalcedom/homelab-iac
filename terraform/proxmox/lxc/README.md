@@ -57,14 +57,57 @@ You must create:
 -   A **role** with permissions such as:
     -   `VM.Audit`
     -   `VM.Allocate`
-    -   `VM.Config.*`
+    -   `VM.Config.Disk`
+    -   `VM.Config.CPU`
+    -   `VM.Config.Memory`
+    -   `VM.Config.Network`
+    -   `VM.Config.HWType`
+    -   `VM.Config.Options`
+    -   `VM.PowerMgmt` *(required to start/shutdown containers)*
     -   `Sys.Modify`
     -   `Datastore.AllocateSpace`
+    -   `Datastore.Audit`
+    -   `SDN.Use` *(required for SDN/bridge network assignment)*
 -   An **API token**, for example:\
     `terraform@pve!iac`
 
 In Proxmox GUI:\
 **Datacenter → Permissions → API Tokens**
+
+#### CLI setup on the Proxmox host
+
+Run these commands as root on the Proxmox node:
+
+```bash
+# Create the Terraform user
+pveum user add terraform@pve --password 'ChangeMeStrong!'
+
+# Create a role with the permissions expected by this repo
+pveum role add Terraform --privs "VM.Audit VM.Allocate VM.Config.Disk VM.Config.CPU VM.Config.Memory VM.Config.Network VM.Config.HWType VM.Config.Options VM.PowerMgmt Sys.Modify Datastore.AllocateSpace Datastore.Audit SDN.Use"
+
+# Grant the role to the user at the root path
+pveum acl modify / --roles Terraform --users terraform@pve
+
+# Create an API token for Terraform
+pveum user token add terraform@pve iac --privsep 0
+```
+
+The token secret will be printed once. Keep it safe and export it later as:
+
+```bash
+export PROXMOX_VE_API_TOKEN="terraform@pve!iac=<TOKEN_SECRET>"
+# Windows
+$env:PROXMOX_VE_API_TOKEN="terraform@pve!iac=<TOKEN_SECRET>"
+```
+
+You can verify the setup with:
+
+```bash
+pveum user list
+pveum role list
+pveum acl list
+pveum user token list terraform@pve
+```
 
 ### 3. Required Environment Variables
 
@@ -73,9 +116,11 @@ In Proxmox GUI:\
 ``` bash
 export PROXMOX_VE_ENDPOINT="https://<proxmox-ip>:8006/api2/json"
 export PROXMOX_VE_API_TOKEN="<USER@REALM!TOKENID=SECRET>"
+export TF_VAR_node_name="<PROXMOX_NODE_NAME>"
 # Windows
 $env:PROXMOX_VE_ENDPOINT="https://<proxmox-ip>:8006/api2/json"
 $env:PROXMOX_VE_API_TOKEN="<USER@REALM!TOKENID=SECRET>"
+$env:TF_VAR_node_name="<PROXMOX_NODE_NAME>"
 ```
 
 #### Cloudflare R2 (S3 backend)
@@ -100,7 +145,7 @@ From Proxmox GUI:
 1.  Go to **Node → local → CT Templates**
 2.  Click **Templates**
 3.  Download a template such as:
-    -   `debian-13-standard_13.1-2_amd64.tar.zst`
+    -   `debian-13-standard_13.6-1_amd64.tar.zst`
     -   or any other supported OS template
 
 ------------------------------------------------------------------------

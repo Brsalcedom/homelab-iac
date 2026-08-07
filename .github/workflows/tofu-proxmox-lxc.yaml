@@ -35,11 +35,13 @@ jobs:
             6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
             b74a2635-978c-4618-8c8d-b33a0122d81e > PROXMOX_VE_API_TOKEN
             40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
+            2fbb2614-09ca-40ff-82c6-b49f00f6a861 > PROXMOX_VE_NODE_NAME
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
 
       - name: ⚙️ Init & Plan
         env:
           TF_VAR_ssh_authorized_keys: '["${{ steps.secrets-bw.outputs.ssh_public_key }}"]'
+          TF_VAR_node_name: "${{ steps.secrets-bw.outputs.PROXMOX_VE_NODE_NAME }}"
         run: |
           tofu init -input=false
           tofu plan -input=false -out=tfplan
@@ -78,6 +80,7 @@ jobs:
             6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
             b74a2635-978c-4618-8c8d-b33a0122d81e > PROXMOX_VE_API_TOKEN
             40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
+            2fbb2614-09ca-40ff-82c6-b49f00f6a861 > PROXMOX_VE_NODE_NAME
             7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
 
       - name: 📥 Download Plan
@@ -89,6 +92,7 @@ jobs:
       - name: ✅ Apply Plan
         env:
           TF_VAR_ssh_authorized_keys: '["${{ steps.secrets-bw.outputs.ssh_public_key }}"]'
+          TF_VAR_node_name: "${{ steps.secrets-bw.outputs.PROXMOX_VE_NODE_NAME }}"
         run: |
           tofu init -input=false
           tofu apply -auto-approve tfplan

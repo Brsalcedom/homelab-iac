@@ -1,5 +1,41 @@
 # Changelog
 
+## [4.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v3.1.0...v4.0.0) (2026-08-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **github-action:** Update action bitwarden/sm-action to v3
+* **github-action:** Update action googleapis/release-please-action to v5
+
+### Features
+
+* add lxc monitoring ([#114](https://github.com/Brsalcedom/homelab-iac/issues/114)) ([6d519bb](https://github.com/Brsalcedom/homelab-iac/commit/6d519bbb061a33b496e0b2f59e4c7c4f4004ec66))
+* **container:** update image brsalcedom/homelab-ci to v2.5.0 ([6763ae1](https://github.com/Brsalcedom/homelab-iac/commit/6763ae11dfaad91d952f25e179946b4c2c86b892))
+* **container:** update image brsalcedom/homelab-ci to v2.5.0 ([2316b80](https://github.com/Brsalcedom/homelab-iac/commit/2316b8038fcd8ce2eed86344ddc9eda7f309a000))
+* **deps:** update helm release argo-cd to v9.7.1 ([b059242](https://github.com/Brsalcedom/homelab-iac/commit/b0592423b4d0136e2b24faeb802ac8f22dab8a77))
+* **deps:** update helm release argo-cd to v9.7.1 ([7e7ffb0](https://github.com/Brsalcedom/homelab-iac/commit/7e7ffb0dbd750290dbfbdd97279852ed3b4ccab1))
+* **deps:** update helm release cert-manager to v1.21.1 ([a686982](https://github.com/Brsalcedom/homelab-iac/commit/a68698283d151ace8c665e39c343ce112ad10e30))
+* **deps:** update helm release cert-manager to v1.21.1 ([fbdc511](https://github.com/Brsalcedom/homelab-iac/commit/fbdc5118ca32ec89df4146dd5d06d611d4be804b))
+* **deps:** update helm release cilium to v1.20.0 ([e6937de](https://github.com/Brsalcedom/homelab-iac/commit/e6937de66e6cc4dc32b0d1f1b5d404d6f29be070))
+* **deps:** update helm release cilium to v1.20.0 ([66fb232](https://github.com/Brsalcedom/homelab-iac/commit/66fb232d425218800a22752e3c76290c64aa4d5d))
+* **deps:** update helm release cloudnative-pg to v0.29.0 ([2d86e8f](https://github.com/Brsalcedom/homelab-iac/commit/2d86e8f4a21aa4f7c1f7bf226acb488a8f4ac4cd))
+* **deps:** update helm release cloudnative-pg to v0.29.0 ([508b47e](https://github.com/Brsalcedom/homelab-iac/commit/508b47ee5debd2e42e2e299b27fb1c570d73fd08))
+* **deps:** update helm release kyverno to v3.8.2 ([5080fec](https://github.com/Brsalcedom/homelab-iac/commit/5080fec70902de2e1b1d21a959ce0fd9cd06215a))
+* **deps:** update helm release kyverno to v3.8.2 ([282e2c1](https://github.com/Brsalcedom/homelab-iac/commit/282e2c1252fb04f5f4d2c3b1ae998f6eedf53863))
+* **deps:** update helm release secrets-operator to v0.11.7 ([f16faf6](https://github.com/Brsalcedom/homelab-iac/commit/f16faf621c30095499609167abfc93c33a682b9d))
+* **deps:** update helm release secrets-operator to v0.11.7 ([91bfab7](https://github.com/Brsalcedom/homelab-iac/commit/91bfab7cf596a53deb339b9ea8779b1a93246adb))
+* **deps:** update terraform cloudflare to v5.23.0 ([f810125](https://github.com/Brsalcedom/homelab-iac/commit/f810125752180e4699ab2609227dd4ad7ae6f7c5))
+* **deps:** update terraform cloudflare to v5.23.0 ([4f0fdbc](https://github.com/Brsalcedom/homelab-iac/commit/4f0fdbc983b5da7c4c2418bf0e843c4e25f60150))
+* **deps:** update terraform proxmox to v0.111.1 ([947b107](https://github.com/Brsalcedom/homelab-iac/commit/947b107efedb4124b29c88274ce82ee09a4ee42e))
+* **deps:** update terraform proxmox to v0.111.1 ([215b91f](https://github.com/Brsalcedom/homelab-iac/commit/215b91ff5c5c5eb4cd953f0b6c79bffc94d6d36a))
+
+
+### Continuous Integration
+
+* **github-action:** Update action bitwarden/sm-action to v3 ([79a5d85](https://github.com/Brsalcedom/homelab-iac/commit/79a5d859745bac83102c92b1ff56856b63c27e09))
+* **github-action:** Update action googleapis/release-please-action to v5 ([51c4230](https://github.com/Brsalcedom/homelab-iac/commit/51c42308b0e6231a36afbf9c8f566362409ea5d0))
+
 ## [3.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v3.0.0...v3.1.0) (2026-03-19)
 
 

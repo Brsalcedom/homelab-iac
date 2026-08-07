@@ -24,7 +24,7 @@ jobs:
     name: "🚀 Bootstrap Docker on auth LXC"
     runs-on: self-hosted
     container:
-      image: brsalcedom/homelab-ci:2.2.0
+      image: brsalcedom/homelab-ci:2.5.0
 
     steps:
       - name: 🧾 Checkout

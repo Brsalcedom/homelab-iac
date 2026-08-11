@@ -1,5 +1,26 @@
 # Changelog
 
+## [5.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v4.0.0...v5.0.0) (2026-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** Update Helm release argo-cd to v10
+* **github-action:** Update action pozil/auto-assign-issue to v4
+* **github-action:** Update action actions/labeler to v7
+* **github-action:** Update action actions/checkout to v7
+
+### Features
+
+* **deps:** Update Helm release argo-cd to v10 ([df59d4a](https://github.com/Brsalcedom/homelab-iac/commit/df59d4a1537cc1e8392bb7d237d055df1cf56f4b))
+
+
+### Continuous Integration
+
+* **github-action:** Update action actions/checkout to v7 ([5647e94](https://github.com/Brsalcedom/homelab-iac/commit/5647e942a35543befb29b5120fe6ccf7fe8e021e))
+* **github-action:** Update action actions/labeler to v7 ([81c0b13](https://github.com/Brsalcedom/homelab-iac/commit/81c0b13039162bd88048111b78fc9a376b08f438))
+* **github-action:** Update action pozil/auto-assign-issue to v4 ([0e525ef](https://github.com/Brsalcedom/homelab-iac/commit/0e525ef474d935ce45721b7008830d19872568c0))
+
 ## [4.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v3.1.0...v4.0.0) (2026-08-07)
 
 

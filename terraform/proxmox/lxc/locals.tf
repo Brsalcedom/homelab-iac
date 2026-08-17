@@ -51,7 +51,7 @@ locals {
       id           = 165
       tags         = ["playground"]
     },
-    "auth" = {
+    "lxc-auth" = {
       description  = "Authentication & Authorization | IP: 192.168.100.170"
       ip           = "192.168.100.170"
       id           = 170

@@ -6,33 +6,33 @@ locals {
     cpu          = 2
     memory       = 2048
     disk         = 15
-    gateway      = "192.168.100.1"
-    dns          = ["192.168.100.150"]
+    gateway      = "192.168.10.1"
+    dns          = ["192.168.10.150"]
     unprivileged = true
   }
 
   containers = {
     "swarm-01" = {
-      description = "Docker Swarm node 01 | IP: 192.168.100.103"
-      ip          = "192.168.100.103"
+      description = "Docker Swarm node 01 | IP: 192.168.10.103"
+      ip          = "192.168.10.103"
       id          = 103
       tags        = ["docker", "swarm"]
     },
     "swarm-02" = {
-      description = "Docker Swarm node 02 | IP: 192.168.100.104"
-      ip          = "192.168.100.104"
+      description = "Docker Swarm node 02 | IP: 192.168.10.104"
+      ip          = "192.168.10.104"
       id          = 104
       tags        = ["docker", "swarm"]
     },
     "github-runner-01" = {
-      description = "Github Runner | IP: 192.168.100.111"
-      ip          = "192.168.100.111"
+      description = "Github Runner | IP: 192.168.10.111"
+      ip          = "192.168.10.111"
       id          = 111
       tags        = ["github-runner"]
     },
     "lxc-monitoring-01" = {
-      description = "Monitoring & Observability | IP: 192.168.100.114"
-      ip          = "192.168.100.114"
+      description = "Monitoring & Observability | IP: 192.168.10.114"
+      ip          = "192.168.10.114"
       id          = 114
       cpu         = 4
       memory      = 4096
@@ -40,22 +40,22 @@ locals {
       tags        = ["monitoring", "observability", "dashboard", "logging"]
     },
     "pihole-01" = {
-      description = "Pihole | IP: 192.168.100.150"
-      ip          = "192.168.100.150"
+      description = "Pihole | IP: 192.168.10.150"
+      ip          = "192.168.10.150"
       id          = 150
       tags        = ["dns", "pihole"]
     },
     "aldagin-playground" = {
-      description  = "Aldagin Playground | IP: 192.168.100.165"
-      ip           = "192.168.100.165"
-      id           = 165
-      tags         = ["playground"]
+      description = "Aldagin Playground | IP: 192.168.10.165"
+      ip          = "192.168.10.165"
+      id          = 165
+      tags        = ["playground"]
     },
     "lxc-auth" = {
-      description  = "Authentication & Authorization | IP: 192.168.100.170"
-      ip           = "192.168.100.170"
-      id           = 170
-      tags         = ["authentik", "sso"]
+      description = "Authentication & Authorization | IP: 192.168.10.170"
+      ip          = "192.168.10.170"
+      id          = 170
+      tags        = ["authentik", "sso"]
     }
   }
 

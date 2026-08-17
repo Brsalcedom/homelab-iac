@@ -16,7 +16,7 @@ jobs:
     runs-on: self-hosted
     container:
       image: brsalcedom/homelab-ci:2.5.0
-      options: --user root
+      options: --user 1000:1000
     defaults:
       run:
         working-directory: terraform/proxmox/lxc
@@ -60,7 +60,7 @@ jobs:
     runs-on: self-hosted
     container:
       image: brsalcedom/homelab-ci:2.5.0
-      options: --user root
+      options: --user 1000:1000
     environment:
       name: tofu-infra
     defaults:

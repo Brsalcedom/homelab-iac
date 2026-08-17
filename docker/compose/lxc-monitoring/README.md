@@ -32,8 +32,8 @@ docker compose -f /opt/monitoring/compose/dozzle.yaml up -d
 
 Tras el deploy verificar:
 
-- Homepage: `http://192.168.100.114:3000`
-- Dozzle: `http://192.168.100.114:8088`
+- Homepage: `http://192.168.10.114:3000`
+- Dozzle: `http://192.168.10.114:8088`
 
 Checks opcionales en el host:
 

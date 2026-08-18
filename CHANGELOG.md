@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v5.0.0...v5.1.0) (2026-08-17)
+
+
+### Features
+
+* add new apps ([c914545](https://github.com/Brsalcedom/homelab-iac/commit/c9145452e9034f3b0b144a96b7c925f33431f463))
+* **deps:** update helm release argo-cd to v10.4.0 ([927e025](https://github.com/Brsalcedom/homelab-iac/commit/927e025931c8d4ed75ede1fb59671800abbbc430))
+* **deps:** update helm release argo-cd to v10.4.0 ([68b6851](https://github.com/Brsalcedom/homelab-iac/commit/68b685107eacf6f52707b8e1c792a3216de36c15))
+
+
+### Bug Fixes
+
+* use root user in container for bwsecrets ([2fa8467](https://github.com/Brsalcedom/homelab-iac/commit/2fa84677ada732e94daccee3923e3d8d30639bc7))
+
 ## [5.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v4.0.0...v5.0.0) (2026-08-11)
 
 

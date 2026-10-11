@@ -102,7 +102,32 @@ Make sure you have access to the K3s cluster:
 export KUBECONFIG=/path/to/hyperion-kubeconfig.yaml
 ```
 
-### 3. Environment Variables for Cloudflare R2
+### 3. Firewall access to the Kubernetes API
+
+The K3s API server listens on TCP port `6443` on the server node
+(`192.168.10.201`). To use `kubectl` from the LAN, allow this port only
+from trusted internal networks on the server's firewall. For the current
+network, run these commands on `hyperion-01`:
+
+```bash
+sudo firewall-cmd --permanent --zone=public --add-rich-rule='rule family=ipv4 source address=192.168.10.0/24 port port=6443 protocol=tcp accept'
+sudo firewall-cmd --permanent --zone=public --add-rich-rule='rule family=ipv4 source address=192.168.20.0/24 port port=6443 protocol=tcp accept'
+sudo firewall-cmd --reload
+sudo firewall-cmd --zone=public --list-rich-rules
+```
+
+Adjust the source CIDRs to match the trusted networks that need cluster
+access. Avoid opening `6443/tcp` to all sources. Verify connectivity from
+the client before running `kubectl`:
+
+```powershell
+Test-NetConnection 192.168.10.201 -Port 6443
+```
+
+The kubeconfig's API endpoint must also be reachable from the client; use
+`192.168.10.201:6443`, not `127.0.0.1`.
+
+### 4. Environment Variables for Cloudflare R2
 
 ```bash
 export AWS_ACCESS_KEY_ID="<R2_ACCESS_KEY>"

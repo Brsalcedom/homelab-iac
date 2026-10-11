@@ -1,4 +1,4 @@
-resource "kubernetes_namespace" "cilium_gateway" {
+resource "kubernetes_namespace_v1" "cilium_gateway" {
   metadata {
     name = "cilium-gateway"
   }

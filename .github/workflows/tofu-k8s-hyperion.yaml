@@ -16,6 +16,9 @@ jobs:
     runs-on: self-hosted
     container:
       image: brsalcedom/homelab-ci:2.5.0
+      options: --user 1000:1000
+      env:
+        HOME: /tmp
     defaults:
       run:
         working-directory: terraform/proxmox/infraestructure/hyperion
@@ -41,9 +44,8 @@ jobs:
         env: 
           KUBECONFIG: ${{ steps.secrets-bw.outputs.KUBECONFIG }}
         run: |
-          mkdir -p /root/.kube
-          printf "%s" "${KUBECONFIG}" > /root/.kube/config
-          chmod 600 /root/.kube/config
+          printf "%s" "${KUBECONFIG}" > /tmp/kubeconfig
+          chmod 600 /tmp/kubeconfig
 
       - name: 📄 Write .env for Task
         env: 
@@ -53,18 +55,18 @@ jobs:
           cat <<EOF > .env
           CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
           INFISICAL_API_TOKEN=${INFISICAL_API_TOKEN}
-          KUBECONFIG=/root/.kube/config
+          KUBECONFIG=/tmp/kubeconfig
           EOF
 
       - name: ⚙️ Run bootstrap task
         env:
-          KUBECONFIG: "/root/.kube/config"
+          KUBECONFIG: "/tmp/kubeconfig"
         run: |
           task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
       - name: ⚙️ Init & Plan
         env: 
-          KUBE_CONFIG_PATH: "/root/.kube/config"
+          KUBE_CONFIG_PATH: "/tmp/kubeconfig"
         run: |
           tofu init -input=false
           tofu plan -input=false -out=tfplan
@@ -82,6 +84,9 @@ jobs:
     runs-on: self-hosted
     container:
       image: brsalcedom/homelab-ci:2.5.0
+      options: --user 1000:1000
+      env:
+        HOME: /tmp
     environment:
       name: tofu-infra
     defaults:
@@ -109,9 +114,8 @@ jobs:
         env: 
           KUBECONFIG: ${{ steps.secrets-bw.outputs.KUBECONFIG }}
         run: |
-          mkdir -p /root/.kube
-          printf "%s" "${KUBECONFIG}" > /root/.kube/config
-          chmod 600 /root/.kube/config
+          printf "%s" "${KUBECONFIG}" > /tmp/kubeconfig
+          chmod 600 /tmp/kubeconfig
 
       - name: 📄 Write .env for Task
         env: 
@@ -121,12 +125,12 @@ jobs:
           cat <<EOF > .env
           CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
           INFISICAL_API_TOKEN=${INFISICAL_API_TOKEN}
-          KUBECONFIG=/root/.kube/config
+          KUBECONFIG=/tmp/kubeconfig
           EOF
 
       - name: ⚙️ Run bootstrap task
         env:
-          KUBECONFIG: "/root/.kube/config"
+          KUBECONFIG: "/tmp/kubeconfig"
         run: |
           task --taskfile $GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml
 
@@ -138,8 +142,8 @@ jobs:
 
       - name: ✅ Apply Plan
         env: 
-          KUBE_CONFIG_PATH: "/root/.kube/config"
-          KUBECONFIG: "/root/.kube/config"
+          KUBE_CONFIG_PATH: "/tmp/kubeconfig"
+          KUBECONFIG: "/tmp/kubeconfig"
         run: |
           tofu init -input=false
           tofu apply -auto-approve tfplan

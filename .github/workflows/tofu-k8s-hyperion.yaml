@@ -18,7 +18,9 @@ jobs:
       image: brsalcedom/homelab-ci:2.5.0
       options: --user 1000:1000
       env:
-        HOME: /tmp
+        HELM_CACHE_HOME: /tmp/helm/cache
+        HELM_CONFIG_HOME: /tmp/helm/config
+        HELM_DATA_HOME: /tmp/helm/data
     defaults:
       run:
         working-directory: terraform/proxmox/infraestructure/hyperion
@@ -86,7 +88,9 @@ jobs:
       image: brsalcedom/homelab-ci:2.5.0
       options: --user 1000:1000
       env:
-        HOME: /tmp
+        HELM_CACHE_HOME: /tmp/helm/cache
+        HELM_CONFIG_HOME: /tmp/helm/config
+        HELM_DATA_HOME: /tmp/helm/data
     environment:
       name: tofu-infra
     defaults:

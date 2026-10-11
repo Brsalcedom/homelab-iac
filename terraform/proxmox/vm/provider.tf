@@ -10,8 +10,7 @@ terraform {
 provider "proxmox" {
   insecure = true
   ssh {
-    agent       = false
-    username    = "root" # OS user with id_rsa.pub in authorized_keys on the Proxmox node
-    private_key = file("C:\\Users\\Cervant\\.ssh\\id_rsa")
+    agent = false
+    # username/private_key sourced from PROXMOX_VE_SSH_USERNAME / PROXMOX_VE_SSH_PRIVATE_KEY
   }
 }

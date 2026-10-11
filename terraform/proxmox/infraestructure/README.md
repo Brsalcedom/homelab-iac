@@ -82,6 +82,30 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable traefik --disable-net
 
 - Traefik, Flannel, and kube-proxy are disabled since **Cilium** will be used as CNI, gateway, and network infrastructure.
 
+#### ⚠️ Certificate error during install (`SSL certificate problem: self-signed certificate`)
+
+The install script first resolves the `stable` channel against
+`update.k3s.io`. If something in the network path (router/firewall) breaks
+that specific connection, you get a `self-signed certificate` error even
+though GitHub and `get.k3s.io` work fine. Skip the channel lookup entirely
+by pinning the version explicitly:
+
+```bash
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.37.1+k3s1" INSTALL_K3S_EXEC="--disable traefik --disable-network-policy --disable-kube-proxy --flannel-backend=none --node-name=hyperion" sh -
+```
+
+Check the latest available version at the
+[k3s releases page](https://github.com/k3s-io/k3s/releases) before
+installing.
+
+#### Starting over
+
+To fully remove K3s from a node and reinstall from scratch:
+
+```bash
+sudo /usr/local/bin/k3s-uninstall.sh
+```
+
 ### 🔸 Cronos
 
 _Pending implementation._

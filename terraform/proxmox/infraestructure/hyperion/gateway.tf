@@ -24,7 +24,7 @@ resource "kubernetes_manifest" "certificate" {
   }
 
   depends_on = [
-    kubernetes_namespace.cilium_gateway,
+    kubernetes_namespace_v1.cilium_gateway,
     time_sleep.after_cilium,
     helm_release.cert_manager,
     kubernetes_manifest.clusterissuer,
@@ -79,7 +79,7 @@ resource "kubernetes_manifest" "cilium_gateway" {
 
   depends_on = [
     time_sleep.after_cilium,
-    kubernetes_namespace.cilium_gateway,
+    kubernetes_namespace_v1.cilium_gateway,
     kubernetes_manifest.certificate,
   ]
 }
@@ -128,6 +128,6 @@ resource "kubernetes_manifest" "cilium_redirect_httproute" {
   depends_on = [
     time_sleep.after_cilium,
     kubernetes_manifest.cilium_gateway,
-    kubernetes_namespace.cilium_gateway,
+    kubernetes_namespace_v1.cilium_gateway,
   ]
 }

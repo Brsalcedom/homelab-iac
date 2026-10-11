@@ -29,7 +29,7 @@ resource "helm_release" "cert_manager" {
     }
   ]
   depends_on = [
-    helm_release.cilium, kubernetes_namespace.cert_manager, time_sleep.after_cilium
+    helm_release.cilium, kubernetes_namespace_v1.cert_manager, time_sleep.after_cilium
   ]
 }
 

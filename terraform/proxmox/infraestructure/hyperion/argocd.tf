@@ -34,7 +34,7 @@ resource "helm_release" "argocd" {
     }
   ]
 
-  depends_on = [kubernetes_namespace.argocd, time_sleep.after_cilium]
+  depends_on = [kubernetes_namespace_v1.argocd, time_sleep.after_cilium]
 }
 
 resource "kubernetes_manifest" "argocd_route" {

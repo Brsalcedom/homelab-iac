@@ -1,0 +1,102 @@
+name: "Tofu :: Proxmox VM"
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["terraform/proxmox/vm/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: "🧪 Plan"
+    runs-on: self-hosted
+    container:
+      image: brsalcedom/homelab-ci:2.5.0
+      options: --user 1000:1000
+    defaults:
+      run:
+        working-directory: terraform/proxmox/vm
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v7
+
+      - name: 🔐 Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v3.0.1
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
+            6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
+            b74a2635-978c-4618-8c8d-b33a0122d81e > PROXMOX_VE_API_TOKEN
+            40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
+            7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
+            016bc9e4-4313-4aa8-9ab2-b33901479b98 > PROXMOX_VE_SSH_PRIVATE_KEY
+
+      - name: ⚙️ Init & Plan
+        env:
+          TF_VAR_ssh_authorized_keys: '["${{ steps.secrets-bw.outputs.ssh_public_key }}"]'
+          PROXMOX_VE_SSH_USERNAME: "root"
+          PROXMOX_VE_SSH_PRIVATE_KEY: "${{ steps.secrets-bw.outputs.PROXMOX_VE_SSH_PRIVATE_KEY }}"
+        run: |
+          tofu init -input=false
+          tofu plan -input=false -out=tfplan
+
+      - name: 📦 Upload Plan
+        uses: actions/upload-artifact@v7
+        with:
+          name: tfplan
+          path: terraform/proxmox/vm/tfplan
+          retention-days: 1
+
+  apply:
+    name: "🚀 Apply"
+    needs: plan
+    runs-on: self-hosted
+    container:
+      image: brsalcedom/homelab-ci:2.5.0
+      options: --user 1000:1000
+    environment:
+      name: tofu-infra
+    defaults:
+      run:
+        working-directory: terraform/proxmox/vm
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v7
+
+      - name: 🔐 Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v3.0.1
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            64cc2302-5345-4eea-8c9a-b3390140117c > AWS_ACCESS_KEY_ID
+            6184035e-bb14-488a-b14e-b33901403af8 > AWS_SECRET_ACCESS_KEY
+            b74a2635-978c-4618-8c8d-b33a0122d81e > PROXMOX_VE_API_TOKEN
+            40c480b8-7b2f-45e0-b9c9-b3390146166a > PROXMOX_VE_ENDPOINT
+            7b7fc7c6-abd9-4b08-8c0a-b339014ab4e3 > ssh_public_key
+            016bc9e4-4313-4aa8-9ab2-b33901479b98 > PROXMOX_VE_SSH_PRIVATE_KEY
+
+      - name: 📥 Download Plan
+        uses: actions/download-artifact@v8
+        with:
+          name: tfplan
+          path: terraform/proxmox/vm
+
+      - name: ✅ Apply Plan
+        env:
+          TF_VAR_ssh_authorized_keys: '["${{ steps.secrets-bw.outputs.ssh_public_key }}"]'
+          PROXMOX_VE_SSH_USERNAME: "root"
+          PROXMOX_VE_SSH_PRIVATE_KEY: "${{ steps.secrets-bw.outputs.PROXMOX_VE_SSH_PRIVATE_KEY }}"
+        run: |
+          tofu init -input=false
+          tofu apply -auto-approve tfplan

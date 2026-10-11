@@ -152,7 +152,7 @@ resource "kubernetes_manifest" "argocd_app_of_apps" {
       "source" = {
         "repoURL"        = "https://github.com/Brsalcedom/homelab-iac"
         "targetRevision" = "main"
-        "path"           = "k8s/applications/argocd"
+        "path"           = "kubernetes/applications/argocd"
         "directory" = {
           "recurse" = true
           "include" = "*application.yaml"

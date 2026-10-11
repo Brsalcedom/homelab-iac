@@ -16,4 +16,3 @@ device_identifier
 **/stack.env
 /packer
 **.tfa
-**/vm

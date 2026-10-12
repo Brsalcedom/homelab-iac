@@ -1,5 +1,29 @@
 # Changelog
 
+## [6.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v6.0.0...v6.1.0) (2026-10-12)
+
+
+### Features
+
+* **ci:** add Proxmox VM workflow and fix SSH provider auth ([3dec871](https://github.com/Brsalcedom/homelab-iac/commit/3dec871dd6c6b349cdd08a614e6121678d5a54bb))
+* **deps:** update helm release argo-cd to v10.10.2 ([4d6856c](https://github.com/Brsalcedom/homelab-iac/commit/4d6856c84850c241bc87979fdcfb1c0908e15b1e))
+* **deps:** update helm release argo-cd to v10.10.2 ([1e96be5](https://github.com/Brsalcedom/homelab-iac/commit/1e96be58ef1fbcd6ea0f533760ff06f3301bdd93))
+* **deps:** update helm release kyverno to v3.9.1 ([35c7c75](https://github.com/Brsalcedom/homelab-iac/commit/35c7c75da12a9029e8b8039ebd585d0367406fcc))
+* **deps:** update helm release kyverno to v3.9.1 ([dce45d2](https://github.com/Brsalcedom/homelab-iac/commit/dce45d2e0d67855e1113e8e94cb2758d1b0f14ad))
+* **deps:** update terraform kubernetes to &lt; 3.4.0 ([5daf0fa](https://github.com/Brsalcedom/homelab-iac/commit/5daf0fadba13c2a01307aa152f52a8c27428d51a))
+* **deps:** update terraform kubernetes to &lt; 3.4.0 ([1706036](https://github.com/Brsalcedom/homelab-iac/commit/17060368eb85ed08fd1646e18b3421c432e82190))
+* **hyperion:** provision k3s nodes and prepare cluster bootstrap ([f61e8ff](https://github.com/Brsalcedom/homelab-iac/commit/f61e8ffef5418bc5803c7d9dc5d00a5c034cd807))
+* **proxmox:** add hermes-agent VM ([4829a00](https://github.com/Brsalcedom/homelab-iac/commit/4829a0029e54646d652102bf7840b78c07363aff))
+* **proxmox:** add hermes-agent VM ([70efaba](https://github.com/Brsalcedom/homelab-iac/commit/70efaba2fc3c9c2aed929b8646b957aee8c79e37))
+
+
+### Bug Fixes
+
+* **ci:** run Hyperion workflow container as runner UID ([d23485b](https://github.com/Brsalcedom/homelab-iac/commit/d23485b0b98cb53c2c5f2949939b1b15484aca50))
+* **ci:** use writable Helm cache paths in Hyperion jobs ([c959d32](https://github.com/Brsalcedom/homelab-iac/commit/c959d324222b3cd238436ec77476f73dd4b635f6))
+* deprecated resource name ([aee5a3d](https://github.com/Brsalcedom/homelab-iac/commit/aee5a3d1c24d704b5e4ae7d4f61278bfcab85e18))
+* **hyperion:** update namespace v1 references ([fbc7e78](https://github.com/Brsalcedom/homelab-iac/commit/fbc7e78f61fedf8a1d4c15c0548ea49cd83c522e))
+
 ## [6.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v5.1.0...v6.0.0) (2026-08-18)
 
 

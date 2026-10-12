@@ -10,7 +10,7 @@ terraform {
       # >=3.3.0 migrated kubernetes_namespace_v1 to the Plugin Framework and
       # requires Resource Identity on every read, which currently breaks
       # refresh for pre-existing namespaces under OpenTofu.
-      version = ">= 2.37.1, < 3.3.0"
+      version = "< 3.4.0"
     }
   }
 }

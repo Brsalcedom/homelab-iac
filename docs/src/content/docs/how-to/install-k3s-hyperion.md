@@ -40,6 +40,17 @@ sudo firewall-cmd --zone=public --list-rich-rules
 
 Adjust the CIDRs to the networks that need cluster access. Do not open `6443/tcp` to all sources.
 
+## Trust the pod network
+
+Pods reach the API server through `10.43.0.1`, which Cilium translates to `192.168.10.201:6443` with the pod IP as source. firewalld drops that traffic unless the pod CIDR (Cilium's `cluster-pool` default, `10.0.0.0/8`) is trusted:
+
+```bash
+sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
+sudo firewall-cmd --reload
+```
+
+Without this, CoreDNS never becomes ready, `metrics-server` and `local-path-provisioner` crash with `dial tcp 10.43.0.1:443: i/o timeout`, and Helm releases such as Argo CD fail to install.
+
 ## Configure your kubeconfig
 
 Copy `/etc/rancher/k3s/k3s.yaml` from the node and change the server to `https://192.168.10.201:6443` (not `127.0.0.1`). Then:

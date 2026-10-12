@@ -1,3 +1,10 @@
+# The bootstrap task creates this namespace (with the Cloudflare secret) before
+# tofu runs, so adopt it instead of failing with "already exists".
+import {
+  to = kubernetes_namespace_v1.cert_manager
+  id = "cert-manager"
+}
+
 resource "kubernetes_namespace_v1" "cert_manager" {
   metadata {
     name = "cert-manager"

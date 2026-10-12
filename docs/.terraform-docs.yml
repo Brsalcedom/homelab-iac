@@ -1,0 +1,13 @@
+# Used by .github/workflows/docs.yaml to inject Terraform reference tables
+# into docs/src/content/docs/reference/terraform-*.md before `astro build`.
+formatter: markdown table
+
+settings:
+  anchor: false
+  html: false
+  indent: 3
+  escape: true
+
+sort:
+  enabled: true
+  by: name

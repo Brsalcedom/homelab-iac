@@ -1,0 +1,57 @@
+---
+title: "Clusters: Hyperion and Cronos"
+description: Why there are two Kubernetes clusters with different stacks, and why Hyperion replaces the K3s defaults.
+sidebar:
+  order: 2
+---
+
+The homelab plans two K3s clusters with deliberately different stacks. Hyperion is for services used every day; Cronos is for learning alternatives without risking them.
+
+## Hyperion: the stable cluster
+
+Hyperion favors stability, security and observability. Its stack:
+
+| Area | Choice |
+|------|--------|
+| CNI and mesh | Cilium |
+| Gateway API | Cilium's built-in controller |
+| GitOps | ArgoCD |
+| Certificates | cert-manager + Cloudflare DNS-01 |
+| LoadBalancer | Cilium (eBPF) |
+| Secrets | Infisical + Kubernetes operator |
+| Policy engine | Kyverno |
+| Storage | Rook + Ceph (planned) |
+| Observability | Prometheus, Grafana, Loki (planned) |
+
+### Why K3s runs without Traefik, Flannel and kube-proxy
+
+K3s ships with Flannel, kube-proxy, a network policy controller and Traefik. Cilium does all of those jobs with eBPF, so Hyperion turns them off (`--flannel-backend=none --disable-kube-proxy --disable-network-policy --disable traefik`). Running both would mean two components fighting over the same packets.
+
+One consequence: a fresh node has no networking until Cilium is installed. That is why Cilium is the first thing the Hyperion OpenTofu stack installs, followed by a 120-second wait.
+
+### One Gateway, one wildcard certificate
+
+All apps share a single Gateway in the `cilium-gateway` namespace, with one wildcard certificate for `*.home.cervant.net`. Apps only add an `HTTPRoute`. This keeps certificate issuance to one DNS-01 challenge, works for internal-only hostnames that aren't reachable from the internet, and keeps per-app manifests small.
+
+## Cronos: the experimental cluster
+
+Cronos is planned. It uses the alternative for each area, so both approaches can be compared on similar workloads:
+
+| Area | Choice |
+|------|--------|
+| CNI | Flannel (K3s default) |
+| Service mesh | Linkerd |
+| Gateway API | NGINX Gateway Fabric |
+| GitOps | FluxCD |
+| Certificates | cert-manager + Cloudflare DNS-01 |
+| LoadBalancer | kube-vip |
+| Secrets | Vault + External Secrets Operator |
+| Policy engine | OPA Gatekeeper |
+| Storage | Longhorn |
+| Observability | Prometheus, Grafana, Loki (via FluxCD) |
+
+## Roadmap
+
+- Deploy Rook + Ceph on Hyperion.
+- Build Cronos with FluxCD and Linkerd.
+- Add observability and dashboards per cluster.

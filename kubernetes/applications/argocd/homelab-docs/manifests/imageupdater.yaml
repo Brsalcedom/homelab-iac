@@ -1,0 +1,19 @@
+# Follows the mutable :latest tag pushed by .github/workflows/docs.yaml and
+# pins the Application to its digest (argocd write-back, nothing is committed).
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: homelab-docs
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  writeBackConfig:
+    method: argocd
+  applicationRefs:
+    - namePattern: homelab-docs
+      images:
+        - alias: docs
+          imageName: ghcr.io/brsalcedom/homelab-docs:latest
+          commonUpdateSettings:
+            updateStrategy: digest

@@ -22,6 +22,8 @@ area/docs:
   - changed-files:
       - any-glob-to-any-file:
           - "README.md"
+          - "**/README.md"
+          - "docs/**/*"
 
 target/hyperion:
   - changed-files:

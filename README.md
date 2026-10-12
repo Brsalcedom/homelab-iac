@@ -11,28 +11,24 @@ Infrastructure as Code for my personal home lab, managed with Terraform, K3s, Gi
 
 ---
 
-## 📖 Description
+## 📚 Documentation
 
-This repository defines all my homelab infrastructure declaratively using Terraform, Packer, GitOps, and Kubernetes (`k3s`) on Proxmox. My goal is to maintain a self-sustaining, reproducible, and secure environment that allows me to:
+The full documentation lives in [`docs/`](./docs) and is published at **[docs.cervant.net](https://docs.cervant.net)** (internally at `docs.home.cervant.net`).
 
-- Automate the entire infrastructure lifecycle.
-- Experiment with new DevOps and security tools.
-- Deploy self-hosted personal services.
-- Learn best practices in architecture, automation, and observability.
+| Start here | |
+|---|---|
+| [Getting started](https://docs.cervant.net/tutorials/getting-started/) | From a fresh Proxmox node to a VM managed by OpenTofu |
+| [How-to guides](https://docs.cervant.net/how-to/deploy-vms/) | VMs, LXC containers, K3s, ArgoCD apps, the CI runner |
+| [Reference](https://docs.cervant.net/reference/repository-layout/) | Layout, Proxmox permissions, environment variables, workflows |
+| [Architecture](https://docs.cervant.net/explanation/architecture/) | How the layers fit together and why |
+
+Agents can read [`llms.txt`](https://docs.cervant.net/llms.txt) or [`llms-full.txt`](https://docs.cervant.net/llms-full.txt).
 
 ---
 
-## 🧱 Main Components
+## 📖 Description
 
-| Category          | Technologies                                                                          |
-|-------------------|---------------------------------------------------------------------------------------|
-| **Orchestration** | [K3s](https://k3s.io), [Cilium](https://cilium.io), [Linkerd](https://linkerd.io)     |
-| **GitOps**        | [ArgoCD](https://argo-cd.readthedocs.io), [FluxCD](https://fluxcd.io)                |
-| **Infrastructure**| [Terraform](https://www.terraform.io), [OpenTofu](https://opentofu.org), [Packer](https://www.packer.io) |
-| **Storage**       | [Rook + Ceph](https://rook.io), [Longhorn](https://longhorn.io)                      |
-| **Certificates**  | [cert-manager](https://cert-manager.io), [Cloudflare DNS-01](https://developers.cloudflare.com/) |
-| **Observability** | [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), [Loki](https://grafana.com/oss/loki) |
-| **Networking**    | [Cilium LB](https://docs.cilium.io), [kube-vip](https://kube-vip.io)                 |
+This repository defines my homelab infrastructure declaratively with OpenTofu/Terraform, GitOps and Kubernetes (`k3s`) on Proxmox. The goal is a self-sustaining, reproducible and secure environment to automate the infrastructure lifecycle, experiment with DevOps and security tools, and host personal services.
 
 ---
 
@@ -41,82 +37,16 @@ This repository defines all my homelab infrastructure declaratively using Terraf
 ```bash
 homelab-iac/
 ├── .github/                    # CI/CD workflows, labels and configuration
-├── cloudflare/                 # Terraform for Cloudflare R2 and DNS
+├── cloudflare/                 # Terraform for Cloudflare R2
 ├── docker/                     # Compose and Swarm stacks
-│   ├── compose/               # Docker Compose configs
-│   └── swarm/                 # Docker Swarm stacks
-├── kubernetes/                 # K8s application manifests
-│   └── applications/
-│       └── argocd/            # Apps managed by ArgoCD
-├── packer/                     # Base VM images with Packer
-└── terraform/                  # Infrastructure as Code
-    └── proxmox/
-        ├── infraestructure/   # K3s clusters (Hyperion)
-        │   └── hyperion/      # Stable stack: Cilium, ArgoCD, Gateway API
-        ├── lxc/               # LXC containers
-        └── vm/                # Virtual machines
+├── docs/                       # Wiki (Starlight)
+├── kubernetes/applications/
+│   └── argocd/                 # Apps managed by ArgoCD on Hyperion
+└── terraform/proxmox/
+    ├── infraestructure/hyperion/  # K3s platform: Cilium, cert-manager, Gateway, ArgoCD
+    ├── lxc/                    # LXC containers
+    └── vm/                     # Virtual machines
 ```
-
-See [`terraform/proxmox/infraestructure/README.md`](./terraform/proxmox/infraestructure/README.md) for stacks and configuration details of each Kubernetes node.
-
----
-
-## 🖥️ Proxmox bootstrap for Terraform
-
-If you are starting from a fresh Proxmox VE node and want to apply this repository's Terraform configuration from the CLI, run the following commands on the Proxmox host as root:
-
-```bash
-# Create the Terraform user
-pveum user add terraform@pve --password 'ChangeMeStrong!'
-
-# Create a role with the minimum permissions expected by the repo
-pveum role add Terraform --privs "VM.Audit VM.Allocate VM.Config.Disk VM.Config.CPU VM.Config.Memory VM.Config.Network VM.Config.HWType VM.Config.Options VM.Config.CDROM VM.Config.Cloudinit Sys.Modify Datastore.AllocateSpace Datastore.Audit SDN.Use"
-
-# Grant that role at the root path
-pveum acl modify / --roles Terraform --users terraform@pve
-
-# Create an API token for Terraform
-pveum user token add terraform@pve iac --privsep 0
-```
-
-Keep the printed token secret safe. Then export it locally:
-
-```bash
-export PROXMOX_VE_ENDPOINT="https://<proxmox-ip>:8006/api2/json"
-export PROXMOX_VE_API_TOKEN="terraform@pve!iac=<TOKEN_SECRET>"
-```
-
-On Windows PowerShell:
-
-```powershell
-$env:PROXMOX_VE_ENDPOINT="https://<proxmox-ip>:8006/api2/json"
-$env:PROXMOX_VE_API_TOKEN="terraform@pve!iac=<TOKEN_SECRET>"
-```
-
-You can verify the setup with:
-
-```bash
-pveum user list
-pveum role list
-pveum acl list
-pveum user token list terraform@pve
-```
-
-Then continue with the Terraform modules in:
-
-- [terraform/proxmox/vm/README.md](terraform/proxmox/vm/README.md)
-- [terraform/proxmox/lxc/README.md](terraform/proxmox/lxc/README.md)
-- [terraform/proxmox/infraestructure/README.md](terraform/proxmox/infraestructure/README.md)
-
----
-
-## 🛠️ Requirements
-
-- Terraform ≥ 1.9.0
-- Kubeconfig per node
-- Public domain for valid certificate generation
-- Cloudflare API token
-- Helm, Kubectl, Git
 
 ---
 

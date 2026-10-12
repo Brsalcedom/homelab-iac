@@ -29,6 +29,15 @@ K3s ships with Flannel, kube-proxy, a network policy controller and Traefik. Cil
 
 One consequence: a fresh node has no networking until Cilium is installed. That is why Cilium is the first thing the Hyperion OpenTofu stack installs, followed by a 120-second wait.
 
+### What the stack expects from K3s
+
+The Hyperion stack is validated only on K3s (`v1.37.1+k3s1` on Rocky Linux 10.2). It assumes K3s in these places, and each would need changes on another distribution:
+
+- **Gateway API CRDs.** K3s installs them through its bundled `gateway-api-crd` chart. The bootstrap kustomization (`crds/`) does not include them, so on another distribution nothing would install them.
+- **API server address.** Cilium uses `k8sServiceHost=127.0.0.1` and `k8sServicePort=6443`, which matches a K3s server node where the API server listens locally.
+- **Install flags.** Flannel, kube-proxy, the network policy controller and Traefik are turned off with K3s flags (see [Install K3s on Hyperion](/how-to/install-k3s-hyperion/)).
+- **Service CIDR.** Pods reach the API at `10.43.0.1`, the first address of the K3s default service CIDR.
+
 ### One Gateway, one wildcard certificate
 
 All apps share a single Gateway in the `cilium-gateway` namespace, with one wildcard certificate for `*.home.cervant.net`. Apps only add an `HTTPRoute`. This keeps certificate issuance to one DNS-01 challenge, works for internal-only hostnames that aren't reachable from the internet, and keeps per-app manifests small.

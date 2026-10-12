@@ -7,6 +7,10 @@ sidebar:
 
 `terraform/proxmox/infraestructure/hyperion` installs the platform layer of the cluster: Cilium, cert-manager with a Cloudflare `ClusterIssuer`, the shared Gateway with a wildcard certificate, and ArgoCD with the `homelab` project and the root app-of-apps.
 
+:::caution[Validated on K3s only]
+This stack is tested only on K3s. On another distribution, see [What the stack expects from K3s](/explanation/clusters/#what-the-stack-expects-from-k3s) first.
+:::
+
 ## Prerequisites
 
 - [K3s is installed](/how-to/install-k3s-hyperion/) and `KUBECONFIG` points to Hyperion.

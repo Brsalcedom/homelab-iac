@@ -7,6 +7,10 @@ sidebar:
 
 Hyperion runs K3s without its bundled networking, because Cilium replaces Flannel, kube-proxy, network policies and Traefik. [Clusters: Hyperion and Cronos](/explanation/clusters/) explains why.
 
+:::caution[Validated on K3s only]
+The Hyperion stack has been tested only on K3s `v1.37.1+k3s1` running on Rocky Linux 10.2. It relies on K3s behavior, so it will not work unchanged on other distributions such as kubeadm, RKE2, k0s or MicroK8s. See [What the stack expects from K3s](/explanation/clusters/#what-the-stack-expects-from-k3s).
+:::
+
 ## Install K3s
 
 On `hyperion-01`:

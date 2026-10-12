@@ -18,7 +18,7 @@ Source: [`terraform/proxmox/infraestructure/hyperion`](https://github.com/Brsalc
 | `certmanager.tf` | cert-manager Helm release and the `cloudflare-clusterissuer` |
 | `gateway.tf` | `cilium-gateway` namespace, wildcard certificate, Gateway and HTTP→HTTPS redirect |
 | `argocd.tf` | ArgoCD Helm release, its HTTPRoute, the `homelab` project and the root app-of-apps |
-| `crds/` | Kustomization for CRDs installed separately from the charts |
+| `crds/` | Kustomization for the cert-manager and ArgoCD CRDs, installed separately from the charts. Gateway API CRDs come from K3s. |
 
 ## Locals
 

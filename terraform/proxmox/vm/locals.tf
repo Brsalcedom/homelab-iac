@@ -25,7 +25,7 @@ locals {
       description = "Hermes Agent | AI Agent | IP: 192.168.10.215"
       ip          = "192.168.10.215"
       id          = 215
-      memory      = 4096
+      memory      = 6144
       tags        = ["rocky", "hermes", "ai"]
     }
   }

@@ -58,7 +58,8 @@ Defined under `kubernetes/applications/argocd/`.
 
 ## Nodes
 
-| Name | IP | Proxmox VM ID |
-|------|----|---------------|
-| `hyperion-01` | `192.168.10.201` | 201 |
-| `hyperion-02` | `192.168.10.202` | 202 |
+| Name | IP | Proxmox VM ID | vCPU | Memory |
+|------|----|---------------|------|--------|
+| `hyperion-01` | `192.168.10.201` | 201 | 2 | 6 GiB |
+
+Hyperion is a single-node cluster. With 2 GiB the node stalls once ArgoCD syncs the applications, so keep it at 6 GiB or more.

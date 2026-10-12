@@ -1,5 +1,21 @@
 # Changelog
 
+## [7.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v6.1.0...v7.0.0) (2026-10-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **github-action:** Update action node to v24 ([#157](https://github.com/Brsalcedom/homelab-iac/issues/157))
+
+### Bug Fixes
+
+* hyperion bootstrap ([#159](https://github.com/Brsalcedom/homelab-iac/issues/159)) ([f8e70dc](https://github.com/Brsalcedom/homelab-iac/commit/f8e70dc8b86216fe2899c88faa7cbf303618806f))
+
+
+### Continuous Integration
+
+* **github-action:** Update action node to v24 ([#157](https://github.com/Brsalcedom/homelab-iac/issues/157)) ([a19f6ac](https://github.com/Brsalcedom/homelab-iac/commit/a19f6aca998571060c73848564a4224bb0111112))
+
 ## [6.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v6.0.0...v6.1.0) (2026-10-12)
 
 

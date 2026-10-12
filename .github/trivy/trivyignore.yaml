@@ -1,0 +1,8 @@
+# Accepted Trivy findings. Keep each entry scoped to specific paths and justified.
+misconfigurations:
+  - id: KSV-0013
+    paths:
+      - "kubernetes/applications/argocd/homelab-docs/manifests/deployment.yaml"
+    statement: >-
+      :latest is intentional. ArgoCD Image Updater (imageupdater.yaml) tracks it
+      with the digest strategy and pins the running image to its sha256 digest.

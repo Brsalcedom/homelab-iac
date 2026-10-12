@@ -1,0 +1,6 @@
+# Data for Trivy check KSV-0125 (restrict container images to trusted registries).
+# Replaces Trivy's default list (ACR, ECR, GCR), so keep every registry used
+# by the manifests under kubernetes/.
+ksv0125:
+  trusted_registries:
+    - ghcr.io

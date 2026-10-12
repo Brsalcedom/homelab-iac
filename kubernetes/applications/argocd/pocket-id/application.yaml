@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/Brsalcedom/homelab-iac.git
     targetRevision: main
-    path: k8s/applications/argocd/pocket-id/manifests
+    path: kubernetes/applications/argocd/pocket-id/manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: pocket-id

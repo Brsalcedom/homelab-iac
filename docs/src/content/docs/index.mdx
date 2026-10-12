@@ -1,0 +1,44 @@
+---
+title: homelab-iac
+description: Infrastructure as Code for a personal homelab on Proxmox, K3s and Cloudflare.
+template: splash
+hero:
+  tagline: Proxmox VMs and LXC containers with OpenTofu, a K3s cluster managed by GitOps, and Cloudflare for DNS, certificates and state.
+  actions:
+    - text: Get started
+      link: /tutorials/getting-started/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/Brsalcedom/homelab-iac
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+The goal of this homelab is a self-sustaining, reproducible and secure environment to automate the full infrastructure lifecycle, experiment with DevOps and security tooling, host personal services, and practice architecture, automation and observability.
+
+This wiki follows the [Diátaxis](https://diataxis.fr/) framework:
+
+<CardGrid>
+  <Card title="Tutorials" icon="rocket">
+    Learning-oriented. Start from a fresh Proxmox node and end with a VM managed by OpenTofu.
+    [Getting started →](/tutorials/getting-started/)
+  </Card>
+  <Card title="How-to guides" icon="setting">
+    Task-oriented recipes: build templates, deploy VMs and containers, install K3s, expose apps on Hyperion.
+    [Browse guides →](/how-to/create-rocky-template/)
+  </Card>
+  <Card title="Reference" icon="open-book">
+    Facts to look up: repository layout, Proxmox permissions, environment variables, components, workflows and Terraform inputs.
+    [Open reference →](/reference/repository-layout/)
+  </Card>
+  <Card title="Explanation" icon="information">
+    Why things are built the way they are: architecture, the Hyperion and Cronos clusters, remote state, and how these docs are delivered.
+    [Read explanations →](/explanation/architecture/)
+  </Card>
+</CardGrid>
+
+:::tip[For agents]
+A machine-readable version of this wiki is published at [`/llms.txt`](/llms.txt), with the full text in [`/llms-full.txt`](/llms-full.txt) and a condensed version in [`/llms-small.txt`](/llms-small.txt).
+:::

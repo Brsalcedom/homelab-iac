@@ -6,6 +6,7 @@ on:
       - 'terraform/**'
       - 'cloudflare/**'
       - '.github/workflows/iac-security-report.yml'
+      - '.github/trivy/**'
   workflow_dispatch:
 
 permissions:
@@ -25,6 +26,7 @@ jobs:
         with:
           scan-type: 'config'
           scan-ref: '.'
+          trivy-config: '.github/trivy/trivy.yaml'
           format: 'sarif'
           output: 'trivy-iac-results.sarif'
           exit-code: '0'
@@ -41,6 +43,7 @@ jobs:
         with:
           scan-type: 'config'
           scan-ref: '.'
+          trivy-config: '.github/trivy/trivy.yaml'
           format: 'json'
           output: 'trivy-iac-results.json'
           exit-code: '0'
@@ -51,6 +54,7 @@ jobs:
         with:
           scan-type: 'config'
           scan-ref: '.'
+          trivy-config: '.github/trivy/trivy.yaml'
           format: 'table'
           exit-code: '0'
           severity: 'CRITICAL,HIGH,MEDIUM'

@@ -162,11 +162,21 @@ resource "kubernetes_manifest" "argocd_app_of_apps" {
         "server"    = "https://kubernetes.default.svc"
         "namespace" = "argocd"
       }
+      # ArgoCD Image Updater (argocd write-back) sets image overrides on child
+      # Applications; keep root from reverting them on sync.
+      "ignoreDifferences" = [
+        {
+          "group"        = "argoproj.io"
+          "kind"         = "Application"
+          "jsonPointers" = ["/spec/source/kustomize/images"]
+        }
+      ]
       "syncPolicy" = {
         "automated" = {
           "prune"    = true
           "selfHeal" = true
         }
+        "syncOptions" = ["RespectIgnoreDifferences=true"]
       }
     }
   }

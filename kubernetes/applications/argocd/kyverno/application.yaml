@@ -17,7 +17,7 @@ spec:
       targetRevision: 3.9.1
       helm:
         valueFiles:
-          - $values/k8s/applications/argocd/kyverno/values.yaml
+          - $values/kubernetes/applications/argocd/kyverno/values.yaml
     - repoURL: https://github.com/Brsalcedom/homelab-iac.git
       targetRevision: main
       ref: values

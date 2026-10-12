@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homelab-docs
+  namespace: argocd
+  labels:
+    tier: apps
+    domain: docs
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: homelab
+  source:
+    repoURL: https://github.com/Brsalcedom/homelab-iac.git
+    targetRevision: main
+    path: kubernetes/applications/argocd/homelab-docs/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homelab-docs
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

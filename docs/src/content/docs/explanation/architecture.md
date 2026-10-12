@@ -15,7 +15,7 @@ The homelab is described declaratively in this repository and built in layers. E
 │ Cilium · Gateway API · cert-manager · ArgoCD                     │
 ├──────────────────────────────────────────────────────────────────┤
 │ Guests                      OpenTofu ← terraform/proxmox/{vm,lxc}│
-│ VMs (K3s nodes, hermes-agent) · LXC (Swarm, runner, DNS, auth…)  │
+│ VMs (K3s node, hermes-agent) · LXC (Swarm, runner, DNS, auth…)   │
 ├──────────────────────────────────────────────────────────────────┤
 │ Proxmox VE                  manual bootstrap (user, role, token) │
 └──────────────────────────────────────────────────────────────────┘
@@ -28,7 +28,7 @@ The homelab is described declaratively in this repository and built in layers. E
 
 **Guests.** OpenTofu creates VMs from a Rocky Linux cloud-init template and LXC containers from Debian templates. Each guest is an entry in a `locals.tf` map; shared settings live in `defaults`, so adding a machine is a few lines.
 
-**K3s platform.** On the Hyperion VMs, K3s runs without its bundled networking. OpenTofu installs the pieces that must exist before GitOps can work: the CNI, the certificate issuer, the shared Gateway and ArgoCD itself.
+**K3s platform.** On the Hyperion VM, K3s runs without its bundled networking. OpenTofu installs the pieces that must exist before GitOps can work: the CNI, the certificate issuer, the shared Gateway and ArgoCD itself.
 
 **Apps.** ArgoCD takes over from there. The root app-of-apps watches `kubernetes/applications/argocd`, so adding an app is a pull request.
 

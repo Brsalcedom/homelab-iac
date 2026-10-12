@@ -11,7 +11,8 @@ Installed by `terraform/proxmox/infraestructure/hyperion`. Chart versions are in
 
 | Component | Technology | Defined in | Status |
 |-----------|------------|------------|--------|
-| CNI, kube-proxy replacement, LoadBalancer | [Cilium](https://cilium.io) (eBPF) | `cilium.tf` | ✅ |
+| CNI, kube-proxy replacement | [Cilium](https://cilium.io) (eBPF) | `cilium.tf` | ✅ |
+| LoadBalancer | K3s ServiceLB (`svclb-*` pods), node IP `192.168.10.201` | Built into K3s | ✅ |
 | Gateway API | Cilium Gateway API controller | `cilium.tf`, `gateway.tf` | ✅ |
 | Certificates | [cert-manager](https://cert-manager.io) + Let's Encrypt DNS-01 on Cloudflare | `certmanager.tf` | ✅ |
 | GitOps | [ArgoCD](https://argo-cd.readthedocs.io) | `argocd.tf` | ✅ |
@@ -58,7 +59,8 @@ Defined under `kubernetes/applications/argocd/`.
 
 ## Nodes
 
-| Name | IP | Proxmox VM ID |
-|------|----|---------------|
-| `hyperion-01` | `192.168.10.201` | 201 |
-| `hyperion-02` | `192.168.10.202` | 202 |
+| Name | IP | Proxmox VM ID | vCPU | Memory |
+|------|----|---------------|------|--------|
+| `hyperion-01` | `192.168.10.201` | 201 | 2 | 6 GiB |
+
+Hyperion is a single-node cluster. With 2 GiB the node stalls once ArgoCD syncs the applications, so keep it at 6 GiB or more.

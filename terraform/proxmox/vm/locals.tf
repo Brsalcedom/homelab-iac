@@ -18,12 +18,7 @@ locals {
       description = "Hyperion 01 | K3s Cluster Node | IP: 192.168.10.201"
       ip          = "192.168.10.201"
       id          = 201
-      tags        = ["rocky", "kubernetes", "k3s"]
-    },
-    "hyperion-02" = {
-      description = "Hyperion 02 | K3s Cluster Node | IP: 192.168.10.202"
-      ip          = "192.168.10.202"
-      id          = 202
+      memory      = 6144
       tags        = ["rocky", "kubernetes", "k3s"]
     },
     "hermes-agent" = {

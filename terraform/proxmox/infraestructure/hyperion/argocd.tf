@@ -25,7 +25,8 @@ resource "helm_release" "argocd" {
       value = "argocd.${local.base_domain}"
     },
     {
-      name  = "configs.params.server.insecure"
+      # Escape the dot: the key is literally "server.insecure" in argocd-cmd-params-cm.
+      name  = "configs.params.server\\.insecure"
       value = "true"
     },
     {

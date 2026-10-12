@@ -7,25 +7,30 @@ sidebar:
 
 `terraform/proxmox/infraestructure/hyperion` installs the platform layer of the cluster: Cilium, cert-manager with a Cloudflare `ClusterIssuer`, the shared Gateway with a wildcard certificate, and ArgoCD with the `homelab` project and the root app-of-apps.
 
+:::caution[Validated on K3s only]
+This stack is tested only on K3s. On another distribution, see [What the stack expects from K3s](/explanation/clusters/#what-the-stack-expects-from-k3s) first.
+:::
+
 ## Prerequisites
 
-- [K3s is installed](/how-to/install-k3s-hyperion/) and `KUBECONFIG` points to Hyperion.
-- R2 credentials are exported (see [Environment variables](/reference/environment-variables/#hyperion)).
-- A secret named `cloudflare-api-token` with the key `api-token` exists in the `cert-manager` namespace, for DNS-01 challenges.
+- [K3s is installed](/how-to/install-k3s-hyperion/), including the firewalld rules for the pod network and for `80/tcp` and `443/tcp`.
+- The variables in [Environment variables: Hyperion](/reference/environment-variables/#hyperion) and the R2 credentials are set.
 
 ## Apply
 
-Through CI: merge changes under `terraform/proxmox/infraestructure/hyperion` to `main`. The [`Tofu :: k8s hyperion`](/reference/ci-workflows/) workflow plans and applies.
+Through CI: merge changes under `terraform/proxmox/infraestructure/hyperion` to `main`. The [`Tofu :: k8s hyperion`](/reference/ci-workflows/) workflow runs the bootstrap task, then plans and applies.
 
-From your workstation:
+From your workstation, run the same two steps. The bootstrap task installs the cert-manager and ArgoCD CRDs and creates the `cloudflare-api-token` and `infisical-service-token` secrets. It must run first, because the plan needs those CRDs to exist.
 
 ```bash
 cd terraform/proxmox/infraestructure/hyperion
+export GITHUB_WORKSPACE="$(git rev-parse --show-toplevel)"  # the task resolves paths from it
+task --taskfile "$GITHUB_WORKSPACE/.github/tasks/hyperion-bootstrap.yml"
 tofu init
 tofu apply
 ```
 
-The apply waits 120 seconds after Cilium is installed so the CNI and the Gateway API CRDs are ready before the other resources.
+The apply waits 120 seconds after Cilium is installed so the CNI is ready before the other resources. The Gateway API CRDs are already there, because K3s installs them.
 
 ## Check the result
 

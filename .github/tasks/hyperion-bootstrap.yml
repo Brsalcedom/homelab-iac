@@ -5,7 +5,7 @@ dotenv: [".env"]
 tasks:
   default:
     desc: "Bootstrap minimal (CRDs + cert-manager + infisical)"
-    deps: [install-crds, bootstrap-cert-manager, bootstrap-infisical]
+    deps: [install-crds, bootstrap-cert-manager, bootstrap-infisical, bootstrap-infisical-server]
 
   install-crds:
     desc: "Install required CRDs"
@@ -24,3 +24,12 @@ tasks:
       - kubectl create ns infisical-operator-system --dry-run=client -o yaml | kubectl apply -f -
       - kubectl -n infisical-operator-system create secret generic infisical-service-token --from-literal=infisicalToken="{{.INFISICAL_API_TOKEN}}" --dry-run=client -o yaml | kubectl apply -f -
 
+  bootstrap-infisical-server:
+    desc: "Create namespace and root secrets for the self-hosted Infisical server"
+    # An empty ENCRYPTION_KEY would make every stored secret unreadable, so never apply one.
+    preconditions:
+      - sh: test -n "{{.INFISICAL_ENCRYPTION_KEY}}" && test -n "{{.INFISICAL_AUTH_SECRET}}"
+        msg: "INFISICAL_ENCRYPTION_KEY and INFISICAL_AUTH_SECRET must be set"
+    cmds:
+      - kubectl create ns infisical --dry-run=client -o yaml | kubectl apply -f -
+      - kubectl -n infisical create secret generic infisical-secrets --from-literal=ENCRYPTION_KEY="{{.INFISICAL_ENCRYPTION_KEY}}" --from-literal=AUTH_SECRET="{{.INFISICAL_AUTH_SECRET}}" --dry-run=client -o yaml | kubectl apply -f -

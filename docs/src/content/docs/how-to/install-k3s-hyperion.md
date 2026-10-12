@@ -55,6 +55,17 @@ sudo firewall-cmd --reload
 
 Without this, CoreDNS never becomes ready, `metrics-server` and `local-path-provisioner` crash with `dial tcp 10.43.0.1:443: i/o timeout`, and Helm releases such as Argo CD fail to install.
 
+## Open HTTP and HTTPS for the Gateway
+
+The shared Gateway gets the node IP (`192.168.10.201`) as its LoadBalancer address, through the K3s ServiceLB. Open `80/tcp` and `443/tcp` so clients on the LAN can reach the apps:
+
+```bash
+sudo firewall-cmd --permanent --zone=public --add-service=http --add-service=https
+sudo firewall-cmd --reload
+```
+
+Without this, DNS resolves and the certificate is `Ready`, but browsers time out on every `*.home.cervant.net` hostname.
+
 ## Configure your kubeconfig
 
 Copy `/etc/rancher/k3s/k3s.yaml` from the node and change the server to `https://192.168.10.201:6443` (not `127.0.0.1`). Then:

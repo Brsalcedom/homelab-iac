@@ -45,7 +45,12 @@ All Terraform configurations under `terraform/` store state in the `homelab-tfst
 
 | Variable | Value |
 |----------|-------|
-| `KUBECONFIG` | Path to the Hyperion kubeconfig (API at `192.168.10.201:6443`) |
+| `KUBE_CONFIG_PATH` | Path to the Hyperion kubeconfig (API at `192.168.10.201:6443`). The `kubernetes` and `helm` providers are configured empty and read this variable, not `KUBECONFIG`. |
+| `KUBECONFIG` | Same path, for `kubectl` in the bootstrap task |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare token with **Zone → DNS → Edit** and **Zone → Zone → Read** on `cervant.net`. The bootstrap task stores it as the `cloudflare-api-token` secret for cert-manager DNS-01. |
+| `INFISICAL_API_TOKEN` | Infisical service token, stored as the `infisical-service-token` secret for the Infisical operator |
+
+The bootstrap task (`.github/tasks/hyperion-bootstrap.yml`) reads `CLOUDFLARE_API_TOKEN`, `INFISICAL_API_TOKEN` and `KUBECONFIG` from a `.env` file. CI writes it in `terraform/proxmox/infraestructure/hyperion` before running the task.
 
 ## Docs workflow
 

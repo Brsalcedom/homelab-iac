@@ -17,7 +17,7 @@ Hyperion favors stability, security and observability. Its stack:
 | Gateway API | Cilium's built-in controller |
 | GitOps | ArgoCD |
 | Certificates | cert-manager + Cloudflare DNS-01 |
-| LoadBalancer | Cilium (eBPF) |
+| LoadBalancer | K3s ServiceLB (node IP) |
 | Secrets | Infisical + Kubernetes operator |
 | Policy engine | Kyverno |
 | Storage | Rook + Ceph (planned) |
@@ -36,6 +36,7 @@ The Hyperion stack is validated only on K3s (`v1.37.1+k3s1` on Rocky Linux 10.2)
 - **Gateway API CRDs.** K3s installs them through its bundled `gateway-api-crd` chart. The bootstrap kustomization (`crds/`) does not include them, so on another distribution nothing would install them.
 - **API server address.** Cilium uses `k8sServiceHost=127.0.0.1` and `k8sServicePort=6443`, which matches a K3s server node where the API server listens locally.
 - **Install flags.** Flannel, kube-proxy, the network policy controller and Traefik are turned off with K3s flags (see [Install K3s on Hyperion](/how-to/install-k3s-hyperion/)).
+- **LoadBalancer IP.** The Gateway's `LoadBalancer` Service gets the node IP from the K3s ServiceLB (`svclb-*` pods). Cilium's LB IPAM is not configured.
 - **Service CIDR.** Pods reach the API at `10.43.0.1`, the first address of the K3s default service CIDR.
 
 ### One Gateway, one wildcard certificate

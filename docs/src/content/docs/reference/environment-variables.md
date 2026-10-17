@@ -48,11 +48,10 @@ All Terraform configurations under `terraform/` store state in the `homelab-tfst
 | `KUBE_CONFIG_PATH` | Path to the Hyperion kubeconfig (API at `192.168.10.201:6443`). The `kubernetes` and `helm` providers are configured empty and read this variable, not `KUBECONFIG`. |
 | `KUBECONFIG` | Same path, for `kubectl` in the bootstrap task |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare token with **Zone → DNS → Edit** and **Zone → Zone → Read** on `cervant.net`. The bootstrap task stores it as the `cloudflare-api-token` secret for cert-manager DNS-01. |
-| `INFISICAL_API_TOKEN` | Infisical service token, stored as the `infisical-service-token` secret for the Infisical operator |
 | `INFISICAL_ENCRYPTION_KEY` | Root encryption key of the self-hosted Infisical server (`openssl rand -hex 16`), stored in the `infisical-secrets` secret. **Losing it makes every secret in Infisical unreadable**, so it must never change. |
 | `INFISICAL_AUTH_SECRET` | JWT signing secret of the self-hosted Infisical server (`openssl rand -base64 32`), stored in the `infisical-secrets` secret |
 
-The bootstrap task (`.github/tasks/hyperion-bootstrap.yml`) reads `CLOUDFLARE_API_TOKEN`, `INFISICAL_API_TOKEN`, `INFISICAL_ENCRYPTION_KEY`, `INFISICAL_AUTH_SECRET` and `KUBECONFIG` from a `.env` file. CI writes it in `terraform/proxmox/infraestructure/hyperion` before running the task.
+The bootstrap task (`.github/tasks/hyperion-bootstrap.yml`) reads `CLOUDFLARE_API_TOKEN`, `INFISICAL_ENCRYPTION_KEY`, `INFISICAL_AUTH_SECRET` and `KUBECONFIG` from a `.env` file. CI writes it in `terraform/proxmox/infraestructure/hyperion` before running the task.
 
 ## Docs workflow
 

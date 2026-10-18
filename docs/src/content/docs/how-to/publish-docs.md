@@ -38,7 +38,9 @@ npm run preview
 Merge to `main`. The [`Docs`](/reference/ci-workflows/#docs) workflow builds once and publishes to:
 
 - `https://docs.cervant.net` (Cloudflare Workers static assets)
-- `https://docs.home.cervant.net` (nginx image on Hyperion, updated by ArgoCD Image Updater)
+- `https://docs.home.cervant.net` (nginx image in zot, run on Hyperion and updated by ArgoCD Image Updater)
+
+The image is also pushed to GHCR as an off-site copy. On each release, the image is tagged with the release version as well (see [Docs delivery](/explanation/docs-delivery/#release-versions)).
 
 ## One-time setup
 
@@ -60,11 +62,14 @@ npm run deploy:cloudflare
 
 ### Hyperion
 
-1. After the first image push, make the `ghcr.io/brsalcedom/homelab-docs` package public (**GitHub → Packages → homelab-docs → Package settings**). Otherwise the cluster needs an `imagePullSecret`.
+1. Set up the zot users and credentials described in [Use the zot registry](/how-to/use-zot-registry/):
+   - `homelab-ci-push` and `homelab-cd-pull` in `zot_htpasswd`.
+   - The `homelab-ci-push` password in Bitwarden, with its ID in the **Get secrets from Bitwarden** step of the `image` job in `docs.yaml` and of the `docs-image` job in `release-please.yaml`.
+   - `zot_pull_auth` in Infisical, used by `homelab-docs/manifests/pull-secrets.yaml`.
 2. Make sure `docs.home.cervant.net` resolves to the Cilium Gateway address in the internal DNS (Pi-hole, `192.168.10.150`), unless a wildcard `*.home.cervant.net` record already covers it.
 3. Apply the Hyperion stack once after `argocd.tf` changes, so the root app ignores the image overrides (see [Docs delivery](/explanation/docs-delivery/)).
 
-Image Updater checks GHCR every two minutes, so `docs.home.cervant.net` updates a few minutes after `docs.cervant.net`. To see what it did:
+Image Updater checks zot every two minutes, so `docs.home.cervant.net` updates a few minutes after `docs.cervant.net`. To see what it did:
 
 ```bash
 kubectl -n argocd logs deploy/argocd-image-updater-controller | grep homelab-docs

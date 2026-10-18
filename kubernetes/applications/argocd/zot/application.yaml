@@ -58,8 +58,13 @@ spec:
                   "accessControl": {
                     "repositories": {
                       "**": {
-                        "anonymousPolicy": ["read"],
-                        "defaultPolicy": ["read", "create", "update"]
+                        "defaultPolicy": ["read"],
+                        "policies": [
+                          {
+                            "users": ["homelab-ci-push"],
+                            "actions": ["read", "create", "update"]
+                          }
+                        ]
                       }
                     },
                     "adminPolicy": {

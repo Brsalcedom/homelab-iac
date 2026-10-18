@@ -14,6 +14,8 @@ spec:
     - namePattern: homelab-docs
       images:
         - alias: docs
-          imageName: ghcr.io/brsalcedom/homelab-docs:latest
+          imageName: zot.home.cervant.net/homelab-docs:latest
           commonUpdateSettings:
             updateStrategy: digest
+            # pull-secrets.yaml; the updater only reads Secrets in argocd.
+            pullSecret: pullsecret:argocd/zot-pull-homelab-docs

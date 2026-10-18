@@ -19,11 +19,13 @@ spec:
         runAsGroup: 10101
         seccompProfile:
           type: RuntimeDefault
+      imagePullSecrets:
+        - name: zot-pull
       containers:
         - name: nginx
           # ArgoCD Image Updater (imageupdater.yaml) overrides this with the
           # digest of :latest each time CI pushes a new image.
-          image: ghcr.io/brsalcedom/homelab-docs:latest
+          image: zot.home.cervant.net/homelab-docs:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

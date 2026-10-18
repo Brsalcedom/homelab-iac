@@ -42,6 +42,22 @@ kubectl get certificate -n cilium-gateway
 
 `wildcard-certificate` should be `Ready`, and ArgoCD should answer at `https://argocd.home.cervant.net`.
 
+## Set up Infisical
+
+Once ArgoCD syncs `infisical-server`, Infisical answers at `https://infisical.home.cervant.net` with no organization, project or identity yet. Set them up by hand, as described in [Use Infisical secrets in an app](/how-to/use-infisical-secrets/#set-up-infisical-once-per-cluster). Until then, apps that read secrets from Infisical, like `netbird`, don't start.
+
+:::caution[Keep the Infisical keys in sync with Bitwarden]
+The bootstrap task overwrites `infisical-secrets` with the values from Bitwarden on every run. If `ENCRYPTION_KEY` in the cluster differs from Bitwarden, the next run replaces it and every secret stored in Infisical becomes unreadable.
+:::
+
+## Re-run the bootstrap
+
+The workflow only runs on changes under `terraform/proxmox/infraestructure/hyperion`. Changes to `.github/tasks/hyperion-bootstrap.yml` or to the ArgoCD apps don't trigger it, so run it by hand when the bootstrap secrets need to be created again:
+
+```bash
+gh workflow run tofu-k8s-hyperion.yaml --ref main
+```
+
 ## Change chart versions
 
 Chart versions are pinned in `locals.tf` (`cilium_chart_version`, `argocd_chart_version`, `cert_manager_chart_version`). Renovate opens pull requests for them.

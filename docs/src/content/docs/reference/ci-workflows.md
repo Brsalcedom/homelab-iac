@@ -18,7 +18,9 @@ Jobs that reach the LAN run on the [self-hosted runner](/how-to/setup-github-run
 | Bootstrap :: LXC monitoring | `lxc-monitoring-bootstrap.yaml` | Manual | self-hosted |
 | IaC :: Security Report | `iac-security-report.yml` | Pull requests on `terraform/**`, `cloudflare/**`, manual | GitHub-hosted |
 
-The `Tofu ::` workflows have two jobs: **Plan** uploads `tfplan` as an artifact and **Apply** applies it. The VM workflow's apply job waits for the `tofu-infra` environment.
+The `Tofu ::` workflows have two jobs: **Plan** uploads `tfplan` as an artifact and **Apply** applies it. Every apply job waits for the `tofu-infra` environment.
+
+`Tofu :: k8s hyperion` also runs the bootstrap task before planning. Changes to `.github/tasks/` or to `kubernetes/applications/` don't trigger it; run it by hand when the bootstrap secrets need to be applied again.
 
 ## Docs
 

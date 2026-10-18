@@ -2,7 +2,7 @@
 title: Set up the GitHub self-hosted runner
 description: Turn the github-runner-01 LXC container into a self-hosted GitHub Actions runner with Docker.
 sidebar:
-  order: 7
+  order: 8
 ---
 
 The `github-runner-01` container (`192.168.10.111`) runs the workflows that need access to the LAN: OpenTofu plans and applies against Proxmox and Hyperion, and the LXC bootstrap jobs. Those jobs run inside the `brsalcedom/homelab-ci` image, so the runner needs Docker.

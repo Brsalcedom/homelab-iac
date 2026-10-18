@@ -2,7 +2,7 @@
 title: Write and publish these docs
 description: Edit the wiki locally, and set up the two publication targets (Cloudflare and Hyperion).
 sidebar:
-  order: 8
+  order: 9
 ---
 
 The wiki lives in `docs/` and is built with [Starlight](https://starlight.astro.build). [Docs delivery](/explanation/docs-delivery/) explains the design.

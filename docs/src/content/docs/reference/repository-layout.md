@@ -48,6 +48,7 @@ Each directory under `kubernetes/applications/argocd/` holds one app: an `applic
 | `kyverno` | Policy engine. The policies in `kyverno/policies/` are not deployed yet: the app only uses that directory for its Helm values. |
 | `netbird` | NetBird agent |
 | `pocket-id` | OIDC identity provider |
+| `zot` | OCI container registry at `zot.home.cervant.net` |
 
 ### Application labels
 

@@ -27,7 +27,8 @@ spec:
           # Rolls the StatefulSet when the htpasswd in Infisical changes.
           deploymentAnnotations:
             secrets.infisical.com/auto-reload: "true"
-          # htpasswd synced from Infisical by manifests/secrets.yaml.
+          # htpasswd, OIDC credentials and session keys, synced from Infisical
+          # by manifests/secrets.yaml.
           externalSecrets:
             - secretName: zot-secrets
               mountPath: /secret
@@ -51,8 +52,25 @@ spec:
                   "address": "0.0.0.0",
                   "port": "5000",
                   "realm": "zot",
+                  "externalUrl": "https://zot.home.cervant.net",
                   "auth": {
                     "htpasswd": { "path": "/secret/htpasswd" },
+                    "apikey": true,
+                    "sessionKeysFile": "/secret/session-keys.json",
+                    "openid": {
+                      "providers": {
+                        "oidc": {
+                          "name": "Pocket ID",
+                          "issuer": "https://pocket.home.cervant.net",
+                          "credentialsFile": "/secret/oidc-credentials.json",
+                          "scopes": ["openid", "profile", "email", "groups"],
+                          "claimMapping": {
+                            "username": "preferred_username",
+                            "groups": "groups"
+                          }
+                        }
+                      }
+                    },
                     "failDelay": 5
                   },
                   "accessControl": {
@@ -69,6 +87,7 @@ spec:
                     },
                     "adminPolicy": {
                       "users": ["admin"],
+                      "groups": ["zot-admins"],
                       "actions": ["read", "create", "update", "delete"]
                     }
                   }

@@ -28,6 +28,7 @@ Defined under `kubernetes/applications/argocd/`.
 | Policy engine | [Kyverno](https://kyverno.io), no policies deployed yet | ✅ |
 | PostgreSQL | [CloudNativePG](https://cloudnative-pg.io) | ✅ |
 | Identity | [Pocket ID](https://pocket-id.org) | ✅ |
+| Container registry | [zot](https://zotregistry.dev), htpasswd from Infisical | ✅ |
 | Image updates | [ArgoCD Image Updater](https://argocd-image-updater.readthedocs.io) | ✅ |
 | Docs | `homelab-docs` (this wiki) | ✅ |
 | Storage | [Rook + Ceph](https://rook.io) | 🔜 |

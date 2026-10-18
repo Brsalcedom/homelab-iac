@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: zot
+  namespace: argocd
+  labels:
+    tier: platform
+    domain: platform
+    source: multi
+    exposure: internal
+    criticality: standard
+    image-updates: disabled
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: homelab
+  sources:
+    - repoURL: https://zotregistry.dev/helm-charts
+      chart: zot
+      targetRevision: 0.1.128
+      helm:
+        releaseName: zot
+        valuesObject:
+          service:
+            type: ClusterIP
+            port: 5000
+          # Rolls the StatefulSet when the htpasswd in Infisical changes.
+          deploymentAnnotations:
+            secrets.infisical.com/auto-reload: "true"
+          # htpasswd synced from Infisical by manifests/secrets.yaml.
+          externalSecrets:
+            - secretName: zot-secrets
+              mountPath: /secret
+          # Runs as a StatefulSet with a volumeClaimTemplate instead of a Deployment.
+          persistence: true
+          pvc:
+            create: true
+            storage: 20Gi
+            storageClassName: local-path
+          mountConfig: true
+          configFiles:
+            config.json: |-
+              {
+                "distSpecVersion": "1.1.1",
+                "storage": {
+                  "rootDirectory": "/var/lib/registry",
+                  "dedupe": true,
+                  "gc": true
+                },
+                "http": {
+                  "address": "0.0.0.0",
+                  "port": "5000",
+                  "realm": "zot",
+                  "auth": {
+                    "htpasswd": { "path": "/secret/htpasswd" },
+                    "failDelay": 5
+                  },
+                  "accessControl": {
+                    "repositories": {
+                      "**": {
+                        "anonymousPolicy": ["read"],
+                        "defaultPolicy": ["read", "create", "update"]
+                      }
+                    },
+                    "adminPolicy": {
+                      "users": ["admin"],
+                      "actions": ["read", "create", "update", "delete"]
+                    }
+                  }
+                },
+                "log": { "level": "info" },
+                "extensions": {
+                  "search": { "enable": true },
+                  "ui": { "enable": true }
+                }
+              }
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 1Gi
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
+      targetRevision: main
+      path: kubernetes/applications/argocd/zot/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: zot
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

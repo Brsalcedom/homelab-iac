@@ -122,8 +122,12 @@ jobs:
 
   image:
     name: "🐳 Publish image"
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Waits for cloudflare so the two Bitwarden logins don't run at once and
+    # hit its rate limit (429). Still runs if cloudflare fails.
+    needs: [build, cloudflare]
+    if: >-
+      !cancelled() && needs.build.result == 'success' &&
+      github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     # Self-hosted runner on the LAN, the only one that reaches zot.
     runs-on: self-hosted
     permissions:

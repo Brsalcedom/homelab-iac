@@ -44,6 +44,7 @@ Each directory under `kubernetes/applications/argocd/` holds one app: an `applic
 | `cloudnative-pg` | PostgreSQL operator |
 | `homelab-docs` | This wiki, served internally |
 | `infisical` | Infisical secrets operator |
+| `infisical-server` | Self-hosted Infisical server, with its PostgreSQL cluster and Valkey |
 | `kyverno` | Policy engine and cluster policies |
 | `netbird` | NetBird agent |
 | `pocket-id` | OIDC identity provider |

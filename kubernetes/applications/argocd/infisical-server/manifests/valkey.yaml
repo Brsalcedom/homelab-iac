@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infisical-valkey
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infisical-valkey
+  template:
+    metadata:
+      labels:
+        app: infisical-valkey
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: valkey
+          image: docker.io/valkey/valkey:8.1-alpine
+          # Queue and cache only; nothing needs to survive a restart.
+          args: ["--save", "", "--appendonly", "no"]
+          ports:
+            - containerPort: 6379
+          readinessProbe:
+            exec:
+              command: ["valkey-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: infisical-valkey
+spec:
+  selector:
+    app: infisical-valkey
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP

@@ -20,7 +20,7 @@ This stack is tested only on K3s. On another distribution, see [What the stack e
 
 Through CI: merge changes under `terraform/proxmox/infraestructure/hyperion` to `main`. The [`Tofu :: k8s hyperion`](/reference/ci-workflows/) workflow runs the bootstrap task, then plans and applies.
 
-From your workstation, run the same two steps. The bootstrap task installs the cert-manager and ArgoCD CRDs and creates the `cloudflare-api-token` and `infisical-service-token` secrets. It must run first, because the plan needs those CRDs to exist.
+From your workstation, run the same two steps. The bootstrap task installs the cert-manager and ArgoCD CRDs and creates the `cloudflare-api-token` and `infisical-secrets` secrets. It must run first, because the plan needs those CRDs to exist.
 
 ```bash
 cd terraform/proxmox/infraestructure/hyperion

@@ -24,6 +24,7 @@ Defined under `kubernetes/applications/argocd/`.
 | Component | Technology | Status |
 |-----------|------------|--------|
 | Secrets | [Infisical](https://infisical.com) Kubernetes operator | ✅ |
+| Secrets manager | Self-hosted [Infisical](https://infisical.com), PostgreSQL on CloudNativePG, Valkey | ✅ |
 | Policy engine | [Kyverno](https://kyverno.io) | ✅ |
 | PostgreSQL | [CloudNativePG](https://cloudnative-pg.io) | ✅ |
 | Identity | [Pocket ID](https://pocket-id.org) | ✅ |
@@ -49,6 +50,7 @@ Defined under `kubernetes/applications/argocd/`.
 |-----|---------|
 | `https://argocd.home.cervant.net` | ArgoCD |
 | `https://pocket.home.cervant.net` | Pocket ID |
+| `https://infisical.home.cervant.net` | Infisical |
 | `https://docs.home.cervant.net` | This wiki |
 
 ## K3s install flags

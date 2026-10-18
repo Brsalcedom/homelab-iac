@@ -6,6 +6,10 @@ metadata:
   labels:
     tier: controllers
     domain: security
+    source: helm
+    exposure: none
+    criticality: core
+    image-updates: disabled
   annotations:
     argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
     argocd.argoproj.io/sync-wave: "1"

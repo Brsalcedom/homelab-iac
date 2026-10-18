@@ -1,0 +1,77 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infisical-server
+  namespace: argocd
+  labels:
+    tier: platform
+    domain: security
+    source: multi
+    exposure: internal
+    criticality: core
+    image-updates: disabled
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: homelab
+  sources:
+    - repoURL: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts
+      chart: infisical-standalone
+      targetRevision: 1.11.0
+      helm:
+        releaseName: infisical
+        valuesObject:
+          infisical:
+            fullnameOverride: infisical
+            replicaCount: 1
+            # ENCRYPTION_KEY and AUTH_SECRET, created by the hyperion bootstrap task.
+            kubeSecretRef: infisical-secrets
+            extraEnv:
+              - name: SITE_URL
+                value: https://infisical.home.cervant.net
+              - name: REDIS_URL
+                value: redis://infisical-valkey:6379
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 1000Mi
+          ingress:
+            enabled: false
+            nginx:
+              enabled: false
+          # Database from the CNPG cluster in manifests/postgresql.yaml.
+          postgresql:
+            enabled: false
+            useExistingPostgresSecret:
+              enabled: true
+              existingConnectionStringSecret:
+                name: infisical-postgresql-app
+                key: uri
+          redis:
+            enabled: false
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
+      targetRevision: main
+      path: kubernetes/applications/argocd/infisical-server/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: infisical
+  # The chart stamps an `updatedAt: now` annotation on every render, which
+  # would keep the Deployment OutOfSync and roll it on each sync.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: infisical
+      jsonPointers:
+        - /metadata/annotations/updatedAt
+        - /spec/template/metadata/annotations/updatedAt
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      # The namespace is created by the bootstrap task (with infisical-secrets),
+      # so it is not part of the app and is never pruned with it.
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true

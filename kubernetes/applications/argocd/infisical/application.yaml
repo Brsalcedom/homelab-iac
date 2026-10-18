@@ -6,6 +6,10 @@ metadata:
   labels:
     tier: controllers
     domain: security
+    source: multi
+    exposure: none
+    criticality: core
+    image-updates: disabled
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:

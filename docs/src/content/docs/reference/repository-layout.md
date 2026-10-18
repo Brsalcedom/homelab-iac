@@ -8,7 +8,7 @@ sidebar:
 ```text
 homelab-iac/
 ├── .github/                    # Workflows, labels, labeler and PR template
-│   └── tasks/                  # Ansible-style bootstrap task files
+│   └── tasks/                  # Bootstrap Taskfiles (go-task) run by CI
 ├── cloudflare/                 # Terraform for Cloudflare (R2 state bucket)
 ├── docker/
 │   ├── compose/                # Docker Compose stacks for LXC hosts (auth, monitoring)
@@ -45,9 +45,22 @@ Each directory under `kubernetes/applications/argocd/` holds one app: an `applic
 | `homelab-docs` | This wiki, served internally |
 | `infisical` | Infisical secrets operator |
 | `infisical-server` | Self-hosted Infisical server, with its PostgreSQL cluster and Valkey |
-| `kyverno` | Policy engine and cluster policies |
+| `kyverno` | Policy engine. The policies in `kyverno/policies/` are not deployed yet: the app only uses that directory for its Helm values. |
 | `netbird` | NetBird agent |
 | `pocket-id` | OIDC identity provider |
+
+### Application labels
+
+Every `Application` carries these labels, so apps can be filtered in the ArgoCD UI and with `kubectl -l`:
+
+| Label | Values | Meaning |
+|-------|--------|---------|
+| `tier` | `controllers`, `platform`, `apps` | Operators and cluster-wide controllers, shared platform services, or end-user apps |
+| `domain` | `gitops`, `platform`, `security`, `networking`, `identity`, `docs` | Functional area |
+| `source` | `helm`, `manifests`, `multi` | A Helm chart, a Kustomize directory, or several sources |
+| `exposure` | `none`, `internal` | Whether the app has an `HTTPRoute` on `*.home.cervant.net` |
+| `criticality` | `core`, `standard` | Whether other apps or daily use depend on it |
+| `image-updates` | `enabled`, `disabled` | Whether ArgoCD Image Updater manages its images (an `ImageUpdater` resource) |
 
 ## Requirements
 

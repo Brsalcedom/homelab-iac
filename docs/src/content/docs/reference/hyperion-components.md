@@ -25,7 +25,7 @@ Defined under `kubernetes/applications/argocd/`.
 |-----------|------------|--------|
 | Secrets | [Infisical](https://infisical.com) Kubernetes operator | ✅ |
 | Secrets manager | Self-hosted [Infisical](https://infisical.com), PostgreSQL on CloudNativePG, Valkey | ✅ |
-| Policy engine | [Kyverno](https://kyverno.io) | ✅ |
+| Policy engine | [Kyverno](https://kyverno.io), no policies deployed yet | ✅ |
 | PostgreSQL | [CloudNativePG](https://cloudnative-pg.io) | ✅ |
 | Identity | [Pocket ID](https://pocket-id.org) | ✅ |
 | Image updates | [ArgoCD Image Updater](https://argocd-image-updater.readthedocs.io) | ✅ |
@@ -41,6 +41,10 @@ Defined under `kubernetes/applications/argocd/`.
 | `wildcard-certificate` | `Certificate` | `cilium-gateway` | `*.home.cervant.net`, stored in secret `tls-cert` |
 | `redirect-to-https` | `HTTPRoute` | `cilium-gateway` | 301 from `http` to `https` |
 | `cloudflare-clusterissuer` | `ClusterIssuer` | (cluster) | ACME DNS-01, token from secret `cloudflare-api-token` |
+| `infisical-secrets` | `Secret` | `infisical` | Infisical `ENCRYPTION_KEY` and `AUTH_SECRET`, created by the bootstrap task |
+| `infisical-config` | `ConfigMap` | `infisical-operator-system` | Operator's global `hostAPI`: `http://infisical.infisical.svc.cluster.local:8080/api` |
+| `infisical-auth` | `ServiceAccount` | `infisical-operator-system` | Identity every `InfisicalSecret` uses for Kubernetes Auth |
+| `infisical-auth-token-reviewer` | `ClusterRoleBinding` | (cluster) | Binds `infisical-auth` to `system:auth-delegator`, so Infisical can review its tokens |
 | `homelab` | `AppProject` | `argocd` | Project for every app |
 | `root` | `Application` | `argocd` | App-of-apps over `kubernetes/applications/argocd`, `*application.yaml`; ignores `/spec/source/kustomize/images` on child Applications |
 

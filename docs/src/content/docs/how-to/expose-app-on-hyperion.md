@@ -30,6 +30,13 @@ kind: Application
 metadata:
   name: <app>
   namespace: argocd
+  labels:
+    tier: apps
+    domain: <domain>
+    source: manifests
+    exposure: internal
+    criticality: standard
+    image-updates: disabled
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
@@ -50,6 +57,8 @@ spec:
 :::caution
 `path` must start with `kubernetes/`, the directory that exists in the repository.
 :::
+
+See [Application labels](/reference/repository-layout/#application-labels) for the label values. If the app needs secrets, see [Use Infisical secrets in an app](/how-to/use-infisical-secrets/).
 
 ## 3. Write the HTTPRoute
 

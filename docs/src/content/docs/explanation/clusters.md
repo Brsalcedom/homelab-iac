@@ -18,7 +18,7 @@ Hyperion favors stability, security and observability. Its stack:
 | GitOps | ArgoCD |
 | Certificates | cert-manager + Cloudflare DNS-01 |
 | LoadBalancer | K3s ServiceLB (node IP) |
-| Secrets | Infisical + Kubernetes operator |
+| Secrets | Self-hosted Infisical + Kubernetes operator (Kubernetes Auth) |
 | Policy engine | Kyverno |
 | Storage | Rook + Ceph (planned) |
 | Observability | Prometheus, Grafana, Loki (planned) |
@@ -38,6 +38,14 @@ The Hyperion stack is validated only on K3s (`v1.37.1+k3s1` on Rocky Linux 10.2)
 - **Install flags.** Flannel, kube-proxy, the network policy controller and Traefik are turned off with K3s flags (see [Install K3s on Hyperion](/how-to/install-k3s-hyperion/)).
 - **LoadBalancer IP.** The Gateway's `LoadBalancer` Service gets the node IP from the K3s ServiceLB (`svclb-*` pods). Cilium's LB IPAM is not configured.
 - **Service CIDR.** Pods reach the API at `10.43.0.1`, the first address of the K3s default service CIDR.
+
+### Secrets: self-hosted Infisical, bootstrapped from Bitwarden
+
+Hyperion runs its own Infisical (`infisical-server`), with PostgreSQL on CloudNativePG and Valkey as its queue and cache. Apps get their secrets through the Infisical operator, which authenticates with Kubernetes Auth: Infisical checks the operator's ServiceAccount token against the cluster API, so the cluster holds no long-lived Infisical credential.
+
+Infisical can't hold its own root keys, so `ENCRYPTION_KEY` and `AUTH_SECRET` live in Bitwarden Secrets Manager. The bootstrap task copies them into the cluster, together with the Cloudflare token cert-manager needs before anything else runs. Everything else belongs in Infisical.
+
+Valkey runs as a plain Deployment because no Valkey operator was stable yet ([#160](https://github.com/Brsalcedom/homelab-iac/issues/160)).
 
 ### One Gateway, one wildcard certificate
 
@@ -63,5 +71,7 @@ Cronos is planned. It uses the alternative for each area, so both approaches can
 ## Roadmap
 
 - Deploy Rook + Ceph on Hyperion.
+- Back up Infisical's PostgreSQL to R2.
+- Run Valkey through an operator once a stable one exists ([#160](https://github.com/Brsalcedom/homelab-iac/issues/160)).
 - Build Cronos with FluxCD and Linkerd.
 - Add observability and dashboards per cluster.

@@ -28,7 +28,7 @@ Defined under `kubernetes/applications/argocd/`.
 | Policy engine | [Kyverno](https://kyverno.io), no policies deployed yet | ✅ |
 | PostgreSQL | [CloudNativePG](https://cloudnative-pg.io) | ✅ |
 | Identity | [Pocket ID](https://pocket-id.org) | ✅ |
-| Container registry | [zot](https://zotregistry.dev), htpasswd from Infisical | ✅ |
+| Container registry | [zot](https://zotregistry.dev), htpasswd users from Infisical, no anonymous access | ✅ |
 | Image updates | [ArgoCD Image Updater](https://argocd-image-updater.readthedocs.io) | ✅ |
 | Docs | `homelab-docs` (this wiki) | ✅ |
 | Storage | [Rook + Ceph](https://rook.io) | 🔜 |
@@ -57,6 +57,7 @@ Defined under `kubernetes/applications/argocd/`.
 | `https://pocket.home.cervant.net` | Pocket ID |
 | `https://infisical.home.cervant.net` | Infisical |
 | `https://docs.home.cervant.net` | This wiki |
+| `https://zot.home.cervant.net` | zot registry and UI |
 
 ## K3s install flags
 

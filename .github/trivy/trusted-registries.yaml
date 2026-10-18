@@ -4,3 +4,4 @@
 ksv0125:
   trusted_registries:
     - ghcr.io
+    - zot.home.cervant.net

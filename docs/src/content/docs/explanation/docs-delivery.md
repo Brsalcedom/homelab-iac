@@ -10,7 +10,7 @@ The wiki is a static site built with Starlight. One CI build produces one `dist/
 | URL | Where | How |
 |-----|-------|-----|
 | `https://docs.cervant.net` | Cloudflare Workers, static assets only | `wrangler deploy` |
-| `https://docs.home.cervant.net` | Hyperion, nginx | Image on GHCR, synced by ArgoCD |
+| `https://docs.home.cervant.net` | Hyperion, nginx | Image on zot, synced by ArgoCD |
 
 ## Why two destinations
 
@@ -26,16 +26,31 @@ Both copies come from the same artifact, so they can't drift. The image doesn't 
 
 ## How the internal copy is rolled out
 
-CI pushes `ghcr.io/brsalcedom/homelab-docs:latest` (plus a `sha-<commit>` tag for traceability) and stops there. It has no access to the cluster and never pushes to `main`.
+CI builds the image once and pushes it to two registries, as `:latest` plus a `sha-<commit>` tag for traceability:
 
-[ArgoCD Image Updater](https://argocd-image-updater.readthedocs.io) does the rest. The `ImageUpdater` resource in `kubernetes/applications/argocd/homelab-docs/manifests/imageupdater.yaml` follows the `:latest` tag with the `digest` strategy. Every two minutes it checks GHCR, and when the digest changes it sets a Kustomize image override pinned to that digest on the `homelab-docs` Application. ArgoCD renders the new image and rolls out the Deployment.
+| Image | Role |
+|-------|------|
+| `zot.home.cervant.net/homelab-docs` | The one the cluster runs. Internal, so pulls don't depend on the internet link or on GHCR. |
+| `ghcr.io/brsalcedom/homelab-docs` | Off-site copy. zot has no backups, so GHCR keeps every version if the node is lost. |
+
+zot is only reachable from the LAN, so the image job runs on the self-hosted runner. It logs in to zot as `homelab-ci-push`, a user that can push but not delete. CI still has no access to the cluster and never pushes to `main`.
+
+[ArgoCD Image Updater](https://argocd-image-updater.readthedocs.io) does the rest. The `ImageUpdater` resource in `kubernetes/applications/argocd/homelab-docs/manifests/imageupdater.yaml` follows the `:latest` tag with the `digest` strategy. Every two minutes it checks zot, and when the digest changes it sets a Kustomize image override pinned to that digest on the `homelab-docs` Application. ArgoCD renders the new image and rolls out the Deployment.
+
+zot has no anonymous access. The kubelet and Image Updater both pull with the read-only `homelab-cd-pull` user, from a `dockerconfigjson` Secret that the Infisical operator creates in `homelab-docs` and in `argocd` (see [Use the zot registry](/how-to/use-zot-registry/)). The cluster can read images but can't push them, so a leaked Secret can't be used to ship an image that Image Updater would then deploy.
 
 This is the `argocd` write-back method: the override lives on the Application object in the cluster, not in Git. Two consequences:
 
-- Git doesn't record which digest is running. The Application in ArgoCD does, and the `sha-` tag in GHCR maps it back to a commit.
+- Git doesn't record which digest is running. The Application in ArgoCD does, and the `sha-` tag in zot or GHCR maps it back to a commit.
 - The root app-of-apps, which manages the `homelab-docs` Application from Git, must not undo the override. `argocd.tf` sets `ignoreDifferences` on `/spec/source/kustomize/images` for Applications, with `RespectIgnoreDifferences=true`.
 
 The app reuses the platform: an `HTTPRoute` on the shared `cilium-gateway`, covered by the existing `*.home.cervant.net` wildcard certificate from cert-manager.
+
+### Release versions
+
+When release-please creates a release, the `docs-image` job in `release-please.yaml` tags the current `:latest` as `X.Y.Z`, `X.Y` and `X` in both registries. It copies the manifest without rebuilding, so the version tags point at the same digest as `:latest` did at release time.
+
+The version is the repository's, not a separate docs version, so it also moves for releases that don't touch the docs. The cluster keeps following `:latest`; the version tags are for traceability and rollback.
 
 ## Docs for agents
 

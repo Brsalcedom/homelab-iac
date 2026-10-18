@@ -5,7 +5,7 @@ sidebar:
   order: 8
 ---
 
-The `github-runner-01` container (`192.168.10.111`) runs the workflows that need access to the LAN: OpenTofu plans and applies against Proxmox and Hyperion, and the LXC bootstrap jobs. Those jobs run inside the `brsalcedom/homelab-ci` image, so the runner needs Docker.
+The `github-runner-01` container (`192.168.10.111`) runs the workflows that need access to the LAN: OpenTofu plans and applies against Proxmox and Hyperion, the LXC bootstrap jobs, and the jobs that push the docs image to [zot](/how-to/use-zot-registry/). The OpenTofu and bootstrap jobs run inside the `brsalcedom/homelab-ci` image, and the image jobs use Docker Buildx directly, so the runner needs Docker with the Buildx plugin.
 
 This guide is for **Debian 13**. On another OS, follow the [official Docker install docs](https://docs.docker.com/engine/install/) for step 2.
 

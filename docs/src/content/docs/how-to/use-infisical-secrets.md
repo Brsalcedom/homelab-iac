@@ -93,6 +93,8 @@ The `infisical-server` app deploys Infisical, but its organization, project and 
 
 `netbird` (`kubernetes/applications/argocd/netbird/manifests`) is a complete example.
 
+For image pull credentials, the operator can also create a `kubernetes.io/dockerconfigjson` Secret with `secretType`. See [Use the zot registry](/how-to/use-zot-registry/#pull-from-an-app).
+
 ## How changes propagate
 
 | Change | When it reaches the pods |

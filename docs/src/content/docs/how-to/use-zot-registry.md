@@ -23,6 +23,39 @@ Users come from an htpasswd file stored in Infisical as `zot_htpasswd` (project 
 
 Push and pull use separate users because ArgoCD Image Updater deploys every new `:latest` digest it finds. A push credential inside the cluster would let anyone who can read those Secrets ship an image to Hyperion. The pull credential only lets them download images.
 
+### Permissions
+
+htpasswd only decides who can log in. What each user can do is set in `accessControl`:
+
+```json
+"accessControl": {
+  "repositories": {
+    "**": {
+      "defaultPolicy": ["read"],
+      "policies": [
+        {
+          "users": ["homelab-ci-push"],
+          "actions": ["read", "create", "update"]
+        }
+      ]
+    }
+  },
+  "adminPolicy": {
+    "users": ["admin"],
+    "actions": ["read", "create", "update", "delete"]
+  }
+}
+```
+
+| Field | Applies to |
+|-------|------------|
+| `repositories."**"` | Every repository. Use a pattern such as `homelab-docs` or `apps/**` to scope rules to some repositories. |
+| `defaultPolicy` | Every authenticated user, including those not named anywhere (`homelab-cd-pull`) |
+| `policies` | The users listed, on top of `defaultPolicy` |
+| `adminPolicy` | The users listed, on every repository |
+
+Permissions add up: a user gets `defaultPolicy` plus every rule that names them. Keep `defaultPolicy` at `read`, because anything added there applies to every user.
+
 ## Add or change a user
 
 1. Generate the line for the user:
@@ -32,7 +65,7 @@ Push and pull use separate users because ArgoCD Image Updater deploys every new 
    ```
 
 2. Add it to `zot_htpasswd` in Infisical, one line per user.
-3. Any authenticated user can read. For more, add the user to a policy in `accessControl` and merge.
+3. Any authenticated user can read. For more, add the user to a rule in [`accessControl`](#permissions) and merge.
 
 The operator copies the new file into the `zot-secrets` Secret within `resyncInterval` (5 minutes), and `secrets.infisical.com/auto-reload` restarts `zot-0` with it.
 

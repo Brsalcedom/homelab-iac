@@ -4,4 +4,5 @@ metadata:
   name: infisical-config
   namespace: infisical-operator-system
 data:
-  hostAPI: https://app.infisical.com/api
+  # Self-hosted Infisical server (infisical-server app), reached through its Service.
+  hostAPI: http://infisical.infisical.svc.cluster.local:8080/api

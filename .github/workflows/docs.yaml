@@ -185,6 +185,11 @@ jobs:
             ${{ env.ZOT_IMAGE }}:${{ steps.tag.outputs.tag }}
             ${{ env.ZOT_IMAGE }}:latest
           labels: |
+            org.opencontainers.image.title=homelab-docs
+            org.opencontainers.image.vendor=brsalcedom
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.url=https://docs.home.cervant.net
+            org.opencontainers.image.documentation=https://docs.cervant.net
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.description=homelab-iac docs (Starlight) served by nginx

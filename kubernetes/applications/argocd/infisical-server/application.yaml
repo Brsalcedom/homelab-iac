@@ -31,6 +31,10 @@ spec:
                 value: https://infisical.home.cervant.net
               - name: REDIS_URL
                 value: redis://infisical-valkey:6379
+              # Kubernetes Auth points at the in-cluster API server, a private IP
+              # that Infisical's SSRF protection rejects otherwise.
+              - name: ALLOW_INTERNAL_IP_CONNECTIONS
+                value: "true"
             resources:
               requests:
                 cpu: 100m

@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.0.0...v7.1.0) (2026-10-18)
+
+
+### Features
+
+* **zot:** log in to the UI with Pocket ID ([#179](https://github.com/Brsalcedom/homelab-iac/issues/179)) ([3efb843](https://github.com/Brsalcedom/homelab-iac/commit/3efb84356faa10cd4bb35d014204f700d570829e))
+
 ## [7.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v6.1.0...v7.0.0) (2026-10-18)
 
 

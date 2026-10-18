@@ -1,5 +1,34 @@
 # Changelog
 
+## [7.0.0](https://github.com/Brsalcedom/homelab-iac/compare/v6.1.0...v7.0.0) (2026-10-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **github-action:** Update action node to v24 ([#157](https://github.com/Brsalcedom/homelab-iac/issues/157))
+
+### Features
+
+* infisical self hosted ([#161](https://github.com/Brsalcedom/homelab-iac/issues/161)) ([d283141](https://github.com/Brsalcedom/homelab-iac/commit/d28314164f3630665c0f36f2a6b62977cda24077))
+* **netbird:** reload pods when the Infisical secret changes ([#170](https://github.com/Brsalcedom/homelab-iac/issues/170)) ([cf00a42](https://github.com/Brsalcedom/homelab-iac/commit/cf00a42dbbf7a32723d13e5ae4492209a555b2b1))
+* **zot:** deploy zot registry with htpasswd auth from Infisical ([#172](https://github.com/Brsalcedom/homelab-iac/issues/172)) ([34bc384](https://github.com/Brsalcedom/homelab-iac/commit/34bc384799b025f6d1a63245fc65ec7319414439))
+* **zot:** require auth and serve the docs image from zot ([#174](https://github.com/Brsalcedom/homelab-iac/issues/174)) ([944a138](https://github.com/Brsalcedom/homelab-iac/commit/944a138edcbfa27ffc571323003fb44ecf4894c4))
+
+
+### Bug Fixes
+
+* **docs:** run the image job after cloudflare to avoid Bitwarden 429 ([#175](https://github.com/Brsalcedom/homelab-iac/issues/175)) ([deb2658](https://github.com/Brsalcedom/homelab-iac/commit/deb26586f653998f226974525bc9664aa40bd628))
+* hyperion bootstrap ([#159](https://github.com/Brsalcedom/homelab-iac/issues/159)) ([f8e70dc](https://github.com/Brsalcedom/homelab-iac/commit/f8e70dc8b86216fe2899c88faa7cbf303618806f))
+* **infisical:** allow internal IP connections for Kubernetes Auth ([#167](https://github.com/Brsalcedom/homelab-iac/issues/167)) ([3bf13f0](https://github.com/Brsalcedom/homelab-iac/commit/3bf13f0538f5bdb20087a2f0a5429692f6b5e313))
+* **netbird:** authenticate to self-hosted Infisical with Kubernetes Auth ([#168](https://github.com/Brsalcedom/homelab-iac/issues/168)) ([7235fbe](https://github.com/Brsalcedom/homelab-iac/commit/7235fbeaaecc170bc7206989a49dc4ba4ddbf56d))
+* **netbird:** use the actual Infisical project slug ([#169](https://github.com/Brsalcedom/homelab-iac/issues/169)) ([42374b8](https://github.com/Brsalcedom/homelab-iac/commit/42374b8bb48bc8cbfd472aee6b06e69df1336fa5))
+* **zot:** drop ServerSideApply to stop permanent OutOfSync ([#173](https://github.com/Brsalcedom/homelab-iac/issues/173)) ([1159470](https://github.com/Brsalcedom/homelab-iac/commit/1159470aca713d54b8c1fe7349a46bbed35d3df6))
+
+
+### Continuous Integration
+
+* **github-action:** Update action node to v24 ([#157](https://github.com/Brsalcedom/homelab-iac/issues/157)) ([a19f6ac](https://github.com/Brsalcedom/homelab-iac/commit/a19f6aca998571060c73848564a4224bb0111112))
+
 ## [6.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v6.0.0...v6.1.0) (2026-10-12)
 
 

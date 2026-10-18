@@ -17,7 +17,8 @@ Users come from an htpasswd file stored in Infisical as `zot_htpasswd` (project 
 
 | User | Can | Used by | Password stored in |
 |------|-----|---------|--------------------|
-| `admin` | Read, push, delete | You, from the UI or the CLI | Your password manager |
+| Members of `zot-admins` in Pocket ID | Read, push, delete | You, from the UI, and the CLI with an API key | Pocket ID (passkey) |
+| `admin` | Read, push, delete | Break-glass access if Pocket ID is down | Your password manager |
 | `homelab-ci-push` | Read, push | CI jobs on the self-hosted runner | Bitwarden Secrets Manager |
 | `homelab-cd-pull` | Read | The kubelet and ArgoCD Image Updater | Infisical, as `zot_pull_auth` |
 
@@ -55,6 +56,34 @@ htpasswd only decides who can log in. What each user can do is set in `accessCon
 | `adminPolicy` | The users listed, on every repository |
 
 Permissions add up: a user gets `defaultPolicy` plus every rule that names them. Keep `defaultPolicy` at `read`, because anything added there applies to every user.
+
+## Log in with Pocket ID
+
+People log in to the UI with [Pocket ID](https://pocket.home.cervant.net) through OpenID Connect. Machine users (`homelab-ci-push`, `homelab-cd-pull`) stay in htpasswd.
+
+- The username is the `preferred_username` claim, and the groups come from the `groups` claim. `adminPolicy` gives every action to members of the `zot-admins` group.
+- `docker login` can't use OpenID Connect. Log in to the UI, create an API key from the user menu, and use it as the password:
+
+  ```bash
+  docker login -u <pocket-id-username> zot.home.cervant.net
+  ```
+
+### Set up (once)
+
+1. In Pocket ID, create the `zot-admins` group and add yourself to it.
+2. Create an OIDC client named `zot`, with callback URL `https://zot.home.cervant.net/zot/auth/callback/oidc` and `zot-admins` as allowed group.
+3. Add these secrets to Infisical (`hyperion`, `prod`, `/`). `manifests/secrets.yaml` renders them into `zot-secrets`:
+
+   | Secret | Value |
+   |--------|-------|
+   | `zot_oidc_client_id` | Client ID from Pocket ID |
+   | `zot_oidc_client_secret` | Client secret from Pocket ID |
+   | `zot_session_hash_key` | `openssl rand -hex 32` (64 characters) |
+   | `zot_session_encrypt_key` | `openssl rand -hex 16` (32 characters) |
+
+   The session keys sign and encrypt the UI session cookie. Without fixed keys, zot generates new ones on every start and logs everyone out.
+
+All four must exist before the change is synced. A missing one renders as `<no value>` and breaks the JSON file that zot reads at startup.
 
 ## Add or change a user
 
@@ -168,4 +197,7 @@ kubectl -n zot logs sts/zot
 | Push fails with `403 Forbidden` | The user has no `create` or `update` in `accessControl` |
 | Push fails with `no such host` | The job runs on a GitHub-hosted runner instead of `self-hosted` |
 | A new user can't log in | The operator hasn't resynced yet; check `kubectl -n zot get infisicalsecret zot-secrets` |
+| Pocket ID login returns to zot without access | The user isn't in `zot-admins`, or the Pocket ID client lacks the `groups` scope |
+| `redirect_uri` error on Pocket ID | The client's callback URL isn't exactly `https://zot.home.cervant.net/zot/auth/callback/oidc` |
+| `zot-0` crash-loops after a change to `secrets.yaml` | One of the Infisical secrets is missing; check `kubectl -n zot logs sts/zot` |
 | Large layer pushes cut after about 15 seconds | The `HTTPRoute` lost `timeouts.request: 0s`; Envoy's default route timeout is 15s |

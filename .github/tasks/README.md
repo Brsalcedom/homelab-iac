@@ -20,3 +20,11 @@
 	- instala Docker y dependencias base.
 	- prepara directorios de runtime en el host (`/opt/monitoring`).
 - Resultado esperado: host con Docker operativo y estructura de directorios lista para desplegar los stacks de monitoring manualmente.
+
+4. `pihole-dns-sync.yml`
+- Objetivo: mantener los registros DNS locales de Pi-hole declarados en `pihole/records.yaml`.
+- Que hace:
+	- valida el archivo (nombres, IPs, destinos de CNAME y ciclos).
+	- genera los arrays `dns.hosts` y `dns.cnameRecords`.
+	- compara contra Pi-hole por SSH (`diff`) y los reemplaza completos (`apply`).
+- Resultado esperado: Pi-hole contiene exactamente los registros del archivo; lo creado a mano en la UI se elimina.

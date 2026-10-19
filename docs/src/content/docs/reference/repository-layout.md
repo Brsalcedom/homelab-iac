@@ -17,6 +17,7 @@ homelab-iac/
 ├── kubernetes/
 │   └── applications/
 │       └── argocd/             # Apps managed by ArgoCD on Hyperion
+├── pihole/                     # Pi-hole local DNS records (records.yaml)
 └── terraform/
     └── proxmox/
         ├── infraestructure/

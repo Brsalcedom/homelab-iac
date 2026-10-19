@@ -18,6 +18,10 @@ area/github:
   - changed-files:
       - any-glob-to-any-file: ".github/**/*"
 
+area/dns:
+  - changed-files:
+      - any-glob-to-any-file: "pihole/**/*"
+
 area/docs:
   - changed-files:
       - any-glob-to-any-file:

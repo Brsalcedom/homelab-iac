@@ -42,6 +42,7 @@ homelab-iac/
 ├── docs/                       # Wiki (Starlight)
 ├── kubernetes/applications/
 │   └── argocd/                 # Apps managed by ArgoCD on Hyperion
+├── pihole/                     # Pi-hole local DNS records
 └── terraform/proxmox/
     ├── infraestructure/hyperion/  # K3s platform: Cilium, cert-manager, Gateway, ArgoCD
     ├── lxc/                    # LXC containers

@@ -11,6 +11,8 @@
   color: "0e8a16"
 - name: area/github
   color: "0e8a16"
+- name: area/dns
+  color: "0e8a16"
 - name: area/docs
   color: "0e8a16"
 - name: target/hyperion

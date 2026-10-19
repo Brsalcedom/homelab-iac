@@ -1,0 +1,131 @@
+name: "Pi-hole :: DNS records"
+
+on:
+  pull_request:
+    paths:
+      - "pihole/**"
+      - ".github/tasks/pihole-dns-sync.yml"
+      - ".github/workflows/pihole-dns-sync.yaml"
+  push:
+    branches: ["main"]
+    paths:
+      - "pihole/**"
+      - ".github/tasks/pihole-dns-sync.yml"
+      - ".github/workflows/pihole-dns-sync.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pihole-dns
+  cancel-in-progress: false
+
+env:
+  TASKFILE: .github/tasks/pihole-dns-sync.yml
+
+jobs:
+  validate:
+    name: "🧪 Validate"
+    runs-on: ubuntu-latest
+    container:
+      image: brsalcedom/homelab-ci:2.5.0
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v7
+
+      - name: ✅ Validate records
+        run: task --silent --taskfile "$GITHUB_WORKSPACE/$TASKFILE" render
+
+  sync:
+    name: ${{ github.event_name == 'pull_request' && '🔍 Diff' || '🚀 Apply' }}
+    needs: validate
+    # The self-hosted runner is on the LAN: never run it for pull requests from forks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+    env:
+      LXC_USER: root
+      SSH_PORT: "22"
+      MODE: ${{ (github.event_name != 'pull_request' && github.ref == 'refs/heads/main') && 'apply' || 'diff' }}
+    container:
+      image: brsalcedom/homelab-ci:2.5.0
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v7
+
+      - name: 🔐 Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v3.0.1
+        id: secrets-bw
+        with:
+          access_token: ${{ secrets.BW_TOKEN }}
+          base_url: https://vault.bitwarden.com
+          secrets: |
+            f5a47b3b-df1e-4b6b-9d46-b4120005336a > LXC_SSH_PRIVATE_KEY
+
+      - name: 🙈 Mask sensitive secrets from logs
+        run: |
+          echo "::add-mask::${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}"
+
+      - name: 🔎 Resolve Pi-hole host from Terraform locals
+        id: resolve-lxc-host
+        run: |
+          LXC_HOST=$(awk '
+            /"pihole-01"[[:space:]]*=/ {in_block=1; next}
+            in_block && /ip[[:space:]]*=/ {
+              if (match($0, /"([0-9.]+)"/)) {
+                value=substr($0, RSTART+1, RLENGTH-2)
+                print value
+                exit
+              }
+            }
+            in_block && /^[[:space:]]*},?[[:space:]]*$/ {in_block=0}
+          ' "$GITHUB_WORKSPACE/terraform/proxmox/lxc/locals.tf")
+
+          if [ -z "$LXC_HOST" ]; then
+            echo "[ERROR] Could not resolve ip for pihole-01 from terraform/proxmox/lxc/locals.tf"
+            exit 1
+          fi
+
+          echo "Resolved Pi-hole host: $LXC_HOST"
+          echo "lxc_host=$LXC_HOST" >> "$GITHUB_OUTPUT"
+
+      - name: 🔑 Write SSH private key
+        env:
+          LXC_SSH_PRIVATE_KEY: ${{ steps.secrets-bw.outputs.LXC_SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "${LXC_SSH_PRIVATE_KEY}" ]; then
+            echo "Missing required Bitwarden secret output: LXC_SSH_PRIVATE_KEY"
+            exit 1
+          fi
+          mkdir -p /root/.ssh
+          printf "%s" "${LXC_SSH_PRIVATE_KEY}" > /root/.ssh/pihole_key
+          chmod 600 /root/.ssh/pihole_key
+
+      - name: ${{ env.MODE == 'apply' && '🚀 Apply records' || '🔍 Diff records' }}
+        env:
+          LXC_HOST: ${{ steps.resolve-lxc-host.outputs.lxc_host }}
+          SSH_KEY_PATH: /root/.ssh/pihole_key
+          WORK_DIR: /tmp/pihole-dns
+        run: |
+          task --silent --taskfile "$GITHUB_WORKSPACE/$TASKFILE" "$MODE"
+
+      - name: 📝 Summary
+        if: always()
+        run: |
+          {
+            echo "## Pi-hole DNS records (${MODE})"
+            echo
+            echo "- Target host: ${{ steps.resolve-lxc-host.outputs.lxc_host }}"
+            echo
+            if [ -s /tmp/pihole-dns/records.diff ]; then
+              echo '```diff'
+              cat /tmp/pihole-dns/records.diff
+              echo '```'
+            elif [ -f /tmp/pihole-dns/records.diff ]; then
+              echo "No changes: Pi-hole matches \`pihole/records.yaml\`."
+            else
+              echo "The diff was not computed; see the job log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

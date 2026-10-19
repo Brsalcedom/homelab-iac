@@ -1,0 +1,28 @@
+# Local DNS records for Pi-hole (pihole-01), applied by .github/tasks/pihole-dns-sync.yml.
+# Both lists replace dns.hosts and dns.cnameRecords as a whole: records created
+# by hand in the Pi-hole UI are removed on the next apply.
+domain: home.cervant.net
+
+# A records: name -> IPv4
+hosts:
+  prox-01: 192.168.10.131
+  swarm-01: 192.168.10.103
+  swarm-02: 192.168.10.104
+  hyperion-01: 192.168.10.201
+
+# CNAME records, grouped by target: target -> [aliases]
+cnames:
+  swarm-01:
+    - npm
+  npm: # Nginx Proxy Manager on Swarm
+    - pihole
+    - portainer
+    - nexterm
+    - pdf
+    - nas
+  hyperion-01: # Cilium Gateway
+    - argocd
+    - docs
+    - infisical
+    - zot
+    - pocket

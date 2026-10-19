@@ -1,0 +1,157 @@
+version: '3'
+
+# Syncs the Pi-hole local DNS records (dns.hosts and dns.cnameRecords) from
+# pihole/records.yaml. Both arrays are replaced as a whole.
+
+vars:
+  LXC_USER: '{{env "LXC_USER" | default "root"}}'
+  SSH_PORT: '{{env "SSH_PORT" | default "22"}}'
+  SSH_KEY_PATH: '{{env "SSH_KEY_PATH"}}'
+  LXC_HOST: '{{env "LXC_HOST"}}'
+  RECORDS_FILE: '{{env "RECORDS_FILE" | default (printf "%s/../../pihole/records.yaml" .ROOT_DIR)}}'
+  WORK_DIR: '{{env "WORK_DIR" | default "/tmp/pihole-dns"}}'
+  YQ_VERSION: v4.45.1
+  YQ_SHA256: 654d2943ca1d3be2024089eb4f270f4070f491a0610481d128509b2834870049
+  YQ: '{{.WORK_DIR}}/bin/yq-{{.YQ_VERSION}}'
+  SSH: 'ssh {{if .SSH_KEY_PATH}}-i {{.SSH_KEY_PATH}}{{end}} -p {{.SSH_PORT}} -o StrictHostKeyChecking=accept-new {{.LXC_USER}}@{{.LXC_HOST}}'
+
+tasks:
+  default:
+    desc: "Show the diff between pihole/records.yaml and Pi-hole"
+    silent: true
+    cmds:
+      - task: diff
+
+  install-yq:
+    desc: "Download a pinned yq into WORK_DIR (the CI image doesn't ship it)"
+    internal: true
+    silent: true
+    status:
+      - test -x {{.YQ}}
+    cmds:
+      - |
+        set -e
+        mkdir -p {{.WORK_DIR}}/bin
+        curl -fsSL -o {{.YQ}}.download https://github.com/mikefarah/yq/releases/download/{{.YQ_VERSION}}/yq_linux_amd64
+        echo "{{.YQ_SHA256}}  {{.YQ}}.download" | sha256sum -c --quiet -
+        chmod +x {{.YQ}}.download
+        mv {{.YQ}}.download {{.YQ}}
+
+  validate:
+    desc: "Validate pihole/records.yaml: names, IPs, CNAME targets and loops"
+    silent: true
+    deps: [install-yq]
+    cmds:
+      - |
+        set -e
+        mkdir -p {{.WORK_DIR}}
+        domain=$({{.YQ}} '.domain // ""' "{{.RECORDS_FILE}}")
+
+        # One line per record: "<kind> <name> <value>"
+        {{.YQ}} '.hosts // {} | to_entries | .[] | "host " + .key + " " + .value' "{{.RECORDS_FILE}}" > {{.WORK_DIR}}/entries
+        {{.YQ}} '.cnames // {} | to_entries | .[] | .key as $t | .value[] | "cname " + . + " " + $t' "{{.RECORDS_FILE}}" >> {{.WORK_DIR}}/entries
+
+        awk -v domain="$domain" '
+          function fail(msg) { print "[ERROR] " msg > "/dev/stderr"; bad = 1 }
+          BEGIN { if (domain == "") fail("domain is not set") }
+          {
+            kind = $1; name = $2; value = $3
+            if (name !~ /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/) fail(kind " name is not a valid DNS label: " name)
+            if (name in seen) fail("duplicate name: " name)
+            seen[name] = kind
+            if (kind == "host") {
+              if (value !~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) { fail("not an IPv4 address: " name " -> " value); next }
+              split(value, octet, ".")
+              for (i = 1; i <= 4; i++) if (octet[i] + 0 > 255) fail("not an IPv4 address: " name " -> " value)
+            } else {
+              target[name] = value
+              ncnames++
+            }
+          }
+          END {
+            # dnsmasq only follows a CNAME whose target is local, so every
+            # chain has to end at a host record.
+            for (alias in target) {
+              cur = alias
+              for (steps = 0; (cur in target) && steps <= ncnames; steps++) cur = target[cur]
+              if (cur in target) fail("CNAME loop starting at " alias)
+              else if (!(cur in seen)) fail("CNAME " alias " ends at " cur ", which is not defined")
+            }
+            exit bad
+          }
+        ' {{.WORK_DIR}}/entries
+
+        echo "[INFO] {{.RECORDS_FILE}} is valid ($(grep -c '^host ' {{.WORK_DIR}}/entries) hosts, $(grep -c '^cname ' {{.WORK_DIR}}/entries) CNAMEs)"
+
+  render:
+    desc: "Render the dns.hosts and dns.cnameRecords arrays from pihole/records.yaml"
+    silent: true
+    deps: [validate]
+    cmds:
+      - |
+        set -e
+        {{.YQ}} -o=json -I=0 '.domain as $d | [.hosts // {} | to_entries | .[] | .value + " " + .key + "." + $d] | sort' "{{.RECORDS_FILE}}" > {{.WORK_DIR}}/hosts.json
+        {{.YQ}} -o=json -I=0 '.domain as $d | [.cnames // {} | to_entries | .[] | .key as $t | .value[] | . + "." + $d + "," + $t + "." + $d] | sort' "{{.RECORDS_FILE}}" > {{.WORK_DIR}}/cnames.json
+
+        {
+          {{.YQ}} -p=json -o=yaml '.[] | "dns.hosts " + .' {{.WORK_DIR}}/hosts.json
+          {{.YQ}} -p=json -o=yaml '.[] | "dns.cnameRecords " + .' {{.WORK_DIR}}/cnames.json
+        } | LC_ALL=C sort > {{.WORK_DIR}}/desired
+
+  fetch:
+    desc: "Read the current dns.hosts and dns.cnameRecords from Pi-hole"
+    internal: true
+    silent: true
+    requires:
+      vars: [LXC_HOST]
+    cmds:
+      - |
+        set -e
+        mkdir -p {{.WORK_DIR}}
+        # pihole-FTL prints "[ a, b ]"; entries never contain ", ".
+        {
+          {{.SSH}} 'pihole-FTL --config dns.hosts' | sed -e 's/^\[ *//' -e 's/ *\]$//' -e 's/, /\n/g' | sed -e '/^$/d' -e 's/^/dns.hosts /'
+          {{.SSH}} 'pihole-FTL --config dns.cnameRecords' | sed -e 's/^\[ *//' -e 's/ *\]$//' -e 's/, /\n/g' | sed -e '/^$/d' -e 's/^/dns.cnameRecords /'
+        } | LC_ALL=C sort > {{.WORK_DIR}}/current
+
+  diff:
+    desc: "Show what an apply would change on Pi-hole"
+    silent: true
+    cmds:
+      - task: render
+      - task: fetch
+      - |
+        if diff -u --label pihole --label records.yaml {{.WORK_DIR}}/current {{.WORK_DIR}}/desired > {{.WORK_DIR}}/records.diff; then
+          echo "[INFO] No changes: Pi-hole matches {{.RECORDS_FILE}}"
+        else
+          cat {{.WORK_DIR}}/records.diff
+        fi
+
+  apply:
+    desc: "Replace dns.hosts and dns.cnameRecords on Pi-hole with pihole/records.yaml"
+    silent: true
+    cmds:
+      - task: diff
+      - |
+        set -e
+        if [ ! -s {{.WORK_DIR}}/records.diff ]; then
+          exit 0
+        fi
+
+        echo "[INFO] Writing dns.hosts and dns.cnameRecords on {{.LXC_HOST}}"
+        {{.SSH}} 'pihole-FTL --config dns.hosts "$(cat)" > /dev/null' < {{.WORK_DIR}}/hosts.json
+        {{.SSH}} 'pihole-FTL --config dns.cnameRecords "$(cat)" > /dev/null' < {{.WORK_DIR}}/cnames.json
+      - task: verify
+
+  verify:
+    desc: "Check that Pi-hole now matches pihole/records.yaml"
+    internal: true
+    silent: true
+    cmds:
+      - task: fetch
+      - |
+        if ! diff -u --label pihole --label records.yaml {{.WORK_DIR}}/current {{.WORK_DIR}}/desired; then
+          echo "[ERROR] Pi-hole doesn't match {{.RECORDS_FILE}} after apply"
+          exit 1
+        fi
+        echo "[INFO] Pi-hole matches {{.RECORDS_FILE}}"

@@ -16,9 +16,12 @@ Jobs that reach the LAN run on the [self-hosted runner](/how-to/setup-github-run
 | Tofu :: k8s hyperion | `tofu-k8s-hyperion.yaml` | Push to `main` on `terraform/proxmox/infraestructure/hyperion**`, manual | self-hosted |
 | Bootstrap :: LXC auth | `lxc-auth-bootstrap.yaml` | Manual | self-hosted |
 | Bootstrap :: LXC monitoring | `lxc-monitoring-bootstrap.yaml` | Manual | self-hosted |
+| Pi-hole :: DNS records | `pihole-dns-sync.yaml` | Pull requests and push to `main` on `pihole/**`, manual | GitHub-hosted (**Validate**); self-hosted (**Diff** / **Apply**) |
 | IaC :: Security Report | `iac-security-report.yml` | Pull requests on `terraform/**`, `cloudflare/**`, manual | GitHub-hosted |
 
 The `Tofu ::` workflows have two jobs: **Plan** uploads `tfplan` as an artifact and **Apply** applies it. Every apply job waits for the `tofu-infra` environment.
+
+`Pi-hole :: DNS records` validates `pihole/records.yaml`, then shows the diff against Pi-hole on pull requests and applies it on `main` (see [Manage internal DNS records](/how-to/manage-internal-dns/)). The self-hosted job is skipped for pull requests from forks.
 
 `Tofu :: k8s hyperion` also runs the bootstrap task before planning. Changes to `.github/tasks/` or to `kubernetes/applications/` don't trigger it; run it by hand when the bootstrap secrets need to be applied again.
 

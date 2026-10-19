@@ -66,7 +66,7 @@ npm run deploy:cloudflare
    - `homelab-ci-push` and `homelab-cd-pull` in `zot_htpasswd`.
    - The `homelab-ci-push` password in Bitwarden, with its ID in the **Get secrets from Bitwarden** step of the `image` job in `docs.yaml` and of the `docs-image` job in `release-please.yaml`.
    - `zot_pull_auth` in Infisical, used by `homelab-docs/manifests/pull-secrets.yaml`.
-2. Make sure `docs.home.cervant.net` resolves to the Cilium Gateway address in the internal DNS (Pi-hole, `192.168.10.150`), unless a wildcard `*.home.cervant.net` record already covers it.
+2. Make sure `docs` is listed under `cnames.hyperion-01` in `pihole/records.yaml`, so `docs.home.cervant.net` resolves to the Cilium Gateway (see [Manage internal DNS records](/how-to/manage-internal-dns/)).
 3. Apply the Hyperion stack once after `argocd.tf` changes, so the root app ignores the image overrides (see [Docs delivery](/explanation/docs-delivery/)).
 
 Image Updater checks zot every two minutes, so `docs.home.cervant.net` updates a few minutes after `docs.cervant.net`. To see what it did:

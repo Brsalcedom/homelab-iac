@@ -87,7 +87,11 @@ spec:
 
 The `http` listener of the gateway already redirects all `*.home.cervant.net` traffic to HTTPS.
 
-## 4. Merge to main
+## 4. Add the DNS record
+
+Add the app's name under `cnames.hyperion-01` in `pihole/records.yaml`. There is no wildcard record, so the hostname doesn't resolve without it. See [Manage internal DNS records](/how-to/manage-internal-dns/).
+
+## 5. Merge to main
 
 ArgoCD syncs the new Application automatically. Check it with:
 

@@ -15,7 +15,7 @@ Installed by `terraform/proxmox/infraestructure/hyperion`. Chart versions are in
 | LoadBalancer | K3s ServiceLB (`svclb-*` pods), node IP `192.168.10.201` | Built into K3s | ✅ |
 | Gateway API | Cilium Gateway API controller | `cilium.tf`, `gateway.tf` | ✅ |
 | Certificates | [cert-manager](https://cert-manager.io) + Let's Encrypt DNS-01 on Cloudflare | `certmanager.tf` | ✅ |
-| GitOps | [ArgoCD](https://argo-cd.readthedocs.io) | `argocd.tf` | ✅ |
+| GitOps | [ArgoCD](https://argo-cd.readthedocs.io), login with Pocket ID, Dex disabled | `argocd.tf` | ✅ |
 
 ## Applications (ArgoCD)
 

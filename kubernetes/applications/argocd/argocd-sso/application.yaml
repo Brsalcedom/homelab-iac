@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-sso
+  namespace: argocd
+  labels:
+    tier: platform
+    domain: gitops
+    source: manifests
+    exposure: none
+    criticality: standard
+    image-updates: disabled
+  annotations:
+    # After the Infisical operator (wave 2), which provides the InfisicalSecret CRD.
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: homelab
+  source:
+    repoURL: https://github.com/Brsalcedom/homelab-iac.git
+    targetRevision: main
+    path: kubernetes/applications/argocd/argocd-sso/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

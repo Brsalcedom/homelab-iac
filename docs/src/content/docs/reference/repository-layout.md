@@ -42,6 +42,7 @@ Each directory under `kubernetes/applications/argocd/` holds one app: an `applic
 | App | Purpose |
 |-----|---------|
 | `argocd-image-updater` | Updates app images from their registries (argocd write-back) |
+| `argocd-sso` | `argocd-oidc` Secret with the Pocket ID clients for ArgoCD, from Infisical |
 | `cloudnative-pg` | PostgreSQL operator |
 | `homelab-docs` | This wiki, served internally |
 | `infisical` | Infisical secrets operator |

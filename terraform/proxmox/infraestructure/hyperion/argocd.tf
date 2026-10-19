@@ -32,6 +32,45 @@ resource "helm_release" "argocd" {
     {
       name  = "server.service.type"
       value = "ClusterIP"
+    },
+    {
+      # Log in with Pocket ID. The client IDs and the secret come from the
+      # argocd-oidc Secret, which the argocd-sso app syncs from Infisical. Until
+      # it exists only the local admin account works, and admin stays enabled
+      # as break-glass if Pocket ID is down.
+      name  = "configs.cm.oidc\\.config"
+      value = <<-EOT
+        name: Pocket ID
+        issuer: https://pocket.${local.base_domain}
+        clientID: $argocd-oidc:clientID
+        clientSecret: $argocd-oidc:clientSecret
+        cliClientID: $argocd-oidc:cliClientID
+        requestedScopes:
+          - openid
+          - profile
+          - email
+          - groups
+      EOT
+    },
+    {
+      # Users outside argocd-admins get no access.
+      name  = "configs.rbac.policy\\.default"
+      value = ""
+      type  = "string"
+    },
+    {
+      # Escape the commas: Helm splits set values on them.
+      name  = "configs.rbac.policy\\.csv"
+      value = "g\\, argocd-admins\\, role:admin"
+    },
+    {
+      name  = "configs.rbac.scopes"
+      value = "[groups]"
+    },
+    {
+      # ArgoCD talks OIDC to Pocket ID directly; Dex isn't used.
+      name  = "dex.enabled"
+      value = "false"
     }
   ]
 

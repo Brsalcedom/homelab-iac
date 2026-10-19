@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.2.1](https://github.com/Brsalcedom/homelab-iac/compare/v7.2.0...v7.2.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* **ci:** hand _work back to the runner user after root container jobs ([#185](https://github.com/Brsalcedom/homelab-iac/issues/185)) ([6b794df](https://github.com/Brsalcedom/homelab-iac/commit/6b794df502f86de3303ced8797b044968c5527ae))
+
 ## [7.2.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.1.0...v7.2.0) (2026-10-19)
 
 

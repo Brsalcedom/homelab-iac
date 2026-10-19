@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.2.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.1.0...v7.2.0) (2026-10-19)
+
+
+### Features
+
+* **pihole:** manage local DNS records from pihole/records.yaml ([#182](https://github.com/Brsalcedom/homelab-iac/issues/182)) ([3e17f36](https://github.com/Brsalcedom/homelab-iac/commit/3e17f36f2fc8b215757fe106775cd720525b2a67))
+
 ## [7.1.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.0.0...v7.1.0) (2026-10-18)
 
 

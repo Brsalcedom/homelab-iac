@@ -88,3 +88,13 @@ jobs:
           AUTHENTIK_ENV_SOURCE: ${{ github.workspace }}/.env
         run: |
           task --silent --taskfile $GITHUB_WORKSPACE/.github/tasks/lxc-auth-bootstrap.yml
+
+      # The container runs as root (ssh needs a passwd entry for its uid), so
+      # what it writes under _work, like sm-action's binary in _actions, ends up
+      # owned by root and the runner can't clean it up on the next job. The .env
+      # holds the Authentik secrets and would otherwise stay in the workspace.
+      - name: 🧹 Hand _work back to the runner user
+        if: always()
+        run: |
+          rm -f "$GITHUB_WORKSPACE/.env"
+          chown -R 1000:1000 /__w

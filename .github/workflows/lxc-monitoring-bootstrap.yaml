@@ -89,3 +89,10 @@ jobs:
             echo "- Docker installed and enabled"
             echo "- Runtime directories prepared at \`/opt/monitoring\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # The container runs as root (ssh needs a passwd entry for its uid), so
+      # what it writes under _work, like sm-action's binary in _actions, ends up
+      # owned by root and the runner can't clean it up on the next job.
+      - name: 🧹 Hand _work back to the runner user
+        if: always()
+        run: chown -R 1000:1000 /__w

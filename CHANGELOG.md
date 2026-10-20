@@ -1,5 +1,22 @@
 # Changelog
 
+## [7.3.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.2.1...v7.3.0) (2026-10-20)
+
+
+### Features
+
+* **argocd:** log in with Pocket ID and disable Dex ([#187](https://github.com/Brsalcedom/homelab-iac/issues/187)) ([386ba25](https://github.com/Brsalcedom/homelab-iac/commit/386ba2537afa51f69c4d260d06395615f0da8d13))
+* **deps:** update dependency astro to v7.4.1 ([#165](https://github.com/Brsalcedom/homelab-iac/issues/165)) ([e4698cb](https://github.com/Brsalcedom/homelab-iac/commit/e4698cb8d0562a909063610ae2ef0870956ac637))
+* **deps:** update dependency wrangler to v4.151.3 ([#163](https://github.com/Brsalcedom/homelab-iac/issues/163)) ([e32b0e3](https://github.com/Brsalcedom/homelab-iac/commit/e32b0e347f52267019670a6fecd3d73e13bd7647))
+* **deps:** update terraform cloudflare to v5.28.0 ([#144](https://github.com/Brsalcedom/homelab-iac/issues/144)) ([0f9a99f](https://github.com/Brsalcedom/homelab-iac/commit/0f9a99fd0bb1181daca1ea5c757a3785c95c273e))
+* **deps:** update terraform kubernetes to &lt; 3.5.0 ([#184](https://github.com/Brsalcedom/homelab-iac/issues/184)) ([1d4a4ff](https://github.com/Brsalcedom/homelab-iac/commit/1d4a4fffa249059b0c57c32344fb1b50adeb710b))
+* **deps:** update terraform proxmox to v0.117.0 ([#146](https://github.com/Brsalcedom/homelab-iac/issues/146)) ([fa36638](https://github.com/Brsalcedom/homelab-iac/commit/fa36638f70b8013a082d05ff34cd293a5a79566c))
+
+
+### Bug Fixes
+
+* **sso:** match the Pocket ID group names (argocd_admins, zot_admins) ([#189](https://github.com/Brsalcedom/homelab-iac/issues/189)) ([b06dd31](https://github.com/Brsalcedom/homelab-iac/commit/b06dd31316873135dcab183b9f19b4fd799cb143))
+
 ## [7.2.1](https://github.com/Brsalcedom/homelab-iac/compare/v7.2.0...v7.2.1) (2026-10-19)
 
 

@@ -1,13 +1,13 @@
 # 🏠 homelab-iac
 
-Infrastructure as Code for my personal home lab, managed with Terraform, K3s, GitOps, and more.
+Infrastructure as Code for my personal home lab, managed with OpenTofu, K3s, GitOps, and more.
 
-[![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4?logo=terraform)](https://www.terraform.io/)
+[![OpenTofu](https://img.shields.io/badge/IaC-OpenTofu-FFDA18?logo=opentofu)](https://opentofu.org/)
+[![Proxmox](https://img.shields.io/badge/Hypervisor-Proxmox-E57000?logo=proxmox)](https://www.proxmox.com/)
 [![Kubernetes](https://img.shields.io/badge/K3s-Kubernetes-326CE5?logo=kubernetes)](https://k3s.io/)
-[![FluxCD](https://img.shields.io/badge/GitOps-FluxCD-0064ff?logo=flux)](https://fluxcd.io/)
-[![ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-d63aff?logo=argo)](https://argo-cd.readthedocs.io/)
+[![ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-EF7B4D?logo=argo)](https://argo-cd.readthedocs.io/)
 [![Cloudflare](https://img.shields.io/badge/DNS-Cloudflare-F38020?logo=cloudflare)](https://cloudflare.com/)
-[![License](https://img.shields.io/badge/License-Personal-informational)]()
+[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
 
 ---
 
@@ -37,7 +37,7 @@ This repository defines my homelab infrastructure declaratively with OpenTofu/Te
 ```bash
 homelab-iac/
 ├── .github/                    # CI/CD workflows, labels and configuration
-├── cloudflare/                 # Terraform for Cloudflare R2
+├── cloudflare/                 # OpenTofu for Cloudflare R2
 ├── docker/                     # Compose and Swarm stacks
 ├── docs/                       # Wiki (Starlight)
 ├── kubernetes/applications/

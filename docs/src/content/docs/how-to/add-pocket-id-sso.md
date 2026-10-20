@@ -7,14 +7,14 @@ sidebar:
 
 Every app with a login on `*.home.cervant.net` uses [Pocket ID](https://pocket.home.cervant.net) as its identity provider. zot and ArgoCD follow the same pattern:
 
-- **A group `<app>-admins`** in Pocket ID. The app reads it from the `groups` claim and gives its members admin access.
+- **A group `<app>_admins`** in Pocket ID. The app reads it from the `groups` claim and gives its members admin access. The claim carries the group's **name**, not its friendly name, so the app's config must use that exact string, with underscores.
 - **An OIDC client per app**, with the app's callback URL and the group as allowed group. Its credentials live in Infisical, and an `InfisicalSecret` syncs them into the app's namespace.
 - **A local break-glass account**, where the app supports one, for when Pocket ID is down.
 
 ## Pattern
 
-1. In Pocket ID, create the `<app>-admins` group and add yourself to it.
-2. Create an OIDC client named `<app>`, with the callback URL from the app's docs and `<app>-admins` as allowed group.
+1. In Pocket ID, create the `<app>_admins` group and add yourself to it.
+2. Create an OIDC client named `<app>`, with the callback URL from the app's docs and `<app>_admins` as allowed group.
 3. Add the client ID and secret to Infisical (`hyperion`, `prod`, `/`) as `<app>_oidc_client_id` and `<app>_oidc_client_secret`.
 4. Render them into a Secret with an `InfisicalSecret` (see [Use Infisical secrets in an app](/how-to/use-infisical-secrets/)), in the format the app reads.
 5. Configure the app with issuer `https://pocket.home.cervant.net`, scopes `openid profile email groups`, and the group mapped to its admin role.
@@ -43,8 +43,8 @@ ArgoCD talks OIDC to Pocket ID directly, so its bundled Dex is disabled. The con
 
 ### Set up (once)
 
-1. In Pocket ID, create the `argocd-admins` group and add yourself to it.
-2. Create the `argocd` and `argocd-cli` clients from the table, both with `argocd-admins` as allowed group. Mark `argocd-cli` as a public client.
+1. In Pocket ID, create the `argocd_admins` group and add yourself to it.
+2. Create the `argocd` and `argocd-cli` clients from the table, both with `argocd_admins` as allowed group. Mark `argocd-cli` as a public client.
 3. Add these secrets to Infisical (`hyperion`, `prod`, `/`):
 
    | Secret | Value |
@@ -59,7 +59,7 @@ ArgoCD talks OIDC to Pocket ID directly, so its bundled Dex is disabled. The con
 
 | Who | Role | How |
 |-----|------|-----|
-| Members of `argocd-admins` | `role:admin` | **Log in via Pocket ID** in the UI, or `argocd login argocd.home.cervant.net --sso --grpc-web` |
+| Members of `argocd_admins` | `role:admin` | **Log in via Pocket ID** in the UI, or `argocd login argocd.home.cervant.net --sso --grpc-web` |
 | `admin` | `role:admin` | Break-glass if Pocket ID is down. Password in your password manager |
 | Anyone else in Pocket ID | None | `policy.default` is empty |
 
@@ -70,4 +70,8 @@ kubectl -n argocd get secret argocd-oidc -o jsonpath='{.metadata.labels}'
 kubectl -n argocd get deploy argocd-dex-server   # NotFound once Dex is disabled
 ```
 
-If the Pocket ID button is missing or the login fails with `invalid client`, the Secret is missing, unlabeled, or has the wrong keys: `argocd-server` logs `secret key does not exist in secret`.
+| Symptom | Cause |
+|---------|-------|
+| No Pocket ID button, or `invalid client` | `argocd-oidc` is missing, unlabeled, or has the wrong keys. `argocd-server` logs `secret key does not exist in secret`. |
+| Pocket ID says `Invalid callback URL` | The client ID belongs to the other client (`argocd` and `argocd-cli` swapped in Infisical), or the callback in Pocket ID doesn't match exactly |
+| Login works but no apps are visible | Your groups don't include `argocd_admins`. **User Info** in the UI lists the groups ArgoCD read from the token. Log out and back in after changing a membership. |

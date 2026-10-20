@@ -53,7 +53,7 @@ resource "helm_release" "argocd" {
       EOT
     },
     {
-      # Users outside argocd-admins get no access.
+      # Users outside argocd_admins get no access.
       name  = "configs.rbac.policy\\.default"
       value = ""
       type  = "string"
@@ -61,7 +61,7 @@ resource "helm_release" "argocd" {
     {
       # Escape the commas: Helm splits set values on them.
       name  = "configs.rbac.policy\\.csv"
-      value = "g\\, argocd-admins\\, role:admin"
+      value = "g\\, argocd_admins\\, role:admin"
     },
     {
       name  = "configs.rbac.scopes"

@@ -32,6 +32,31 @@ This repository defines my homelab infrastructure declaratively with OpenTofu/Te
 
 ---
 
+## 🧰 Stack
+
+| Layer | Tools |
+|---|---|
+| Hypervisor | Proxmox VE (VMs and LXC containers) |
+| Infrastructure as Code | OpenTofu, state in Cloudflare R2 (S3 backend) |
+| Kubernetes | K3s on Rocky Linux (Hyperion cluster) |
+| Networking | Cilium (CNI, kube-proxy replacement, Gateway API) |
+| GitOps | ArgoCD + ArgoCD Image Updater |
+| Certificates and DNS | cert-manager with Cloudflare DNS-01, Pi-hole for local records |
+| Secrets | Infisical (self-hosted) + operator, bootstrapped from Bitwarden Secrets Manager |
+| Identity | Pocket ID (OIDC SSO) |
+| Policy | Kyverno |
+| Databases | CloudNativePG |
+| Registry | Zot |
+| Remote access | NetBird, Cloudflare Tunnel |
+| Containers outside K8s | Docker Swarm and Compose |
+| CI/CD | GitHub Actions (self-hosted runner), Renovate, release-please |
+| Security scanning | Trivy |
+| Docs | Starlight |
+
+See [Clusters](https://docs.cervant.net/explanation/clusters/) for the full Hyperion stack and what is planned for Cronos.
+
+---
+
 ## 📂 Structure
 
 ```bash

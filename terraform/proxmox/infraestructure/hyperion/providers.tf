@@ -12,7 +12,7 @@ terraform {
       # for that, but CI has run 3.3.0 against existing namespaces without
       # refresh errors. Renovate moves this upper bound; check refresh before
       # merging a bump.
-      version = "< 3.4.0"
+      version = "< 3.5.0"
     }
   }
 }

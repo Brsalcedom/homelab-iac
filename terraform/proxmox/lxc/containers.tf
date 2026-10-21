@@ -1,6 +1,6 @@
 module "containers" {
   for_each = local.containers_merged
-  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/lxc?ref=v1.2.4"
+  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/lxc?ref=v1.4.0"
   node_name           = var.node_name
   vm_name             = each.key
   vm_id               = each.value.id

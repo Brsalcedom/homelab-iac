@@ -57,7 +57,13 @@ ssh rocky@<vm-ip>
 
 `disk` is the size of the boot disk (`scsi0` on `local-lvm`, as in the template) in GB. Without it the VM keeps the template's disk. Proxmox can only grow a disk: a smaller value fails.
 
-1. Set or raise `disk` for the VM and merge. In the plan, check that the VM's `disk` block only changes `size`. The module manages the disk once `disk` is set, so a template disk whose options differ from the provider's defaults (`discard`, `ssd`, `iothread`, `cache`, `aio`) shows up as a change too.
+1. Set or raise `disk` for the VM and merge. The first time, the disk isn't in the state yet, so the plan shows it as `+ disk` and can't show what changes. The provider resizes the existing volume, without creating a new one, but also sets the block's options on it: `iothread = true` (the module's default, as in the template), plus `aio = io_uring`, `cache = none`, `discard = ignore`, `ssd = false`. Before approving the apply, compare them with the disk on Proxmox:
+
+   ```bash
+   qm config <vm-id> | grep -E '^(scsi|sata|virtio|ide|unused)'
+   ```
+
+   Any other disk on the VM, apart from the cloud-init drive, would be detached, since the module only declares the boot disk.
 2. Proxmox grows the virtual disk while the VM runs, but not the partition or the filesystem. The Rocky image keeps the root on LVM (`rlm/root`, XFS), so grow each layer from inside the VM:
 
    ```bash

@@ -70,8 +70,8 @@ Defined under `kubernetes/applications/argocd/`.
 
 ## Nodes
 
-| Name | IP | Proxmox VM ID | vCPU | Memory |
-|------|----|---------------|------|--------|
-| `hyperion-01` | `192.168.10.201` | 201 | 2 | 10 GiB |
+| Name | IP | Proxmox VM ID | vCPU | Memory | Disk |
+|------|----|---------------|------|--------|------|
+| `hyperion-01` | `192.168.10.201` | 201 | 2 | 10 GiB | 60 GB |
 
-Hyperion is a single-node cluster. With 2 GiB the node stalls once ArgoCD syncs the applications. The apps without the monitoring stack use about 4.5 GiB, and the stack requests about 1.2 GiB more, so keep it at 10 GiB or more.
+Hyperion is a single-node cluster. With 2 GiB the node stalls once ArgoCD syncs the applications. The apps without the monitoring stack use about 4.5 GiB, and the stack requests about 1.2 GiB more, so keep it at 10 GiB or more. The `local-path` volumes (Prometheus, Loki, zot) and the images all live on the root disk, since `local-path` doesn't reserve the size a PVC asks for.

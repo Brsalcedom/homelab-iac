@@ -1,6 +1,6 @@
 module "vms" {
   for_each            = local.vms_merged
-  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/vm-cloud-init?ref=v1.2.4"
+  source              = "git::https://github.com/Brsalcedom/tf-modules//proxmox/vm-cloud-init?ref=v1.3.0"
   node_name           = each.value.node_name
   vm_name             = each.key
   vm_id               = each.value.id
@@ -16,4 +16,5 @@ module "vms" {
   vm_tags             = each.value.tags
   bridge              = each.value.bridge
   qemu_agent          = each.value.qemu_agent
+  vm_disk_size        = each.value.disk
 }

@@ -11,6 +11,9 @@ metadata:
     criticality: standard
     image-updates: disabled
   annotations:
+    # With ServerSideApply, a client-side diff flags the defaults the API server
+    # fills in (HTTPRoute backendRef weight, InfisicalSecret secretType) as drift.
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
     # After the Infisical operator (wave 2), which provides the InfisicalSecret CRD.
     argocd.argoproj.io/sync-wave: "3"
 spec:

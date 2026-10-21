@@ -1,0 +1,165 @@
+# Prometheus, Grafana, node-exporter and kube-state-metrics for Hyperion.
+# Alertmanager stays off until alerts are routed somewhere.
+
+cleanPrometheusOperatorObjectNames: true
+
+alertmanager:
+  enabled: false
+
+# K3s runs the controller manager and scheduler inside the k3s process with
+# metrics bound to 127.0.0.1, stores state in SQLite instead of etcd, and
+# Cilium replaces kube-proxy. There's nothing to scrape for any of them.
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeEtcd:
+  enabled: false
+
+defaultRules:
+  rules:
+    alertmanager: false
+    etcd: false
+    kubeControllerManager: false
+    kubeProxy: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    windows: false
+
+prometheusOperator:
+  admissionWebhooks:
+    # cert-manager issues the webhook certificate, so the chart's patch Jobs,
+    # which ArgoCD would run as hooks on every sync, aren't needed.
+    certManager:
+      enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    retentionSize: 18GB
+    # Select ServiceMonitors, PodMonitors, Probes, ScrapeConfigs and rules from
+    # every app, not only the ones labeled with this release.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1536Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+grafana:
+  fullnameOverride: grafana
+  # Rolls Grafana when the Secret in Infisical changes.
+  annotations:
+    secrets.infisical.com/auto-reload: "true"
+  # Local admin, kept as break-glass if Pocket ID is down. Synced from
+  # Infisical by manifests/secrets.yaml.
+  admin:
+    existingSecret: grafana-secrets
+    userKey: admin-user
+    passwordKey: admin-password
+  envValueFrom:
+    GF_AUTH_GENERIC_OAUTH_CLIENT_ID:
+      secretKeyRef:
+        name: grafana-secrets
+        key: oidc-client-id
+    GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+      secretKeyRef:
+        name: grafana-secrets
+        key: oidc-client-secret
+  grafana.ini:
+    server:
+      root_url: https://grafana.home.cervant.net
+    auth.generic_oauth:
+      enabled: true
+      name: Pocket ID
+      allow_sign_up: true
+      scopes: openid profile email groups
+      auth_url: https://pocket.home.cervant.net/authorize
+      token_url: https://pocket.home.cervant.net/api/oidc/token
+      api_url: https://pocket.home.cervant.net/api/oidc/userinfo
+      use_pkce: true
+      login_attribute_path: preferred_username
+      groups_attribute_path: groups
+      # Members of grafana_admins get Admin; with strict, everyone else is
+      # rejected instead of falling back to Viewer.
+      role_attribute_path: contains(groups[*], 'grafana_admins') && 'Admin'
+      role_attribute_strict: true
+  # No PVC: datasources and dashboards come from Git, and users are recreated
+  # on their next Pocket ID login.
+  persistence:
+    enabled: false
+  additionalDataSources:
+    - name: Loki
+      uid: loki
+      type: loki
+      url: http://loki.monitoring.svc.cluster.local:3100
+      access: proxy
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: grafana-com
+          orgId: 1
+          folder: grafana.com
+          type: file
+          disableDeletion: true
+          editable: false
+          options:
+            path: /var/lib/grafana/dashboards/grafana-com
+  # Downloaded from grafana.com when the pod starts.
+  dashboards:
+    grafana-com:
+      node-exporter-full:
+        gnetId: 1860
+        revision: 45
+        datasource: Prometheus
+      blackbox-exporter:
+        gnetId: 13659
+        revision: 1
+        datasource: Prometheus
+  resources:
+    requests:
+      cpu: 50m
+      memory: 192Mi
+    limits:
+      memory: 512Mi
+  # helm test Pod; ArgoCD would keep it around as part of the app.
+  testFramework:
+    enabled: false
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 48Mi
+    limits:
+      memory: 128Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 24Mi
+    limits:
+      memory: 64Mi

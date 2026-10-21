@@ -21,7 +21,7 @@ Hyperion favors stability, security and observability. Its stack:
 | Secrets | Self-hosted Infisical + Kubernetes operator (Kubernetes Auth) |
 | Policy engine | Kyverno |
 | Storage | Rook + Ceph (planned) |
-| Observability | Prometheus, Grafana, Loki (planned) |
+| Observability | Prometheus, Grafana, Loki, Alloy, blackbox_exporter |
 
 ### Why K3s runs without Traefik, Flannel and kube-proxy
 

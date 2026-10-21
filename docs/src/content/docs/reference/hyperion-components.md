@@ -31,8 +31,10 @@ Defined under `kubernetes/applications/argocd/`.
 | Container registry | [zot](https://zotregistry.dev), htpasswd users from Infisical, no anonymous access | ✅ |
 | Image updates | [ArgoCD Image Updater](https://argocd-image-updater.readthedocs.io) | ✅ |
 | Docs | `homelab-docs` (this wiki) | ✅ |
+| Metrics and dashboards | [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack): Prometheus, Grafana with Pocket ID, node-exporter, kube-state-metrics. No Alertmanager yet | ✅ |
+| Logs | [Loki](https://grafana.com/oss/loki/) single binary, fed by [Alloy](https://grafana.com/oss/alloy-opentelemetry-collector/) | ✅ |
+| Uptime probes | [blackbox_exporter](https://github.com/prometheus/blackbox_exporter) | ✅ |
 | Storage | [Rook + Ceph](https://rook.io) | 🔜 |
-| Observability | Prometheus, Grafana, Loki | 🔜 |
 
 ## Shared resources
 
@@ -58,6 +60,7 @@ Defined under `kubernetes/applications/argocd/`.
 | `https://infisical.home.cervant.net` | Infisical |
 | `https://docs.home.cervant.net` | This wiki |
 | `https://zot.home.cervant.net` | zot registry and UI |
+| `https://grafana.home.cervant.net` | Grafana |
 
 ## K3s install flags
 
@@ -69,6 +72,6 @@ Defined under `kubernetes/applications/argocd/`.
 
 | Name | IP | Proxmox VM ID | vCPU | Memory |
 |------|----|---------------|------|--------|
-| `hyperion-01` | `192.168.10.201` | 201 | 2 | 6 GiB |
+| `hyperion-01` | `192.168.10.201` | 201 | 2 | 10 GiB |
 
-Hyperion is a single-node cluster. With 2 GiB the node stalls once ArgoCD syncs the applications, so keep it at 6 GiB or more.
+Hyperion is a single-node cluster. With 2 GiB the node stalls once ArgoCD syncs the applications. The apps without the monitoring stack use about 4.5 GiB, and the stack requests about 1.2 GiB more, so keep it at 10 GiB or more.

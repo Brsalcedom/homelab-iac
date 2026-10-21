@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alloy
+  namespace: argocd
+  labels:
+    tier: platform
+    domain: observability
+    source: helm
+    exposure: none
+    criticality: standard
+    image-updates: disabled
+  annotations:
+    # After kube-prometheus-stack (wave 3), which provides the ServiceMonitor CRD.
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  project: homelab
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: alloy
+      targetRevision: 1.14.0
+      helm:
+        releaseName: alloy
+        valueFiles:
+          - $values/kubernetes/applications/argocd/alloy/values.yaml
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: blackbox-exporter
+  namespace: argocd
+  labels:
+    tier: platform
+    domain: observability
+    source: helm
+    exposure: none
+    criticality: standard
+    image-updates: disabled
+  annotations:
+    # After kube-prometheus-stack (wave 3), which provides the ServiceMonitor CRD.
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  project: homelab
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: prometheus-blackbox-exporter
+      targetRevision: 11.20.0
+      helm:
+        releaseName: blackbox-exporter
+        valueFiles:
+          - $values/kubernetes/applications/argocd/blackbox-exporter/values.yaml
+    - repoURL: https://github.com/Brsalcedom/homelab-iac.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

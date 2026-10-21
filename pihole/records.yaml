@@ -1,6 +1,9 @@
 # Local DNS records for Pi-hole (pihole-01), applied by .github/tasks/pihole-dns-sync.yml.
 # Both lists replace dns.hosts and dns.cnameRecords as a whole: records created
 # by hand in the Pi-hole UI are removed on the next apply.
+
+# Answered only by Pi-hole (local=/<domain>/ in misc.dnsmasq_lines): names not
+# listed below get NXDOMAIN and are never forwarded to Cloudflare.
 domain: home.cervant.net
 
 # A records: name -> IPv4

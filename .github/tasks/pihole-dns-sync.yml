@@ -1,7 +1,9 @@
 version: '3'
 
-# Syncs the Pi-hole local DNS records (dns.hosts and dns.cnameRecords) from
-# pihole/records.yaml. Both arrays are replaced as a whole.
+# Syncs the Pi-hole local DNS from pihole/records.yaml: the records
+# (dns.hosts and dns.cnameRecords) and local=/<domain>/ in misc.dnsmasq_lines,
+# so Pi-hole answers NXDOMAIN for names under the domain that aren't defined
+# instead of forwarding them. All three arrays are replaced as a whole.
 
 vars:
   LXC_USER: '{{env "LXC_USER" | default "root"}}'
@@ -84,7 +86,7 @@ tasks:
         echo "[INFO] {{.RECORDS_FILE}} is valid ($(grep -c '^host ' {{.WORK_DIR}}/entries) hosts, $(grep -c '^cname ' {{.WORK_DIR}}/entries) CNAMEs)"
 
   render:
-    desc: "Render the dns.hosts and dns.cnameRecords arrays from pihole/records.yaml"
+    desc: "Render the dns.hosts, dns.cnameRecords and misc.dnsmasq_lines arrays from pihole/records.yaml"
     silent: true
     deps: [validate]
     cmds:
@@ -92,14 +94,21 @@ tasks:
         set -e
         {{.YQ}} -o=json -I=0 '.domain as $d | [.hosts // {} | to_entries | .[] | .value + " " + .key + "." + $d] | sort' "{{.RECORDS_FILE}}" > {{.WORK_DIR}}/hosts.json
         {{.YQ}} -o=json -I=0 '.domain as $d | [.cnames // {} | to_entries | .[] | .key as $t | .value[] | . + "." + $d + "," + $t + "." + $d] | sort' "{{.RECORDS_FILE}}" > {{.WORK_DIR}}/cnames.json
+        # Cloudflare signs the zone with DNSSEC and answers NOERROR with no data,
+        # not NXDOMAIN, for names that don't exist. musl (Alpine images) stops
+        # walking the search list on that answer, so with home.cervant.net in
+        # the search list a pod can't resolve grafana.com. Answering the domain
+        # locally makes Pi-hole return NXDOMAIN instead.
+        {{.YQ}} -o=json -I=0 '["local=/" + .domain + "/"]' "{{.RECORDS_FILE}}" > {{.WORK_DIR}}/dnsmasq.json
 
         {
           {{.YQ}} -p=json -o=yaml '.[] | "dns.hosts " + .' {{.WORK_DIR}}/hosts.json
           {{.YQ}} -p=json -o=yaml '.[] | "dns.cnameRecords " + .' {{.WORK_DIR}}/cnames.json
+          {{.YQ}} -p=json -o=yaml '.[] | "misc.dnsmasq_lines " + .' {{.WORK_DIR}}/dnsmasq.json
         } | LC_ALL=C sort > {{.WORK_DIR}}/desired
 
   fetch:
-    desc: "Read the current dns.hosts and dns.cnameRecords from Pi-hole"
+    desc: "Read the current dns.hosts, dns.cnameRecords and misc.dnsmasq_lines from Pi-hole"
     internal: true
     silent: true
     requires:
@@ -112,6 +121,7 @@ tasks:
         {
           {{.SSH}} 'pihole-FTL --config dns.hosts' | sed -e 's/^\[ *//' -e 's/ *\]$//' -e 's/, /\n/g' | sed -e '/^$/d' -e 's/^/dns.hosts /'
           {{.SSH}} 'pihole-FTL --config dns.cnameRecords' | sed -e 's/^\[ *//' -e 's/ *\]$//' -e 's/, /\n/g' | sed -e '/^$/d' -e 's/^/dns.cnameRecords /'
+          {{.SSH}} 'pihole-FTL --config misc.dnsmasq_lines' | sed -e 's/^\[ *//' -e 's/ *\]$//' -e 's/, /\n/g' | sed -e '/^$/d' -e 's/^/misc.dnsmasq_lines /'
         } | LC_ALL=C sort > {{.WORK_DIR}}/current
 
   diff:
@@ -128,7 +138,7 @@ tasks:
         fi
 
   apply:
-    desc: "Replace dns.hosts and dns.cnameRecords on Pi-hole with pihole/records.yaml"
+    desc: "Replace dns.hosts, dns.cnameRecords and misc.dnsmasq_lines on Pi-hole with pihole/records.yaml"
     silent: true
     cmds:
       - task: diff
@@ -138,9 +148,10 @@ tasks:
           exit 0
         fi
 
-        echo "[INFO] Writing dns.hosts and dns.cnameRecords on {{.LXC_HOST}}"
+        echo "[INFO] Writing dns.hosts, dns.cnameRecords and misc.dnsmasq_lines on {{.LXC_HOST}}"
         {{.SSH}} 'pihole-FTL --config dns.hosts "$(cat)" > /dev/null' < {{.WORK_DIR}}/hosts.json
         {{.SSH}} 'pihole-FTL --config dns.cnameRecords "$(cat)" > /dev/null' < {{.WORK_DIR}}/cnames.json
+        {{.SSH}} 'pihole-FTL --config misc.dnsmasq_lines "$(cat)" > /dev/null' < {{.WORK_DIR}}/dnsmasq.json
       - task: verify
 
   verify:

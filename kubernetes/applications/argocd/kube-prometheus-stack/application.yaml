@@ -41,3 +41,6 @@ spec:
       - CreateNamespace=true
       # The Prometheus Operator CRDs are too big for client-side apply.
       - ServerSideApply=true
+      # On a fresh cluster the PodMonitor in manifests/ is applied in the same
+      # sync that creates its CRD.
+      - SkipDryRunOnMissingResource=true

@@ -6,3 +6,17 @@ namespace: monitoring
 resources:
   - httproute.yaml
   - secrets.yaml
+  - podmonitor-argocd.yaml
+
+# Dashboards of our own. The Grafana sidecar loads every ConfigMap labeled
+# grafana_dashboard, into the folder named by grafana_folder.
+configMapGenerator:
+  - name: grafana-dashboard-homelab-overview
+    files:
+      - dashboards/homelab-overview.json
+    options:
+      disableNameSuffixHash: true
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: Homelab

@@ -41,10 +41,21 @@ prometheusOperator:
     limits:
       memory: 256Mi
 
+nodeExporter:
+  # Only the Linux dashboards; Hyperion has no AIX or macOS nodes.
+  operatingSystems:
+    aix:
+      enabled: false
+    darwin:
+      enabled: false
+
 prometheus:
   prometheusSpec:
-    retention: 15d
-    retentionSize: 18GB
+    # The PVC asks for 20Gi, but local-path doesn't reserve it: Prometheus
+    # shares Hyperion's 28 GiB root disk with Loki, zot and the images. At
+    # ~600 MB/day, retentionSize is what actually limits it.
+    retention: 7d
+    retentionSize: 3GB
     # Select ServiceMonitors, PodMonitors, Probes, ScrapeConfigs and rules from
     # every app, not only the ones labeled with this release.
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -109,6 +120,17 @@ grafana:
   # on their next Pocket ID login.
   persistence:
     enabled: false
+  sidecar:
+    dashboards:
+      # Dashboards with a grafana_folder annotation go to that folder; the
+      # chart's own have none and stay at the top level.
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
+    datasources:
+      # Alertmanager is disabled; don't provision a datasource that points to it.
+      alertmanager:
+        enabled: false
   additionalDataSources:
     - name: Loki
       uid: loki

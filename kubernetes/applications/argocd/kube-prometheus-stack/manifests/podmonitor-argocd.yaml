@@ -1,0 +1,16 @@
+# ArgoCD's components expose a "metrics" port, but the chart only creates
+# metrics Services and ServiceMonitors when told to, and ArgoCD is installed by
+# OpenTofu before the Prometheus Operator CRDs exist. Scrape the pods directly.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: argocd
+spec:
+  namespaceSelector:
+    matchNames:
+      - argocd
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: argocd
+  podMetricsEndpoints:
+    - port: metrics

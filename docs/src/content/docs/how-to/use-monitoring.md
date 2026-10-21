@@ -22,11 +22,11 @@ kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090
 
 | Data | Retention | Volume |
 |------|-----------|--------|
-| Metrics | 15 days, or 18 GB | 20Gi `local-path` |
+| Metrics | 7 days, or 3 GB | 20Gi `local-path` |
 | Logs | 14 days | 20Gi `local-path` |
 
-:::caution[No backups, no alerts]
-Both volumes are `local-path` on the node, without backups. Alertmanager is disabled: the default rules show up as firing in Grafana and Prometheus, but nothing sends notifications yet.
+:::caution[Disk, backups and alerts]
+`local-path` doesn't reserve the size a PVC asks for: every volume shares Hyperion's 28 GiB root disk, which also holds the images. Prometheus writes about 600 MB a day, so `retentionSize` is what keeps it from filling the disk; raise it only after growing the disk. The volumes have no backups. Alertmanager is disabled: the default rules show up as firing in Grafana and Prometheus, but nothing sends notifications yet.
 :::
 
 Grafana has no volume. Datasources and dashboards come from Git, and users are recreated on their next login, so dashboards created in the UI are lost when the pod restarts. Export them as JSON and add them to the values.
@@ -57,10 +57,31 @@ Grafana has no volume. Datasources and dashboards come from Git, and users are r
 
 | Folder | Source |
 |--------|--------|
-| General | kube-prometheus-stack's Kubernetes, node and Prometheus dashboards |
+| `Homelab` | **Homelab Overview**: endpoint status and certificate expiry, node CPU, memory and disk, pods and restarts, ArgoCD apps, and error logs |
+| General | kube-prometheus-stack's Kubernetes, node (Linux only) and Prometheus dashboards |
 | `grafana.com` | Node Exporter Full (1860) and Blackbox Exporter (13659), downloaded when Grafana starts |
 
-To add a dashboard from grafana.com, add it under `grafana.dashboards.grafana-com` with its `gnetId` and a pinned `revision`. To add one of your own, put its JSON in a ConfigMap labeled `grafana_dashboard: "1"`; the Grafana sidecar loads it from any namespace.
+### Add a dashboard of your own
+
+Dashboards of our own are JSON files in `kube-prometheus-stack/manifests/dashboards/`. `configMapGenerator` in `manifests/kustomization.yaml` turns each one into a ConfigMap labeled `grafana_dashboard: "1"`, and the Grafana sidecar loads it into the folder named by its `grafana_folder` annotation.
+
+1. Build the dashboard in Grafana. It can't be saved over a provisioned one, so use **Save as** or start a new one.
+2. **Export → Export as JSON**, with **Export for sharing externally** off, so datasources stay as the `prometheus` and `loki` UIDs.
+3. Save it under `manifests/dashboards/` and add it to `configMapGenerator`:
+
+   ```yaml
+   - name: grafana-dashboard-<name>
+     files:
+       - dashboards/<name>.json
+     options:
+       disableNameSuffixHash: true
+       labels:
+         grafana_dashboard: "1"
+       annotations:
+         grafana_folder: Homelab
+   ```
+
+To add a dashboard from grafana.com instead, add it under `grafana.dashboards.grafana-com` in the values, with its `gnetId` and a pinned `revision`.
 
 ## Logs
 
@@ -82,6 +103,8 @@ Only Hyperion's pods are collected. The LXC hosts and Swarm aren't, and Dozzle i
 ## Scrape an app
 
 Prometheus selects every `ServiceMonitor`, `PodMonitor`, `Probe`, `ScrapeConfig` and `PrometheusRule` in the cluster, not only the ones labeled with the release. Most charts create a `ServiceMonitor` when you set `serviceMonitor.enabled: true` (or `metrics.serviceMonitor.enabled`); for an app without one, add a `ServiceMonitor` to its `manifests/`.
+
+ArgoCD is installed by OpenTofu before the Prometheus Operator CRDs exist, so its chart doesn't create monitors. `kube-prometheus-stack/manifests/podmonitor-argocd.yaml` scrapes the `metrics` port of its pods instead, which provides `argocd_app_info` and the rest of ArgoCD's metrics.
 
 ## Add an uptime probe
 

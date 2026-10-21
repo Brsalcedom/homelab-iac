@@ -11,6 +11,7 @@ locals {
     node_name   = "prox-01"
     bridge      = "vmbr0"
     qemu_agent  = false
+    disk        = null # GB; null keeps the template's disk size
   }
 
   vms = {
@@ -19,6 +20,7 @@ locals {
       ip          = "192.168.10.201"
       id          = 201
       memory      = 10240
+      disk        = 60 # local-path volumes (Prometheus, Loki, zot) share the root disk
       tags        = ["rocky", "kubernetes", "k3s"]
     },
     "hermes-agent" = {
@@ -43,6 +45,7 @@ locals {
         node_name   = try(cfg.node_name, local.defaults.node_name)
         bridge      = try(cfg.bridge, local.defaults.bridge)
         qemu_agent  = try(cfg.qemu_agent, local.defaults.qemu_agent)
+        disk        = try(cfg.disk, local.defaults.disk)
         tags        = concat(local.common_tags, try(cfg.tags, []))
       }
     )

@@ -1,5 +1,19 @@
 # Changelog
 
+## [7.4.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.3.0...v7.4.0) (2026-10-21)
+
+
+### Features
+
+* add monitoring ([#196](https://github.com/Brsalcedom/homelab-iac/issues/196)) ([7c87c40](https://github.com/Brsalcedom/homelab-iac/commit/7c87c409cd9b56fdeb9c86fff7d789f1c4bec707))
+* pihole local domain & grafana dashboard ([#199](https://github.com/Brsalcedom/homelab-iac/issues/199)) ([89ab7d8](https://github.com/Brsalcedom/homelab-iac/commit/89ab7d800aaccdafb175f923ff2f6763864e98e5))
+* **vm:** grow hyperion-01's disk to 60 GB ([#200](https://github.com/Brsalcedom/homelab-iac/issues/200)) ([647b643](https://github.com/Brsalcedom/homelab-iac/commit/647b643bb631182ae425f8e4e41fc87dbc0fedb1))
+
+
+### Bug Fixes
+
+* **vm:** keep iothread on hyperion-01's disk (tf-modules v1.4.0) ([#202](https://github.com/Brsalcedom/homelab-iac/issues/202)) ([565df5a](https://github.com/Brsalcedom/homelab-iac/commit/565df5a07afd44cc48c6324eb6da3b17ec8fa364))
+
 ## [7.3.0](https://github.com/Brsalcedom/homelab-iac/compare/v7.2.1...v7.3.0) (2026-10-20)
 
 

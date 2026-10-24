@@ -17,7 +17,7 @@ spec:
   sources:
     - repoURL: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts
       chart: secrets-operator
-      targetRevision: 0.11.12
+      targetRevision: 0.11.15
       helm:
         releaseName: secrets-operator
     - repoURL: https://github.com/Brsalcedom/homelab-iac
